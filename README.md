@@ -1,2 +1,2 @@
 # sql_engine
-RESPECT!
+Lightweight SQL Engine for managing a database, like SQLite.
