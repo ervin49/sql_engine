@@ -1,4 +1,4 @@
-/usr/bin/cmake -DCMAKE_BUILD_TYPE=Debug -DCMAKE_MAKE_PROGRAM=/opt/clion/bin/ninja/linux/x64/ninja -G Ninja -S /home/ervin/CLionProjects/untitled -B /home/ervin/CLionProjects/untitled/cmake-build-debug
+/usr/bin/cmake -DCMAKE_BUILD_TYPE=Debug -DCMAKE_MAKE_PROGRAM=/opt/clion/bin/ninja/linux/x64/ninja -G Ninja -S /home/ervin/CLionProjects/sql_engine -B /home/ervin/CLionProjects/sql_engine/cmake-build-debug
 CMake Error at CMakeLists.txt:1 (cmake_minimum_required):
   Compatibility with CMake < 3.5 has been removed from CMake.
 
