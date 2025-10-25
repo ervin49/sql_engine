@@ -1,98 +1,16 @@
 #include <cstring>
 #include <iostream>
 
+#include "Application.h"
+
 #define debug(x) std::cout << "variabila " << #x << " este " << x << std::endl;
-
-class Project {
-private:
-    std::string *words;
-    int noOfWords;
-
-public:
-    Project(std::string *words, int noOfWords) {
-        this->words = words;
-        this->noOfWords = noOfWords;
-    }
-
-    void parse_command() {
-        std::string firstWord = words[0];
-        if (firstWord == "create") {
-            std::string secondWord = words[1];
-            if (secondWord == "table") {
-                create_table();
-            } else if (secondWord == "index") {
-                create_index();
-            } else {
-                std::cout << "Wrong statement! You can create a table or an index.";
-            }
-        } else if (firstWord == "drop") {
-            std::string secondWord = words[1];
-            if (secondWord == "table") {
-                drop_table();
-            } else if (secondWord == "index") {
-                drop_index();
-            } else {
-                std::cout << "Wrong statement! You can drop a table or an index.";
-            }
-        } else if (firstWord == "display") {
-            display_table();
-        } else if (firstWord == "insert") {
-            create_table();
-        } else if (firstWord == "select") {
-            create_table();
-        } else if (firstWord == "delete") {
-        } else if (firstWord == "update") {
-        } else {
-            std::cout << "Command is wrong";
-        }
-    }
-
-
-    void create_table() {
-        if (words[2] == "if") {
-            if (words[3] != "not" || words[4] != "exists") {
-                std::cout << "Syntax error!";
-                return;
-            }
-            return;
-        }
-        std::cout << "Table created successfully.";
-    }
-
-    void create_index() {
-        std::cout << "Index created successfully.";
-    }
-
-    void drop_table() {
-        std::cout << "Dropped table succesfully.";
-    }
-
-    void drop_index() {
-        std::cout << "Dropped index successfully.";
-    }
-
-    void display_table() {
-        std::cout << "Dropped index successfully.";
-    }
-
-    void update_table() {
-        std::cout << "Updated table successfully.";
-    }
-
-    void delete_from() {
-    }
-};
-
 
 std::string *read_command_from_console(int &n);
 
+void startApplication();
+
 int main() {
-    int noOfWords;
-    std::string *words = read_command_from_console(noOfWords);
-    auto *project = new Project(words, noOfWords);
-    project->parse_command();
-    delete project;
-    delete[] words;
+    startApplication();
     return 0;
 }
 
@@ -120,4 +38,13 @@ std::string *read_command_from_console(int &n) {
     }
     n = noOfWords;
     return words;
+}
+
+void startApplication() {
+    int noOfWords;
+    std::string *words = read_command_from_console(noOfWords);
+    auto *application = new Application(words, noOfWords);
+    application->parse_command();
+    delete application;
+    delete[] words;
 }
