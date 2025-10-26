@@ -43,6 +43,7 @@ public:
         } else if (firstWord == "select") {
             create_table();
         } else if (firstWord == "delete") {
+            delete_from();
         } else if (firstWord == "update") {
         } else {
             std::cout << "Command is wrong";
@@ -56,17 +57,17 @@ public:
                 std::cout << "Syntax error!";
                 return;
             }
-            if (/*tabela exista*/) {
-                std::cout << "Table already exists.";
-                return;
-            }
-            //creare tabela
+            // if (/*tabela exista*/) {
+            //     std::cout << "Table already exists.";
+            //     return;
+            // }
+            // //creare tabela
             return;
         }
-        if (/*tabela exista*/) {
-            throw std::runtime_error("Error! Table already exists!");
-            return;
-        }
+        // if (/*tabela exista*/) {
+        //     throw std::runtime_error("Error! Table already exists!");
+        //     return;
+        // }
         //creare tabela
         std::cout << "Table created successfully.";
     }
