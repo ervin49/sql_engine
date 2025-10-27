@@ -38,7 +38,4 @@ public:
      }
 };
 
-
-
-
 #endif //UNTITLED_CATALOG_H

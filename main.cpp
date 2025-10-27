@@ -2,6 +2,7 @@
 #include <iostream>
 #include <string>
 #include "Application.h"
+#include "Catalog.h"
 
 #define debug(x) std::cout << "variabila " << #x << " este " << x << std::endl;
 
@@ -17,7 +18,7 @@ int main() {
 std::string *read_command_from_console(int &n) {
     std::string s;
     int noOfWords = 0;
-    
+
     std::getline(std::cin, s);
     //numaram cate spatii sunt in tot stringul
     for (int i = 0; i < s.length(); i++) {
@@ -42,23 +43,16 @@ std::string *read_command_from_console(int &n) {
 }
 
 void startApplication() {
-    bool running = true;
-    
     auto *application = new Application;
-
-    while(running)
-    {
+    while (true) {
         int noOfWords;
-        
+
         std::string *words = read_command_from_console(noOfWords);
         application->setQuery(words, noOfWords);
-        if(noOfWords == 1 && words[0] == "exit") {
-            running = false;
-        } 
-        else {
-            application->parse_command();
-
+        if (noOfWords == 1 && words[0] == "exit") {
+            break;
         }
+        application->parse_command();
 
         delete[] words;
     }

@@ -1,10 +1,14 @@
 //
 // Created by ervin on 10/25/25.
 //
-#include <iostream>
 #ifndef SQL_ENGINE_APPLICATION_H
 #define SQL_ENGINE_APPLICATION_H
 #include "Table.h"
+#include <iostream>
+
+#include "Catalog.h"
+
+auto *catalog = new Catalog;
 
 class Application {
 private:
@@ -12,17 +16,16 @@ private:
     int noOfWords;
 
 public:
-
     Application() {
-        this -> words = nullptr;
-        this -> noOfWords = 0;
+        this->words = nullptr;
+        this->noOfWords = 0;
     }
 
     ~Application() {
         delete[] this->words;
     }
+
     void setQuery(std::string *words, int noOfWords) {
-        delete[] this->words;
         this->words = words;
         this->noOfWords = noOfWords;
     }
@@ -68,18 +71,24 @@ public:
                 std::cout << "Syntax error!";
                 return;
             }
-            // if (/*tabela exista*/) {
-            //     std::cout << "Table already exists.";
-            //     return;
-            // }
-            // //creare tabela
+            std::string tableName = words[5];
+            if (catalog->already_exists(tableName)) {
+                std::cout << "Table already exists.";
+                return;
+            }
+            //we create the table
+            Table *table = new Table(2, tableName);
+            for (int i = 0; i < 2; i++) {
+                //table->setColumn(i, words[]);
+            }
+            catalog->addTable(table);
             return;
         }
         // if (/*tabela exista*/) {
         //     throw std::runtime_error("Error! Table already exists!");
         //     return;
         // }
-        //creare tabela
+        //we create the table
 
 
         std::cout << "Table created successfully.";
