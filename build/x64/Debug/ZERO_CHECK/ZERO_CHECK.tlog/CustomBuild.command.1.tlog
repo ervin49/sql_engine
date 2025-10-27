@@ -1,0 +1,10 @@
+^C:\USERS\ANDREI\SQL ENGINE\SQL_ENGINE-1\BUILD\CMAKEFILES\718E1998DF2D4ED5D6A4F6CD99268B6B\GENERATE.STAMP.RULE
+setlocal
+"C:\Program Files\CMake\bin\cmake.exe" "-SC:/Users/Andrei/SQL Engine/sql_engine-1" "-BC:/Users/Andrei/SQL Engine/sql_engine-1/build" --check-stamp-list CMakeFiles/generate.stamp.list --vs-solution-file "C:/Users/Andrei/SQL Engine/sql_engine-1/build/sql_engine.sln"
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal & call :cmErrorLevel %errorlevel% & goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd

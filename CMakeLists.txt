@@ -1,8 +1,10 @@
-project(untitled)
+cmake_minimum_required(VERSION 3.10)
+project(sql_engine)
 
-set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD 14)
 
-add_executable(untitled main.cpp
-        Application.h
-        Table.h
+add_executable(sql_engine 
+    main.cpp
+    Application.h
+    Table.h
 )

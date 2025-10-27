@@ -8,40 +8,42 @@
 
 class Table {
 private:
-    int size = 0;
+    int noOfColumns = 0;
     std::string name;
     std::string *columns = nullptr;
-    Table **addresses;
+    
 
 public:
     Table(int noOfColumns, std::string name) {
         this->name = name;
-        columns = new std::string[noOfColumns];
-        //we create a new array of pointers to objects with updated size
-        Table **newAddresses = new Table *[size + 1];
-        int i = 0;
-        //we initialize the new array of pointers with the pointers from the old array
-        for (Table **p = &(addresses[0]); p < &(addresses[size]); p++, i++) {
-            newAddresses[i] = *p;
-        }
-        //we update the size and the addresses variable with the
-        //new addresses variable we just made
-        size++;
-        addresses = newAddresses;
+        this->noOfColumns = noOfColumns;
+        columns = new std::string[this -> noOfColumns];
+        //adaugam tabela in catalog
+        
     }
 
     Table() {
     }
 
-    static bool already_exists(std::string tableName) {
-        //we iterate over the addresses array and compare each name
-        //with the name we are checking for
-        for (Table **p = &(addresses[0]); p < &(addresses[size]); p++) {
-            if ((*p)->name == tableName) {
-                return true;
-            }
+    Table(const Table &other){
+        name = other.name;
+        noOfColumns = other.noOfColumns;
+        columns = new std::string[noOfColumns];
+        for(int i = 0; i < noOfColumns; i++) {
+            columns[i] = other.columns[i];
         }
-        return false;
+        //adaugam tabela in catalog
+    }
+
+    void setColumn(int index, std::string columnName) {
+        if(index < 0 || index >= noOfColumns) {
+            throw std::out_of_range("Index out of range");
+        }
+        columns[index] = columnName;
+    }
+
+    std::string getName() {
+        return this -> name;
     }
 };
 

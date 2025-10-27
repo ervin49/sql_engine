@@ -1,9 +1,10 @@
 //
 // Created by ervin on 10/25/25.
 //
-
+#include <iostream>
 #ifndef SQL_ENGINE_APPLICATION_H
 #define SQL_ENGINE_APPLICATION_H
+#include "Table.h"
 
 class Application {
 private:
@@ -11,7 +12,17 @@ private:
     int noOfWords;
 
 public:
-    Application(std::string *words, int noOfWords) {
+
+    Application() {
+        this -> words = nullptr;
+        this -> noOfWords = 0;
+    }
+
+    ~Application() {
+        delete[] this->words;
+    }
+    void setQuery(std::string *words, int noOfWords) {
+        delete[] this->words;
         this->words = words;
         this->noOfWords = noOfWords;
     }
@@ -69,6 +80,8 @@ public:
         //     return;
         // }
         //creare tabela
+
+
         std::cout << "Table created successfully.";
     }
 
