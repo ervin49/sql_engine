@@ -6,6 +6,8 @@
 
 #define debug(x) std::cout << "variabila " << #x << " este " << x << std::endl;
 
+std::string s;
+
 std::string *read_command_from_console(int &n);
 
 void startApplication();
@@ -16,7 +18,6 @@ int main() {
 }
 
 std::string *read_command_from_console(int &n) {
-    std::string s;
     int noOfWords = 0;
 
     std::getline(std::cin, s);
@@ -48,7 +49,7 @@ void startApplication() {
         int noOfWords;
 
         std::string *words = read_command_from_console(noOfWords);
-        application->setQuery(words, noOfWords);
+        application->setQuery(words, noOfWords,s);
         if (noOfWords == 1 && words[0] == "exit") {
             break;
         }

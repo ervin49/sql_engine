@@ -14,6 +14,7 @@ class Application {
 private:
     std::string *words;
     int noOfWords;
+    std::string s;
 
 public:
     Application() {
@@ -25,7 +26,8 @@ public:
         delete[] this->words;
     }
 
-    void setQuery(std::string *words, int noOfWords) {
+    void setQuery(std::string *words, int noOfWords,std::string s) {
+        this->s = s;
         this->words = words;
         this->noOfWords = noOfWords;
     }
@@ -66,7 +68,7 @@ public:
 
 
     void create_table() {
-        if (words[2] == "if") {
+        if (noOfWords >= 3 && words[2] == "if") {
             if (words[3] != "not" || words[4] != "exists") {
                 std::cout << "Syntax error!";
                 return;
@@ -81,16 +83,16 @@ public:
             for (int i = 0; i < 2; i++) {
                 //table->setColumn(i, words[]);
             }
-            catalog->addTable(table);
+            catalog->add_table(table);
             return;
         }
-        // if (/*tabela exista*/) {
-        //     throw std::runtime_error("Error! Table already exists!");
-        //     return;
-        // }
-        //we create the table
-
-
+         try {
+           std::string tableName;
+           Table* table = new Table(,tableName);
+           catalog->add_table(table);
+         }catch (std::exception& e) {
+           std::cout<<e.what();
+         }
         std::cout << "Table created successfully.";
     }
 
