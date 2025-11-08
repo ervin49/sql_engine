@@ -76,6 +76,78 @@ public:
                 std::cout << "Table already exists.";
                 return;
             }
+
+
+            if (noOfWords != 7) {//daca n are field introdus sau daca mai are ceva introdus dupa field/field-uri
+              std::cout << "Too many spaces";
+              return;
+            }
+            if (words[6][0] != '(' or words[6][1] != '(' or words[6][words[6].length()-1] != ')' or words[6][words[6].length()-2] != ')') {
+              std::cout << "Invalid format primele 2";
+              return;
+            }
+
+            for (int i = 0; i < words[6].length(); i++){
+              if (std::isalnum(words[6][i]) || words[6][i] == ',' || words[6][i] == '(' || words[6][i] == ')') {
+                //okey
+              }
+              else {
+                std::cout << "Invalid format!!!!!!";//se accepta doar ((x,z3,f,d)), fara spatii in plus sau alte caractere
+                return;
+              }
+            }
+
+          int noOfColumns = 1;
+
+          for (int i = 2; i < words[6].length()-2; i++) {
+
+            if (words[6][i] == ')' and (words[6][i+1] != ',' or words[6][i+2] != '(')) {
+              std::cout << "Invalid format separator";// "separatorul" de coloane este "),("
+              return;
+            }
+
+            if (words[6][i] == ')' and words[6][i+1] == ',' and words[6][i+2] == '(') {
+              i+=2;//sarim peste separator
+              noOfColumns++;
+
+
+            }
+              if (words[6][i] == '(') {
+              std::cout << "Invalid format ( in plus" << i;// '('
+              return;
+            }
+          }
+
+          auto *columns = new std::string[noOfColumns+1];
+          int k = 0;
+
+          for (int i = 2; i < words[6].length()-1; i++) {
+            if (words[6][i] == ')') {
+              k++;
+              i+=2;
+            }
+            else {
+              columns[k] += words[6][i];
+            }
+          }
+
+          for (int i =0; i<k; i++) {
+            std::cout << columns[i]<<std::endl;
+          }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
             //we create the table
             Table *table = new Table(2, tableName);
             for (int i = 0; i < 2; i++) {
