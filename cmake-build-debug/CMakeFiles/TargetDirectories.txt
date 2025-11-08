@@ -1,3 +1,0 @@
-C:/Users/Andrei/CLionProjects/sql_engine/cmake-build-debug/CMakeFiles/sql_engine.dir
-C:/Users/Andrei/CLionProjects/sql_engine/cmake-build-debug/CMakeFiles/edit_cache.dir
-C:/Users/Andrei/CLionProjects/sql_engine/cmake-build-debug/CMakeFiles/rebuild_cache.dir
