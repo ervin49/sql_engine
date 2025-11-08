@@ -5,11 +5,15 @@
 class Catalog {
 private:
 
-    Table **tables = nullptr;
-    int noOfTables = 0;
-
+    Table **tables;
+    int noOfTables;
 public:
-    void addTable(Table *newTable) {
+    Catalog() {
+      tables = nullptr;
+      noOfTables = 0;
+    }
+
+    void add_table(Table *newTable) {
         //we create a new array of pointers to objects with updated size
         Table **newAddresses = new Table *[noOfTables + 1];
         int i = 0;
@@ -26,9 +30,10 @@ public:
         noOfTables++;
         tables = newAddresses;
     }
+
+    //we iterate over the addresses array and compare each name
+    //with the name we are checking for
     bool already_exists(std::string tableName) {
-         //we iterate over the addresses array and compare each name
-         //with the name we are checking for
          for (int i = 0; i < noOfTables; i++) {
              if (tables[i]->getName() == tableName) {
                  return true;
@@ -36,6 +41,15 @@ public:
          }
          return false;
      }
+
+    //print all the tables
+    void print_tables() {
+      for (Table* p = tables[0];p < tables[noOfTables];p++) {
+          std::cout<<p->getName();
+          p->print_table();
+          std::cout<<std::endl<<std::endl<<std::endl;
+      }
+    }
 };
 
 #endif //UNTITLED_CATALOG_H

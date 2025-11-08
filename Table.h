@@ -17,10 +17,6 @@ public:
         this->name = name;
         this->noOfColumns = noOfColumns;
         columns = new std::string[this->noOfColumns];
-        //adaugam tabela in catalog
-    }
-
-    Table() {
     }
 
     Table(const Table &other) {
@@ -42,6 +38,14 @@ public:
 
     std::string getName() {
         return this->name;
+    }
+
+    void print_table() {
+      for (int i = 0; i < noOfColumns; i++) {
+        std::cout<<columns[i]<<"-----";
+      }
+      std::cout<<std::endl;
+      //print rows
     }
 };
 
