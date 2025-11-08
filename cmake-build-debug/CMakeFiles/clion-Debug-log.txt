@@ -1,4 +1,0 @@
-/usr/bin/cmake -DCMAKE_BUILD_TYPE=Debug -DCMAKE_MAKE_PROGRAM=/opt/clion/bin/ninja/linux/x64/ninja -G Ninja -S /home/ervin/CLionProjects/sql_engine -B /home/ervin/CLionProjects/sql_engine/cmake-build-debug
--- Configuring done (0.1s)
--- Generating done (0.0s)
--- Build files have been written to: /home/ervin/CLionProjects/sql_engine/cmake-build-debug

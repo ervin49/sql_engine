@@ -8,6 +8,36 @@
 #include <cctype>
 #include "Catalog.h"
 
+
+std::string* parse_column(const std::string& column) {
+    int noOfFields = 1;
+    for (int i=0; i<column.length(); i++) {
+        if (column[i] == ',') {
+            noOfFields++;
+        }
+
+    }
+    if (noOfFields != 4) {
+        std::cout << "Wrong statement! name/type/size/def_val";
+        return nullptr;
+    }
+
+    int k=0;
+    std::string *fields = new std::string[noOfFields];
+
+    for (int i=0; i<column.length(); i++) {
+        if (column[i] == ',') {
+            k++;
+        }
+        else {
+            fields[k] += column[i];
+        }
+    }
+
+
+    return fields;
+}
+
 auto *catalog = new Catalog;
 
 class Application {
@@ -114,10 +144,10 @@ public:
 
 
             }
-              if (words[6][i] == '(') {
-              std::cout << "Invalid format ( in plus" << i;// '('
-              return;
-            }
+            //   if (words[6][i] == '(') {
+            //   std::cout << "Invalid format ( in plus" << i;// '('
+            //   return;
+            // }
           }
 
           auto *columns = new std::string[noOfColumns+1];
@@ -133,9 +163,19 @@ public:
             }
           }
 
-          for (int i =0; i<k; i++) {
-            std::cout << columns[i]<<std::endl;
-          }
+
+            for (int j = 0; j<noOfColumns; j++) {
+                std::string *fields = parse_column(columns[j]);
+
+                for (int i = 0; i<4; i++)
+                    std::cout<<fields[i]<< ' ';
+                std::cout << std::endl;
+
+            }
+
+          // for (int i =0; i<k; i++) {
+          //   std::cout << columns[i]<<std::endl;
+          // }
 
 
 
