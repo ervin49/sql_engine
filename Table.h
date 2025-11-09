@@ -9,14 +9,18 @@
 class Table {
 private:
     int noOfColumns = 0;
+    int noOfRows = 0;
     std::string name;
     std::string *columns = nullptr;
+    std::string **rows = nullptr;
 
 public:
-    Table(int noOfColumns, std::string name) {
+    Table(int noOfColumns,int noOfRows, std::string name) {
         this->name = name;
         this->noOfColumns = noOfColumns;
+        this->noOfRows = noOfRows;
         columns = new std::string[this->noOfColumns];
+        rows = new std::string*[this->noOfRows];
     }
 
     Table(const Table &other) {
@@ -36,6 +40,24 @@ public:
         columns[index] = columnName;
     }
 
+    void addRow(std::string* newRow) {
+      std::string** newRows = new std::string*[noOfRows + 1];
+
+      //transfer the values from old rows array to the newRows array
+      for (int i = 0; i < noOfRows; i++) {
+        newRows[i] = rows[i];
+      }
+
+      newRows[noOfRows] = newRow;
+      rows = newRows;
+      for (int i = 0; i < noOfRows ; i++) {
+        delete newRows[i];
+      }
+      delete[] newRows;
+      noOfRows++;
+      newRows = nullptr;
+    }
+
     std::string getName() {
         return this->name;
     }
@@ -45,7 +67,12 @@ public:
         std::cout<<columns[i]<<"-----";
       }
       std::cout<<std::endl;
-      //print rows
+      for (int i = 0; i < noOfRows; i++) {
+        for (int j = 0; j < noOfRows; j++) {
+          std::cout<<rows[i][j];
+        }
+        std::cout<<std::endl;
+      }
     }
 };
 
