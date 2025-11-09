@@ -4,24 +4,23 @@
 
 class Catalog {
 private:
-
     Table **tables;
     int noOfTables;
+
 public:
     Catalog() {
-      tables = nullptr;
-      noOfTables = 0;
+        tables = nullptr;
+        noOfTables = 0;
     }
 
     void add_table(Table *newTable) {
         //we create a new array of pointers to objects with updated size
         Table **newAddresses = new Table *[noOfTables + 1];
-        int i = 0;
         //we initialize the new array of pointers with the pointers from the old array
         for (int i = 0; i < noOfTables; i++) {
             newAddresses[i] = tables[i]; // copiaza pointerul Table*
         }
-        
+
         //we add the new table at the end of the new array
         newAddresses[noOfTables] = newTable;
         //we update the size and the addresses variable with the
@@ -34,21 +33,21 @@ public:
     //we iterate over the addresses array and compare each name
     //with the name we are checking for
     bool already_exists(std::string tableName) {
-         for (int i = 0; i < noOfTables; i++) {
-             if (tables[i]->getName() == tableName) {
-                 return true;
-             }
-         }
-         return false;
-     }
+        for (int i = 0; i < noOfTables; i++) {
+            if (tables[i]->getName() == tableName) {
+                return true;
+            }
+        }
+        return false;
+    }
 
     //print all the tables
     void print_tables() {
-      for (Table* p = tables[0];p < tables[noOfTables];p++) {
-          std::cout<<p->getName();
-          p->print_table();
-          std::cout<<std::endl<<std::endl<<std::endl;
-      }
+        for (Table *p = tables[0]; p < tables[noOfTables]; p++) {
+            std::cout << p->getName();
+            p->print_table();
+            std::cout << std::endl << std::endl << std::endl;
+        }
     }
 };
 
