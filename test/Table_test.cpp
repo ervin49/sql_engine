@@ -6,7 +6,7 @@
 #include <assert.h>
 
 void should_add_row() {
-    Table *studenti = new Table(5, 2, "studenti");
+    Table *studenti = new Table(5, "studenti");
     studenti->setColumn(0, "CNP");
     studenti->setColumn(1, "Nume");
     studenti->setColumn(2, "Varsta");
