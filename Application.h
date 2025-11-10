@@ -212,7 +212,31 @@ public:
     }
 
     void create_index() {
-        std::cout << "Index created successfully.";
+        if (noOfWords >= 6 && words[2] == "if") {
+            if (words[3] != "not" || words[4] != "exists" || words[6] != "on") {
+                std::cout << "Syntax error!";
+                return;
+            }
+            std::string indexName = words[5];
+            std::string tableName = words[7];
+            if (catalog->already_exists(indexName)) {//trebuie modificat, nu putem folosi catalog
+                std::cout << "Table already exists.";
+                return;
+            }
+
+            if (words[6][0] != '(' || words[6][words[6].length()-1] != ')' ) {
+                std::cout << "Invalid format paranteze";
+            }
+
+            std::string columnName ;
+            for (int i=1; i<words[6].length()-1; i++) {
+                columnName += words[6][i];
+            }
+
+            // if (coloana exists in tableName) {
+            //     *create index in tableName*
+            // }
+        }
     }
 
     void drop_table() {
