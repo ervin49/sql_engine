@@ -10,17 +10,21 @@
 class Table {
 private:
     int noOfColumns = 0;
-    int noOfRows = 0;
+    int noOfRows;
     std::string name;
     std::string *columns = nullptr;
-    std::string **rows = nullptr;
+    std::string **rows;
 
 public:
-    Table(int noOfColumns, std::string name) {
+    Table(int noOfColumns, int noOfRows, std::string name) {
         this->name = name;
         this->noOfColumns = noOfColumns;
-        this->noOfRows = 0;
+        this->noOfRows = noOfRows;
         columns = new std::string[this->noOfColumns];
+        rows = new std::string *[this->noOfRows];
+        for (int i = 0; i < noOfRows; i++) {
+            rows[i] = new std::string[this->noOfColumns];
+        }
     }
 
     Table(const Table &other) {
@@ -31,6 +35,13 @@ public:
             columns[i] = other.columns[i];
         }
         //adaugam tabela in catalog
+    }
+
+    ~Table() {
+        for (int i = 0; i < noOfRows; i++) {
+            delete[] rows[i];
+        }
+        delete[] rows;
     }
 
     void setNoOfColumns(int noOfColumns) {
@@ -45,10 +56,18 @@ public:
             throw "You need a valid number of rows!";
         }
         this->noOfRows = noOfRows;
-        rows = new std::string *[noOfRows];
+        std::string **newRows = new std::string *[noOfRows];
         for (int i = 0; i < noOfRows; i++) {
-            rows[i] = new std::string[noOfColumns];
+            newRows[i] = new std::string[noOfColumns];
+            for (int j = 0; j < noOfRows; j++) {
+                newRows[i][j] = rows[i][j];
+            }
         }
+        for (int i = 0; i < noOfRows; i++) {
+            delete[] rows[i];
+        }
+        delete[] rows;
+        rows = newRows;
     }
 
     int getNoOfColumns() {
@@ -68,15 +87,28 @@ public:
 
     void addRow(std::string *newRow) {
         std::string **newRows = new std::string *[noOfRows + 1];
+        for (int i = 0; i < noOfRows; i++) {
+            newRows[i] = new std::string[noOfColumns];
+        }
 
         //transfer the values from old rows array to the newRows array
         for (int i = 0; i < noOfRows; i++) {
-            newRows[i] = rows[i];
+            for (int j = 0; j < noOfColumns; j++) {
+                newRows[i][j] = rows[i][j]; //seg fault
+            }
         }
 
         //add the new row
-        newRows[noOfRows] = newRow;
+        for (int i = 0; i < noOfColumns; i++) {
+            std::cout << '\'' << newRow[i] << '\'';
+        }
+        std::cout << std::endl;
         rows = newRows;
+        for (int i = 0; i < noOfRows; i++) {
+            for (int j = 0; j < noOfRows; j++) {
+                std::cout << rows[i][j];
+            }
+        }
         delete[] newRows;
         this->noOfRows++;
         newRows = nullptr;
@@ -93,6 +125,11 @@ public:
             maxLengthOnColumn[i] = 0;
         }
 
+        for (int j = 0; j < noOfColumns; j++) {
+            for (int i = 0; i < noOfRows; i++) {
+                std::cout << rows[i][j].length();
+            }
+        }
         //we find the max length of each column
         for (int j = 0; j < noOfColumns; j++) {
             for (int i = 0; i < noOfRows; i++) {
@@ -105,7 +142,8 @@ public:
         //we display the column names
         for (int i = 0; i < noOfColumns - 1; i++) {
             std::cout << columns[i];
-            for (int j = 0; j < maxLengthOnColumn[i]; j++) {
+            const int currLength = maxLengthOnColumn[i];
+            for (int j = 0; j < currLength; j++) {
                 std::cout << '-';
             }
         }
