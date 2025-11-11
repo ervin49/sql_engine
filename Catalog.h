@@ -47,6 +47,16 @@ public:
         }
         return 0;
     }
+
+    Table* getTable(std::string tableName) {
+        for (int i = 0; i < noOfTables; i++) {
+            if (tables[i]->getName() == tableName) {
+                return tables[i];
+            }
+        }
+        return nullptr;
+    }
+
     //print all the tables
     void print_tables() {
         for (Table *p = tables[0]; p < tables[noOfTables]; p++) {
