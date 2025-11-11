@@ -1,8 +1,10 @@
 #include "../Catalog.h"
+
+#include "gtest/gtest.h"
 //
 // Created by ervin on 11/9/25.
 //
-void shouldAddTableToCatalog() {
+TEST(CatalogTests, shouldAddTableToCatalog) {
     Catalog *catalog = new Catalog();
     Table *studenti = new Table(5, "studenti");
     studenti->setColumn(0, "CNP");
@@ -16,6 +18,9 @@ void shouldAddTableToCatalog() {
     studenti->addRow(student1);
     studenti->addRow(student2);
     studenti->addRow(student3);
-    catalog->add_table(studenti);
+    catalog->add_table(*studenti);
+    catalog->add_table(*studenti);
+    EXPECT_EQ(catalog->getNoOfTables(), 2);
+    catalog->print_tables();
     delete catalog;
 }

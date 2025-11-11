@@ -33,6 +33,8 @@ public:
         //adaugam tabela in catalog
     }
 
+    Table();
+
     void setNoOfColumns(int noOfColumns) {
         if (noOfColumns <= 0) {
             throw "You need a valid number of columns!";

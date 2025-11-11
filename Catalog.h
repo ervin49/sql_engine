@@ -4,7 +4,7 @@
 
 class Catalog {
 private:
-    Table **tables;
+    Table *tables;
     int noOfTables;
 
 public:
@@ -13,45 +13,48 @@ public:
         noOfTables = 0;
     }
 
-    void add_table(Table *newTable) {
+    void add_table(Table newTable) {
         //we create a new array of pointers to objects with updated size
-        Table **newAddresses = new Table *[noOfTables + 1];
+        Table *newTables = new Table[noOfTables + 1];
         //we initialize the new array of pointers with the pointers from the old array
         for (int i = 0; i < noOfTables; i++) {
-            newAddresses[i] = tables[i]; // copiaza pointerul Table*
+            newTables[i] = tables[i]; // copiaza pointerul Table*
         }
 
         //we add the new table at the end of the new array
-        newAddresses[noOfTables] = newTable;
-        //we update the size and the addresses variable with the
-        //new addresses variable we just made
-        delete[] tables;
+        newTables[noOfTables] = newTable;
+        tables = newTables;
         noOfTables++;
-        tables = newAddresses;
+        delete[] newTables;
+    }
+
+    int getNoOfTables() {
+        return noOfTables;
     }
 
     //we iterate over the addresses array and compare each name
     //with the name we are checking for
     bool already_exists(std::string tableName) {
         for (int i = 0; i < noOfTables; i++) {
-            if (tables[i]->getName() == tableName) {
+            if (tables[i].getName() == tableName) {
                 return true;
             }
         }
         return false;
     }
+
     int getNumberOfColumns(std::string tableName) {
         for (int i = 0; i < noOfTables; i++) {
-            if (tables[i]->getName() == tableName)
-                return tables[i]->getNoOfColumns();
+            if (tables[i].getName() == tableName)
+                return tables[i].getNoOfColumns();
         }
         return 0;
     }
 
-    Table* getTable(std::string tableName) {
+    Table *getTable(std::string tableName) {
         for (int i = 0; i < noOfTables; i++) {
-            if (tables[i]->getName() == tableName) {
-                return tables[i];
+            if (tables[i].getName() == tableName) {
+                return &tables[i];
             }
         }
         return nullptr;
@@ -59,10 +62,10 @@ public:
 
     //print all the tables
     void print_tables() {
-        for (Table *p = tables[0]; p < tables[noOfTables]; p++) {
-            std::cout << p->getName();
+        for (Table *p = &tables[0]; p < &tables[noOfTables]; p++) {
+            std::cout << p->getName() << std::endl;
             p->print_table();
-            std::cout << std::endl << std::endl << std::endl;
+            std::cout << std::endl << std::endl;
         }
     }
 };
