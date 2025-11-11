@@ -126,8 +126,9 @@ public:
                 return;
             }
 
-      if (noOfWords != 7) { // daca n are field introdus sau daca mai are ceva
-                            // introdus dupa field/field-uri
+      if (noOfWords != 7) {
+        // daca n are field introdus sau daca mai are ceva
+        // introdus dupa field/field-uri
         std::cout << "Too many spaces";
         return;
       }
@@ -145,7 +146,7 @@ public:
         } else {
           std::cout
               << "Invalid format!!!!!!"; // se accepta doar ((x,z3,f,d)), fara
-                                         // spatii in plus sau alte caractere
+          // spatii in plus sau alte caractere
           return;
         }
       }
@@ -153,11 +154,10 @@ public:
       int noOfColumns = 1;
 
       for (int i = 2; i < words[6].length() - 2; i++) {
-
         if (words[6][i] == ')' and
             (words[6][i + 1] != ',' or words[6][i + 2] != '(')) {
           std::cout << "Invalid format separator"; // "separatorul" de coloane
-                                                   // este "),("
+          // este "),("
           return;
         }
 
@@ -212,7 +212,7 @@ public:
     }
     try {
       std::string tableName;
-      Table *table = new Table(2, , tableName);
+      Table *table = new Table(2, tableName);
       catalog->add_table(table);
     } catch (std::exception &e) {
       std::cout << e.what();
@@ -228,7 +228,8 @@ public:
       std::string indexName = words[5];
       std::string tableName = words[7];
       if (catalog->already_exists(
-              indexName)) { // trebuie modificat, nu putem folosi catalog
+        indexName)) {
+        // trebuie modificat, nu putem folosi catalog
         std::cout << "Table already exists.";
         return;
       }
@@ -252,7 +253,8 @@ public:
 
   void drop_index() { std::cout << "Dropped index successfully."; }
 
-  void display_table() {}
+  void display_table() {
+  }
 
   void update_table() { std::cout << "Updated table successfully."; }
 

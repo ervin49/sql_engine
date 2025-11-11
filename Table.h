@@ -98,12 +98,12 @@ public:
     }
 
     void print_table() {
+        std::cout << name << std::endl;
         int *maxLengthOnColumn = new int[noOfColumns];
         //we initialize all the max lenghts with 0
         for (int i = 0; i < noOfColumns; i++) {
             maxLengthOnColumn[i] = 0;
         }
-
         //we find the max length of each column
         for (int j = 0; j < noOfColumns; j++) {
             for (int i = 0; i < noOfRows; i++) {
@@ -118,12 +118,20 @@ public:
             }
         }
 
+        //offset for displaying the values
+        int offset = 10;
+
         //we display the column names
         for (int i = 0; i < noOfColumns - 1; i++) {
             std::cout << columns[i];
-            const int currLength = maxLengthOnColumn[i] - columns[i].length() + 3;
-            for (int j = 0; j < currLength; j++) {
-                std::cout << '-';
+            if (columns[i].length() == maxLengthOnColumn[i]) {
+                for (int k = 0; k < offset; k++) {
+                    std::cout << '-';
+                }
+            } else {
+                for (int k = 0; k < maxLengthOnColumn[i] - columns[i].length() + offset; k++) {
+                    std::cout << '-';
+                }
             }
         }
         std::cout << columns[noOfColumns - 1] << std::endl;
@@ -132,9 +140,15 @@ public:
         for (int i = 0; i < noOfRows; i++) {
             for (int j = 0; j < noOfColumns; j++) {
                 std::cout << rows[i][j];
-                const int currLength = maxLengthOnColumn[i] - rows[i][j].length() + 3;
-                for (int j = 0; j < currLength; j++) {
-                    std::cout << ' ';
+                if (rows[i][j].length() == maxLengthOnColumn[j]) {
+                    for (int k = 0; k < offset && j < noOfColumns - 1; k++) {
+                        std::cout << ' ';
+                    }
+                } else {
+                    for (int k = 0; k < maxLengthOnColumn[j] - rows[i][j].length() + offset && j < noOfColumns - 1; k
+                         ++) {
+                        std::cout << ' ';
+                    }
                 }
             }
             std::cout << std::endl;
