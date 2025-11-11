@@ -17,10 +17,6 @@ std::string* parse_column(const std::string& column) {
         }
 
     }
-    if (noOfFields != 4) {
-        std::cout << "Wrong statement! name/type/size/def_val";
-        return nullptr;
-    }
 
     int k=0;
     std::string *fields = new std::string[noOfFields];
@@ -85,7 +81,7 @@ public:
         } else if (firstWord == "display") {
             display_table();
         } else if (firstWord == "insert") {
-            create_table();
+            insert_into_table();
         } else if (firstWord == "select") {
             create_table();
         } else if (firstWord == "delete") {
@@ -95,6 +91,31 @@ public:
             std::cout << "Command is wrong";
         }
     }
+
+    void insert_into_table() {
+        if (words[1] != "into" || words[3] != "values") {
+            std::cout<<"Syntax error.";
+            return;
+        }
+        std::string tableName = words[2];
+        if (!catalog->already_exists(tableName)) {
+            std::cout<<"Table does not exists";
+            return;
+        }
+
+        std::string *inputFields = parse_column(words[4]);
+
+        if (inputFields->length() != catalog->getNumberOfColumns(tableName)) {
+            std::cout<<"Invalid input";
+            return;
+        }
+
+        Table* table = catalog->getTable(tableName);
+        table->addRow(inputFields);
+
+
+    }
+
 
 
     void create_table() {
@@ -167,6 +188,10 @@ public:
             for (int j = 0; j<noOfColumns; j++) {
                 std::string *fields = parse_column(columns[j]);
 
+                if (fields->length() != 4) {
+                    std::cout<<"Every column should contain only 4 fields.";
+                    return;
+                }
                 for (int i = 0; i<4; i++)
                     std::cout<<fields[i]<< ' ';
                 std::cout << std::endl;
