@@ -3,7 +3,6 @@
 #include <string>
 #include <cctype>
 #include "Application.h"
-#include "Catalog.h"
 
 #define debug(x) std::cout << "variabila " << #x << " este " << x << std::endl;
 
@@ -24,7 +23,7 @@ std::string *read_command_from_console(int &n) {
     std::getline(std::cin, s);
     //numaram cate spatii sunt in tot stringul
     for (int i = 0; i < s.length(); i++) {
-        if (s[i-1]!= ' ' && s[i]== ' ')
+        if (s[i] == ' ')
             noOfWords++;
     }
     noOfWords++; //numarul de cuvinte e egal cu numarul de spatii + 1
@@ -32,7 +31,7 @@ std::string *read_command_from_console(int &n) {
     auto *words = new std::string[noOfWords];
     int i = 0, currentWordIndex = 0;
     while (i < s.length()) {
-        if (s[i-1]!= ' ' && s[i]== ' ') {
+        if (s[i] == ' ') {
             currentWordIndex++;
         } else {
             //adaugam caracterele direct lowercase, ca stringul sa fie case-insensitive
@@ -50,7 +49,7 @@ void startApplication() {
         int noOfWords;
 
         std::string *words = read_command_from_console(noOfWords);
-        application->setQuery(words, noOfWords,s);
+        application->setQuery(words, noOfWords, s);
         if (noOfWords == 1 && words[0] == "exit") {
             break;
         }

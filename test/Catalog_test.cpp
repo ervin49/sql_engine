@@ -21,7 +21,7 @@ TEST(CatalogTests, shouldAddTableToCatalog) {
     studenti->addRow(student3);
     catalog->add_table(*studenti);
     catalog->add_table(*studenti);
-    catalog->print_tables();
+    EXPECT_EQ(catalog->getNoOfTables(), 2);
     delete catalog;
     delete studenti;
 }

@@ -18,7 +18,7 @@ public:
         Table *newTables = new Table [noOfTables + 1];
 
         for (int i = 0; i < noOfTables; i++) {
-            newTables[i] = newTable;
+            newTables[i] = tables[i];
         }
 
         //we add the new table at the end of the new array
