@@ -26,14 +26,27 @@ public:
     Table(const Table &other) {
         name = other.name;
         noOfColumns = other.noOfColumns;
+        noOfRows = other.noOfRows;
         columns = new std::string[noOfColumns];
         for (int i = 0; i < noOfColumns; i++) {
             columns[i] = other.columns[i];
         }
+
+        rows = new std::string *[noOfRows];
+        for (int i = 0; i < noOfRows; i++) {
+            rows[i] = new std::string[noOfColumns];
+        }
+
+        for (int i = 0; i < noOfRows; i++) {
+            for (int j = 0; j < noOfColumns; j++) {
+                rows[i][j] = other.rows[i][j];
+            }
+        }
+
         //adaugam tabela in catalog
     }
 
-    Table();
+    Table() = default;
 
     void setNoOfColumns(int noOfColumns) {
         if (noOfColumns <= 0) {
@@ -100,7 +113,7 @@ public:
     }
 
     void print_table() {
-        std::cout << name << std::endl;
+        std::cout << '[' << name << ']' << std::endl;
         int *maxLengthOnColumn = new int[noOfColumns];
         //we initialize all the max lenghts with 0
         for (int i = 0; i < noOfColumns; i++) {

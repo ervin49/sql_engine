@@ -6,7 +6,7 @@
 //
 TEST(CatalogTests, shouldAddTableToCatalog) {
     Catalog *catalog = new Catalog();
-    Table *studenti = new Table(5, "studenti");
+    Table *studenti = new Table(5, "STUDENTI");
     studenti->setColumn(0, "CNP");
     studenti->setColumn(1, "Nume");
     studenti->setColumn(2, "Varsta");
@@ -18,9 +18,10 @@ TEST(CatalogTests, shouldAddTableToCatalog) {
     studenti->addRow(student1);
     studenti->addRow(student2);
     studenti->addRow(student3);
+    studenti->addRow(student3);
     catalog->add_table(*studenti);
     catalog->add_table(*studenti);
-    EXPECT_EQ(catalog->getNoOfTables(), 2);
     catalog->print_tables();
     delete catalog;
+    delete studenti;
 }

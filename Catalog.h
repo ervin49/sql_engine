@@ -15,17 +15,16 @@ public:
 
     void add_table(Table newTable) {
         //we create a new array of pointers to objects with updated size
-        Table *newTables = new Table[noOfTables + 1];
-        //we initialize the new array of pointers with the pointers from the old array
+        Table *newTables = new Table [noOfTables + 1];
+
         for (int i = 0; i < noOfTables; i++) {
-            newTables[i] = tables[i]; // copiaza pointerul Table*
+            newTables[i] = newTable;
         }
 
         //we add the new table at the end of the new array
         newTables[noOfTables] = newTable;
         tables = newTables;
         noOfTables++;
-        delete[] newTables;
     }
 
     int getNoOfTables() {
@@ -62,8 +61,8 @@ public:
 
     //print all the tables
     void print_tables() {
+        std::cout << std::endl;
         for (Table *p = &tables[0]; p < &tables[noOfTables]; p++) {
-            std::cout << p->getName() << std::endl;
             p->print_table();
             std::cout << std::endl << std::endl;
         }
