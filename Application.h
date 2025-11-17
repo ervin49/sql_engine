@@ -6,7 +6,9 @@
 #include "Table.h"
 #include <iostream>
 #include <cctype>
-#include "Catalog.h"
+
+#include "Index_Catalog.h"
+#include "Table_Catalog.h"
 
 
 std::string *parse_column(const std::string &column, int &noOfFields) {
@@ -29,7 +31,8 @@ std::string *parse_column(const std::string &column, int &noOfFields) {
     return fields;
 }
 
-auto *catalog = new Catalog;
+inline auto *tableCatalog = new Table_Catalog;
+inline auto *indexCatalog = new Index_Catalog;
 
 class Application {
 private:
@@ -114,6 +117,21 @@ public:
                 return;
             }
             update_table();
+        } else if (firstWord == "debug") {
+            if (noOfWords == 1) {
+                std::cout << "tables or indexes?" << std::endl;
+            } else {
+                if (words[1] == "tables") {
+                    if (tableCatalog->getNoOfTables() == 0) {
+                        std::cout << "There are no tables!" << std::endl;
+                    } else {
+                        std::cout << "The tables are:" << std::endl;
+                        tableCatalog->print_tables();
+                    }
+                } else if (words[1] == "indexes") {
+                    //urmeaza
+                }
+            }
         } else {
             std::cout << "Command is wrong. Please enter a new command. " << std::endl;
         }
@@ -133,7 +151,7 @@ public:
             return;
         }
         std::string tableName = words[2];
-        if (!catalog->already_exists(tableName)) {
+        if (!tableCatalog->table_exists(tableName)) {
             std::cout << "Table does not exist" << std::endl;
             return;
         }
@@ -141,12 +159,12 @@ public:
         int noOfFields;
         std::string *inputFields = parse_column(words[4], noOfFields);
 
-        if (inputFields->length() != catalog->getNumberOfColumns(tableName)) {
+        if (inputFields->length() != tableCatalog->getNumberOfColumns(tableName)) {
             std::cout << "Invalid input" << std::endl;
             return;
         }
 
-        Table *table = catalog->getTable(tableName);
+        Table *table = tableCatalog->getTable(tableName);
         table->addRow(inputFields);
     }
 
@@ -161,7 +179,7 @@ public:
             for (int i = 0; i < words[2].length(); i++) {
                 tableName += tolower(words[2][i]);
             }
-            if (catalog->already_exists(tableName)) {
+            if (tableCatalog->table_exists(tableName)) {
                 std::cout << "Table already exists." << std::endl;
                 return;
             }
@@ -230,7 +248,7 @@ public:
             }
 
             int noOfFields;
-            std::string *fields;
+            std::string *fields; //o sa scoatem variabila asta cred
             for (int j = 0; j < noOfColumns; j++) {
                 fields = parse_column(columns[j], noOfFields);
 
@@ -238,35 +256,40 @@ public:
                     std::cout << "Every column should contain only 4 fields." << std::endl;
                     return;
                 }
-                // std::cout << fields[i] << ' ';
-                //schimbam in table ... created
             }
 
-            std::cout << "Table " << tableName << " created succesfully!" << std::endl;
 
             // we create the table
             Table *table = new Table(noOfColumns, tableName);
             for (int i = 0; i < noOfColumns; i++) {
                 table->setColumn(i, columnNames[i]);
             }
-            catalog->add_table(*table);
-            catalog->print_tables();
+            if (tableCatalog->add_table(*table) == 0) {
+                std::cout << "Table " << tableName << " created succesfully!" << std::endl;
+            }
             delete table;
         }
     }
 
     void create_index() {
-        if (noOfWords >= 6 && words[2] == "if") {
+        if (noOfWords < 8) {
+            std::cout << "Incomplete input!" << std::endl;
+            return;
+        }
+        if (words[2] == "if") {
             if (words[3] != "not" || words[4] != "exists" || words[6] != "on") {
                 std::cout << "Syntax error!" << std::endl;
                 return;
             }
             std::string indexName = words[5];
+            if (indexCatalog->index_exists(indexName)) {
+                std::cout << "Index already exists!" << std::endl;
+                return;
+            }
+
             std::string tableName = words[7];
-            if (catalog->already_exists(
-                indexName)) {
-                // trebuie modificat, nu putem folosi catalog
-                std::cout << "Index already exists." << std::endl;
+            if (!tableCatalog->table_exists(tableName)) {
+                std::cout << "Table does not exist! Cannot create index." << std::endl;
                 return;
             }
 
@@ -276,12 +299,17 @@ public:
 
             std::string columnName;
             for (int i = 1; i < words[6].length() - 1; i++) {
-                columnName += words[6][i];
+                columnName += tolower(words[6][i]);
+            }
+            if (!tableCatalog->getTable(tableName)->column_exists(columnName)) {
+                std::cout << "Column does not exist!" << std::endl;
+                return;
             }
 
-            // if (coloana exists in tableName) {
-            //     *create index in tableName*
-            // }
+            Index *index = new Index(indexName, tableName, columnName);
+            indexCatalog->add_index(*index);
+            std::cout << "Index created succesfully!" << std::endl;
+            delete index;
         }
     }
 
@@ -291,13 +319,9 @@ public:
             tableName += tolower(words[2][i]);
         }
 
-        if (!catalog->already_exists(tableName)) {
-            std::cout << "Table does not exist!" << std::endl;
-            return;
+        if (tableCatalog->drop_table(tableName) == 0) {
+            std::cout << "Dropped table " << aux << " succesfully!" << std::endl;
         }
-
-        catalog->drop_table(tableName);
-        std::cout << "Dropped table " << aux << " succesfully!" << std::endl;
     }
 
     void drop_index() { std::cout << "Dropped index successfully." << std::endl; }

@@ -1,11 +1,11 @@
-#include "../Catalog.h"
+#include "../Table_Catalog.h"
 
 #include "gtest/gtest.h"
 //
 // Created by ervin on 11/9/25.
 //
 TEST(CatalogTests, shouldAddTableToCatalog) {
-    Catalog *catalog = new Catalog();
+    Table_Catalog *catalog = new Table_Catalog();
     Table *studenti = new Table(5, "STUDENTI");
     studenti->setColumn(0, "CNP");
     studenti->setColumn(1, "Nume");
@@ -31,7 +31,7 @@ TEST(CatalogTests, shouldAddTableToCatalog) {
 }
 
 TEST(CatalogTests, shouldDeleteTable) {
-    Catalog *catalog = new Catalog();
+    Table_Catalog *catalog = new Table_Catalog();
     Table *studenti = new Table(5, "STUDENTI");
     studenti->setColumn(0, "CNP");
     studenti->setColumn(1, "Nume");

@@ -2,13 +2,13 @@
 #define UNTITLED_CATALOG_H
 #include "Table.h"
 
-class Catalog {
+class Table_Catalog {
 private:
     Table *tables;
     int noOfTables;
 
 public:
-    Catalog() {
+    Table_Catalog() {
         tables = nullptr;
         noOfTables = 0;
     }
@@ -22,9 +22,14 @@ public:
         return -1;
     }
 
-    void drop_table(std::string tableName) {
-        Catalog *auxCatalog = new Catalog;
+    int drop_table(std::string tableName) {
         int index = return_index_of_table(tableName);
+        if (index == -1) {
+            std::cout << "Table does not exist!" << std::endl;
+            return -1;
+        }
+
+        Table_Catalog *auxCatalog = new Table_Catalog;
         for (int i = 0; i < noOfTables; i++) {
             if (i == index)
                 continue;
@@ -34,12 +39,13 @@ public:
         this->tables = auxCatalog->getTables();
         this->setNoOfTables(noOfTables - 1);
         delete auxCatalog;
+        return 0;
     }
 
-    void add_table(Table newTable) {
-        if (already_exists(newTable.getName())) {
+    int add_table(Table newTable) {
+        if (table_exists(newTable.getName())) {
             std::cout << "Table with this name already exists!";
-            return;
+            return -1;
         }
         //we create a new array of pointers to objects with updated size
         Table *newTables = new Table [noOfTables + 1];
@@ -50,8 +56,11 @@ public:
 
         //we add the new table at the end of the new array
         newTables[noOfTables] = newTable;
+
+        delete[] tables;
         tables = newTables;
         noOfTables++;
+        return 0;
     }
 
     int getNoOfTables() {
@@ -60,7 +69,7 @@ public:
 
     //we iterate over the addresses array and compare each name
     //with the name we are checking for
-    bool already_exists(std::string tableName) {
+    bool table_exists(std::string tableName) {
         for (int i = 0; i < noOfTables; i++) {
             if (tables[i].getName() == tableName) {
                 return true;

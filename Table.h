@@ -89,6 +89,15 @@ public:
         columns[index] = columnName;
     }
 
+    bool column_exists(std::string columnName) {
+        for (int i = 0; i < noOfColumns; i++) {
+            if (columns[i] == columnName) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     void addRow(std::string newRow[]) {
         std::string **newRows = new std::string *[noOfRows + 1];
         for (int i = 0; i < noOfRows; i++) {
