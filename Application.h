@@ -54,35 +54,77 @@ public:
     void parse_command() {
         std::string firstWord = words[0];
         if (firstWord == "create") {
+            if (has_invalid_word_count(1)) {
+                return;
+            }
             std::string secondWord = words[1];
             if (secondWord == "table") {
+                if (has_invalid_word_count(2)) {
+                    return;
+                }
                 create_table();
             } else if (secondWord == "index") {
+                if (has_invalid_word_count(2)) {
+                    return;
+                }
                 create_index();
             } else {
                 std::cout << "Wrong statement! You can create a table or an index.";
             }
         } else if (firstWord == "drop") {
+            if (has_invalid_word_count(1)) {
+                return;
+            }
             std::string secondWord = words[1];
             if (secondWord == "table") {
+                if (has_invalid_word_count(2)) {
+                    return;
+                }
                 drop_table();
             } else if (secondWord == "index") {
+                if (has_invalid_word_count(2)) {
+                    return;
+                }
                 drop_index();
             } else {
                 std::cout << "Wrong statement! You can drop a table or an index.";
             }
         } else if (firstWord == "display") {
+            if (has_invalid_word_count(1)) {
+                return;
+            }
             display_table();
         } else if (firstWord == "insert") {
+            if (has_invalid_word_count(1)) {
+                return;
+            }
             insert_into_table();
         } else if (firstWord == "select") {
+            if (has_invalid_word_count(1)) {
+                return;
+            }
             create_table();
         } else if (firstWord == "delete") {
+            if (has_invalid_word_count(1)) {
+                return;
+            }
             delete_from();
         } else if (firstWord == "update") {
+            if (has_invalid_word_count(1)) {
+                return;
+            }
+            update_table();
         } else {
             std::cout << "Command is wrong. Please enter a new command. " << std::endl;
         }
+    }
+
+    bool has_invalid_word_count(int noOfWords) {
+        if (this->noOfWords == noOfWords) {
+            std::cout << "Incomplete input!" << std::endl;
+            return true;
+        }
+        return false;
     }
 
     void insert_into_table() {
@@ -117,7 +159,7 @@ public:
             }
             std::string tableName = "";
             for (int i = 0; i < words[2].length(); i++) {
-                tableName += toupper(words[2][i]);
+                tableName += tolower(words[2][i]);
             }
             if (catalog->already_exists(tableName)) {
                 std::cout << "Table already exists." << std::endl;
@@ -181,7 +223,7 @@ public:
 
             auto *columnNames = new std::string[noOfColumns];
             for (int i = 0; i < noOfColumns; i++) {
-                columnNames[i] += toupper(columns[i][0]);
+                columnNames[i] += tolower(columns[i][0]);
                 for (int j = 1; j < columns[i].length() && columns[i][j] != ','; j++) {
                     columnNames[i] += columns[i][j];
                 }
@@ -209,6 +251,7 @@ public:
             }
             catalog->add_table(*table);
             catalog->print_tables();
+            delete table;
         }
     }
 
@@ -223,7 +266,7 @@ public:
             if (catalog->already_exists(
                 indexName)) {
                 // trebuie modificat, nu putem folosi catalog
-                std::cout << "Table already exists." << std::endl;
+                std::cout << "Index already exists." << std::endl;
                 return;
             }
 
@@ -242,7 +285,20 @@ public:
         }
     }
 
-    void drop_table() { std::cout << "Dropped table succesfully." << std::endl; }
+    void drop_table() {
+        std::string tableName = "", aux = words[2];
+        for (int i = 0; i < words[2].length(); i++) {
+            tableName += tolower(words[2][i]);
+        }
+
+        if (!catalog->already_exists(tableName)) {
+            std::cout << "Table does not exist!" << std::endl;
+            return;
+        }
+
+        catalog->drop_table(tableName);
+        std::cout << "Dropped table " << aux << " succesfully!" << std::endl;
+    }
 
     void drop_index() { std::cout << "Dropped index successfully." << std::endl; }
 

@@ -6,6 +6,7 @@
 #define UNTITLED_TABLE_H
 #include <string>
 #include <iostream>
+#define OFFSET 10
 
 class Table {
 private:
@@ -21,6 +22,7 @@ public:
         this->noOfColumns = noOfColumns;
         this->noOfRows = 0;
         columns = new std::string[this->noOfColumns];
+        rows = nullptr;
     }
 
     Table(const Table &other) {
@@ -42,8 +44,6 @@ public:
                 rows[i][j] = other.rows[i][j];
             }
         }
-
-        //adaugam tabela in catalog
     }
 
     Table() = default;
@@ -105,7 +105,6 @@ public:
         newRows[noOfRows] = newRow;
         rows = newRows;
         this->noOfRows++;
-        newRows = nullptr;
     }
 
     std::string getName() {
@@ -134,17 +133,16 @@ public:
         }
 
         //offset for displaying the values
-        int offset = 10;
 
         //we display the column names
         for (int i = 0; i < noOfColumns - 1; i++) {
             std::cout << columns[i];
             if (columns[i].length() == maxLengthOnColumn[i]) {
-                for (int k = 0; k < offset; k++) {
+                for (int k = 0; k < OFFSET; k++) {
                     std::cout << '-';
                 }
             } else {
-                for (int k = 0; k < maxLengthOnColumn[i] - columns[i].length() + offset; k++) {
+                for (int k = 0; k < maxLengthOnColumn[i] - columns[i].length() + OFFSET; k++) {
                     std::cout << '-';
                 }
             }
@@ -156,11 +154,11 @@ public:
             for (int j = 0; j < noOfColumns; j++) {
                 std::cout << rows[i][j];
                 if (rows[i][j].length() == maxLengthOnColumn[j]) {
-                    for (int k = 0; k < offset && j < noOfColumns - 1; k++) {
+                    for (int k = 0; k < OFFSET && j < noOfColumns - 1; k++) {
                         std::cout << ' ';
                     }
                 } else {
-                    for (int k = 0; k < maxLengthOnColumn[j] - rows[i][j].length() + offset && j < noOfColumns - 1; k
+                    for (int k = 0; k < maxLengthOnColumn[j] - rows[i][j].length() + OFFSET && j < noOfColumns - 1; k
                          ++) {
                         std::cout << ' ';
                     }
@@ -170,6 +168,14 @@ public:
         }
 
         delete[] maxLengthOnColumn;
+    }
+
+    void setName(std::string name) {
+        if (name.empty() || name.length() < 3) {
+            std::cout << "Invalid syntax!";
+            return;
+        }
+        this->name = name;
     }
 };
 
