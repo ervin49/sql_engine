@@ -15,10 +15,10 @@ TEST(CatalogTests, shouldAddTableToCatalog) {
     std::string student1[] = {"CNP1", "Popescu Ion", "21", "Str. Libertatii 1", "3"};
     std::string student2[] = {"CNP2", "Dana", "22", "Str. Libertatii 5", "2"};
     std::string student3[] = {"CNP3", "Claudia Ioana Maria Dana Gabriela", "23", "Str. Independentei 5", "1"};
-    studenti->addRow(student1);
-    studenti->addRow(student2);
-    studenti->addRow(student3);
-    studenti->addRow(student3);
+    studenti->add_row(student1);
+    studenti->add_row(student2);
+    studenti->add_row(student3);
+    studenti->add_row(student3);
 
     Table *studenti2 = new Table(*studenti);
     studenti2->setName("studenti2");
@@ -41,10 +41,10 @@ TEST(CatalogTests, shouldDeleteTable) {
     std::string student1[] = {"CNP1", "Popescu Ion", "21", "Str. Libertatii 1", "3"};
     std::string student2[] = {"CNP2", "Dana", "22", "Str. Libertatii 5", "2"};
     std::string student3[] = {"CNP3", "Claudia Ioana Maria Dana Gabriela", "23", "Str. Independentei 5", "1"};
-    studenti->addRow(student1);
-    studenti->addRow(student2);
-    studenti->addRow(student3);
-    studenti->addRow(student3);
+    studenti->add_row(student1);
+    studenti->add_row(student2);
+    studenti->add_row(student3);
+    studenti->add_row(student3);
 
     Table *studenti2 = new Table(*studenti);
     studenti2->setName("studenti2");

@@ -21,8 +21,17 @@ public:
 
     Index() = default;
 
-    std::string getName() {
+    std::string getTableName() {
+        return tableName;
+    }
+
+    std::string getIndexName() {
         return indexName;
+    }
+
+    void print_index() {
+        std::cout << "Index \"" << indexName << "\" on column " << columnName << " from table " << tableName <<
+                std::endl;
     }
 };
 

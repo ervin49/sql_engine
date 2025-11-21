@@ -22,6 +22,8 @@ add_executable(sql_engine
         Table.h
         Index_Catalog.h
         Index.h
+        globals.h
+        globals.cpp
 )
 
 # === Teste ===
@@ -31,6 +33,8 @@ add_executable(sql_engine_tests
         test/Application_test.cpp
         Index_Catalog.h
         Index.h
+        globals.h
+        globals.cpp
 )
 
 target_link_libraries(sql_engine_tests

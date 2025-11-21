@@ -7,8 +7,10 @@
 #include <iostream>
 #include <cctype>
 
+#include "globals.h"
 #include "Index_Catalog.h"
 #include "Table_Catalog.h"
+#include "Index.h"
 
 
 std::string *parse_column(const std::string &column, int &noOfFields) {
@@ -31,8 +33,6 @@ std::string *parse_column(const std::string &column, int &noOfFields) {
     return fields;
 }
 
-inline auto *tableCatalog = new Table_Catalog;
-inline auto *indexCatalog = new Index_Catalog;
 
 class Application {
 private:
@@ -129,7 +129,7 @@ public:
                         tableCatalog->print_tables();
                     }
                 } else if (words[1] == "indexes") {
-                    //urmeaza
+                    indexCatalog->print_indexes();
                 }
             }
         } else {
@@ -152,7 +152,7 @@ public:
         }
         std::string tableName = words[2];
         if (!tableCatalog->table_exists(tableName)) {
-            std::cout << "Table does not exist" << std::endl;
+            std::cout << "Table " << tableName << " does not exist!" << std::endl;
             return;
         }
 
@@ -165,7 +165,7 @@ public:
         }
 
         Table *table = tableCatalog->getTable(tableName);
-        table->addRow(inputFields);
+        table->add_row(inputFields);
     }
 
 
@@ -289,27 +289,37 @@ public:
 
             std::string tableName = words[7];
             if (!tableCatalog->table_exists(tableName)) {
-                std::cout << "Table does not exist! Cannot create index." << std::endl;
+                std::cout << "Table " << tableName << " does not exist! Cannot create index." << std::endl;
                 return;
             }
 
-            if (words[6][0] != '(' || words[6][words[6].length() - 1] != ')') {
+            if (words[8][0] != '(' || words[8][words[8].length() - 1] != ')') {
                 std::cout << "Invalid format paranteze" << std::endl;
+                return;
             }
 
             std::string columnName;
-            for (int i = 1; i < words[6].length() - 1; i++) {
-                columnName += tolower(words[6][i]);
+            for (int i = 1; i < words[8].length() - 1; i++) {
+                columnName += tolower(words[8][i]);
             }
-            if (!tableCatalog->getTable(tableName)->column_exists(columnName)) {
-                std::cout << "Column does not exist!" << std::endl;
+
+            Table *table = tableCatalog->getTable(tableName);
+            if (!table->column_exists(columnName)) {
+                std::cout << "Column " << columnName << " does not exist!" << std::endl;
                 return;
             }
 
-            Index *index = new Index(indexName, tableName, columnName);
-            indexCatalog->add_index(*index);
-            std::cout << "Index created succesfully!" << std::endl;
-            delete index;
+            if (table->setIndex(indexName, columnName) == 0) {
+                Index *index = new Index(indexName, tableName, columnName);
+                indexCatalog->add_index(*index);
+                std::cout << "Index " << indexName << "created succesfully!" << std::endl;
+                delete index;
+            } else {
+                std::cout << indexName << std::endl;
+                std::cout << table->getHasIndex() << std::endl;
+                std::cout << "The table \"" << tableName << "\" already has an index, and the index is on column \"" <<
+                        table->getColumnOfTheIndex() << "\"!" << std::endl;
+            }
         }
     }
 
@@ -324,7 +334,16 @@ public:
         }
     }
 
-    void drop_index() { std::cout << "Dropped index successfully." << std::endl; }
+    void drop_index() {
+        std::string indexName = "", aux = words[2];
+        for (int i = 0; i < words[2].length(); i++) {
+            indexName += tolower(words[2][i]);
+        }
+
+        if (indexCatalog->drop_index(indexName) == 0) {
+            std::cout << "Dropped index " << aux << " succesfully!" << std::endl;
+        }
+    }
 
     void display_table() {
     }

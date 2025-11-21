@@ -15,6 +15,9 @@ private:
     std::string name;
     std::string *columns = nullptr;
     std::string **rows;
+    std::string indexName;
+    std::string columnOfTheIndex;
+    bool has_index = false;
 
 public:
     Table(int noOfColumns, std::string name) {
@@ -53,6 +56,10 @@ public:
             throw "You need a valid number of columns!";
         }
         this->noOfColumns = noOfColumns;
+    }
+
+    void setHasIndex(bool value) {
+        this->has_index = value;
     }
 
     void setNoOfRows(int noOfRows) {
@@ -98,7 +105,25 @@ public:
         return false;
     }
 
-    void addRow(std::string newRow[]) {
+    int setIndex(std::string indexName, std::string columnOfTheIndex) {
+        if (indexName != "" && has_index == false) {
+            this->indexName = indexName;
+            this->columnOfTheIndex = columnOfTheIndex;
+            this->has_index = true;
+            return 0;
+        }
+        return -1;
+    }
+
+    bool getHasIndex() {
+        return has_index;
+    }
+
+    std::string getColumnOfTheIndex() {
+        return columnOfTheIndex;
+    }
+
+    void add_row(std::string newRow[]) {
         std::string **newRows = new std::string *[noOfRows + 1];
         for (int i = 0; i < noOfRows; i++) {
             newRows[i] = new std::string[noOfColumns];

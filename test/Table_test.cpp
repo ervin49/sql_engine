@@ -13,9 +13,9 @@ TEST(TableTest, ShouldAddRow) {
     std::string student2[] = {"CNP2", "Dana", "22", "Str. Libertatii 5", "2"};
     std::string student3[] = {"CNP3", "Claudia Ioana Maria", "23", "Str. Independentei 5", "1"};
 
-    studenti->addRow(student1);
-    studenti->addRow(student2);
-    studenti->addRow(student3);
+    studenti->add_row(student1);
+    studenti->add_row(student2);
+    studenti->add_row(student3);
 
     EXPECT_EQ(studenti->getNoOfRows(), 3);
     EXPECT_EQ(studenti->getNoOfColumns(), 5);
