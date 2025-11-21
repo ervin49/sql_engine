@@ -4,7 +4,6 @@
 #include <cctype>
 #include "Application.h"
 
-#define debug(x) std::cout << "variabila " << #x << " este " << x << std::endl;
 
 std::string s;
 

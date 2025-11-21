@@ -66,8 +66,8 @@ public:
             return -1;
         }
 
-        Index index = getIndex(indexName);
-        std::string tableName = index.getTableName();
+        Index *index = getIndex(indexName);
+        std::string tableName = index->getTableName();
         Table *table = tableCatalog->getTable(tableName);
         table->setHasIndex(false);
         table->setIndex("", "");
@@ -89,11 +89,12 @@ public:
         return this->indexes;
     }
 
-    Index getIndex(std::string indexName) {
+    Index *getIndex(std::string indexName) {
         for (int i = 0; i < noOfIndexes; i++) {
             if (indexes[i].getIndexName() == indexName)
-                return indexes[i];
+                return &indexes[i];
         }
+        return nullptr;
     }
 
     int return_position_of_index(std::string indexName) {

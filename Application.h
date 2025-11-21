@@ -13,7 +13,7 @@
 #include "Index.h"
 
 
-std::string *parse_column(const std::string &column, int &noOfFields) {
+std::string *parse_column(std::string column, int &noOfFields) {
     noOfFields = 1;
     for (int i = 0; i < column.length(); i++) {
         if (column[i] == ',') {
@@ -24,6 +24,9 @@ std::string *parse_column(const std::string &column, int &noOfFields) {
     std::string *fields = new std::string[noOfFields];
 
     for (int i = 0; i < column.length(); i++) {
+        if (column[i] == '\'' || column[i] == '(' || column[i] == ')' || column[i] == ';') {
+            continue;
+        }
         if (column[i] == ',') {
             k++;
         } else {
@@ -72,7 +75,7 @@ public:
                 }
                 create_index();
             } else {
-                std::cout << "Wrong statement! You can create a table or an index.";
+                std::cout << "Wrong statement! You can create a table or an index." << std::endl;
             }
         } else if (firstWord == "drop") {
             if (has_invalid_word_count(1)) {
@@ -90,7 +93,7 @@ public:
                 }
                 drop_index();
             } else {
-                std::cout << "Wrong statement! You can drop a table or an index.";
+                std::cout << "Wrong statement! You can drop a table or an index." << std::endl;
             }
         } else if (firstWord == "display") {
             if (has_invalid_word_count(1)) {
@@ -147,7 +150,7 @@ public:
 
     void insert_into_table() {
         if (words[1] != "into" || words[3] != "values") {
-            std::cout << "Syntax error." << std::endl;
+            std::cout << "Syntax error!" << std::endl;
             return;
         }
         std::string tableName = words[2];
@@ -159,13 +162,16 @@ public:
         int noOfFields;
         std::string *inputFields = parse_column(words[4], noOfFields);
 
-        if (inputFields->length() != tableCatalog->getNumberOfColumns(tableName)) {
-            std::cout << "Invalid input" << std::endl;
+        if (noOfFields != tableCatalog->getNumberOfColumns(tableName)) {
+            debug(noOfFields);
+            debug(tableCatalog->getNumberOfColumns(tableName));
+            std::cout << std::endl << "Invalid input!" << std::endl;
             return;
         }
 
         Table *table = tableCatalog->getTable(tableName);
         table->add_row(inputFields);
+        std::cout << "Inserted succesfully!" << std::endl;
     }
 
 
@@ -190,16 +196,15 @@ public:
                 std::cout << "Too many spaces" << std::endl;
                 return;
             }
-            if ((words[6][0] != '(' or words[6][1] != '(' or
-                 words[6][words[6].length() - 2] != ')') and
-                (words[6][words[6].length() - 1] != ';' or words[6][words[6].length() - 1] != ')')) {
+            if ((words[6][0] != '(' || words[6][1] != '(' || words[6][words[6].length() - 2] != ')'
+                ) && (words[6][words[6].length() - 1] != ';' || words[6][words[6].length() - 1] != ')')
+            ) {
                 std::cout << "Invalid format primele 2" << std::endl;
                 return;
             }
 
             for (int i = 0; i < words[6].length(); i++) {
                 if (!isascii(words[6][i])) {
-                    std::cout << words[6][i];
                     std::cout << "Invalid format!!!!!!" << std::endl; // se accepta doar ((x,z3,f,d)), fara
                     // spatii in plus sau alte caractere
                     return;
@@ -209,15 +214,23 @@ public:
             int noOfColumns = 1;
 
             for (int i = 2; i < words[6].length() - 3; i++) {
-                if (words[6][i] == ')' and
-                    (words[6][i + 1] != ',' or words[6][i + 2] != '(')) {
+                if (words[6][i] == ')'
+                    and
+                    (words[6][i + 1] != ',' or words[6][i + 2] != '(')
+                ) {
                     std::cout << "Invalid format separator" << std::endl; // "separatorul" de coloane
                     // este "),("
                     return;
                 }
 
-                if (words[6][i] == ')' and words[6][i + 1] == ',' and
-                    words[6][i + 2] == '(') {
+                if (words[6][i] == ')' and words[6][i + 1]
+                    ==
+                    ','
+                    and
+                    words[6][i + 2]
+                    ==
+                    '('
+                ) {
                     i += 2; // sarim peste separator
                     noOfColumns++;
                 }
@@ -248,9 +261,8 @@ public:
             }
 
             int noOfFields;
-            std::string *fields; //o sa scoatem variabila asta cred
             for (int j = 0; j < noOfColumns; j++) {
-                fields = parse_column(columns[j], noOfFields);
+                std::string *fields = parse_column(columns[j], noOfFields);
 
                 if (noOfFields != 4) {
                     std::cout << "Every column should contain only 4 fields." << std::endl;
@@ -312,7 +324,7 @@ public:
             if (table->setIndex(indexName, columnName) == 0) {
                 Index *index = new Index(indexName, tableName, columnName);
                 indexCatalog->add_index(*index);
-                std::cout << "Index " << indexName << "created succesfully!" << std::endl;
+                std::cout << "Index " << indexName << " created succesfully!" << std::endl;
                 delete index;
             } else {
                 std::cout << indexName << std::endl;
@@ -346,11 +358,35 @@ public:
     }
 
     void display_table() {
+        std::string tableName = words[2];
+        if (tableCatalog->table_exists(tableName)) {
+            tableCatalog->getTable(tableName)->print_table();
+        } else {
+            std::cout << "Table " << tableName << " does not exist!" << std::endl;
+        }
     }
 
-    void update_table() { std::cout << "Updated table successfully." << std::endl; }
+    void update_table() { std::cout << "Updated table successfully!" << std::endl; }
 
-    void delete_from() { std::cout << "Deleted successfully." << std::endl; }
+    void delete_from() {
+        if (words[1] != "from" || words[3] != "where") {
+            std::cout << "Syntax error!" << std::endl;
+            return;
+        }
+
+        std::string tableName = words[2];
+        std::string columnName = words[4];
+        std::string value = words[6];
+        if (!tableCatalog->table_exists(tableName)) {
+            std::cout << "Table " << tableName << " does not exist!" << std::endl;
+            return;
+        }
+
+        Table *table = tableCatalog->getTable(tableName);
+        if (table->delete_from(columnName, value) == 0) {
+            std::cout << "Row deleted successfully!" << std::endl;
+        }
+    }
 };
 
 #endif // SQL_ENGINE_APPLICATION_H
