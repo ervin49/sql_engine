@@ -30,9 +30,13 @@ public:
     }
 
     void print_index() {
-        std::cout << "Index \"" << indexName << "\" on column " << columnName << " from table " << tableName <<
+        std::cout << "Index \"" << indexName << "\" on column " << columnName << " from table " << tableName << '.' <<
                 std::endl;
     }
+
+    std::string getColumnName() {
+        return columnName;
+    };
 };
 
 

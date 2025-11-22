@@ -24,6 +24,7 @@ add_executable(sql_engine
         Index.h
         globals.h
         globals.cpp
+        Parser.h
 )
 
 # === Teste ===
@@ -35,6 +36,7 @@ add_executable(sql_engine_tests
         Index.h
         globals.h
         globals.cpp
+        Parser.h
 )
 
 target_link_libraries(sql_engine_tests

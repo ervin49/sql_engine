@@ -6,6 +6,9 @@
 #define UNTITLED_TABLE_H
 #include <string>
 #include <iostream>
+
+#include "globals.h"
+#include "Index_Catalog.h"
 #define OFFSET 10
 
 class Table {
@@ -17,7 +20,6 @@ private:
     std::string **rows;
     std::string indexName;
     std::string columnOfTheIndex;
-    bool has_index = false;
 
 public:
     Table(int noOfColumns, std::string tableName) {
@@ -47,8 +49,6 @@ public:
                 rows[i][j] = other.rows[i][j];
             }
         }
-
-        this->has_index = other.has_index;
     }
 
     Table() = default;
@@ -58,10 +58,6 @@ public:
             throw "You need a valid number of columns!";
         }
         this->noOfColumns = noOfColumns;
-    }
-
-    void setHasIndex(bool value) {
-        this->has_index = value;
     }
 
     void setNoOfRows(int noOfRows) {
@@ -110,18 +106,14 @@ public:
     }
 
     int setIndex(std::string indexName, std::string columnOfTheIndex) {
-        if (indexName != "" && has_index == false) {
+        if (indexName != "" && indexCatalog->has_index(columnOfTheIndex) == true) {
             this->indexName = indexName;
             this->columnOfTheIndex = columnOfTheIndex;
-            this->has_index = true;
             return 0;
         }
         return -1;
     }
 
-    bool getHasIndex() {
-        return has_index;
-    }
 
     std::string getColumnOfTheIndex() {
         return columnOfTheIndex;
@@ -256,7 +248,6 @@ public:
             std::cout << rows[i][indexOfColumn] << std::endl;
             if (rows[i][indexOfColumn] == nameOfValue) {
                 remove_row(i);
-
                 i--;
             }
         }

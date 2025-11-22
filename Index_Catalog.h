@@ -89,6 +89,15 @@ public:
         return this->indexes;
     }
 
+    bool has_index(std::string columnName) {
+        for (int i = 0; i < noOfIndexes; i++) {
+            if (indexes[i].getColumnName() == columnName) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     Index *getIndex(std::string indexName) {
         for (int i = 0; i < noOfIndexes; i++) {
             if (indexes[i].getIndexName() == indexName)

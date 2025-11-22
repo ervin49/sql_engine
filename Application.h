@@ -1,8 +1,4 @@
-//
-// Created by ervin on 10/25/25.
-//
-#ifndef SQL_ENGINE_APPLICATION_H
-#define SQL_ENGINE_APPLICATION_H
+#pragma once
 #include "Table.h"
 #include <iostream>
 #include <cctype>
@@ -11,34 +7,12 @@
 #include "Index_Catalog.h"
 #include "Table_Catalog.h"
 #include "Index.h"
-
-
-std::string *parse_column(std::string column, int &noOfFields) {
-    noOfFields = 1;
-    for (int i = 0; i < column.length(); i++) {
-        if (column[i] == ',') {
-            noOfFields++;
-        }
-    }
-    int k = 0;
-    std::string *fields = new std::string[noOfFields];
-
-    for (int i = 0; i < column.length(); i++) {
-        if (column[i] == '\'' || column[i] == '(' || column[i] == ')' || column[i] == ';') {
-            continue;
-        }
-        if (column[i] == ',') {
-            k++;
-        } else {
-            fields[k] += column[i];
-        }
-    }
-    return fields;
-}
+#include "Parser.h"
 
 
 class Application {
 private:
+    Parser *parser = new Parser;
     std::string *words;
     int noOfWords;
     std::string s;
@@ -49,7 +23,11 @@ public:
         this->noOfWords = 0;
     }
 
-    ~Application() { delete[] this->words; }
+    ~Application() {
+        delete[] this->words;
+        delete parser;
+    }
+
 
     void setQuery(std::string *words, int noOfWords, std::string s) {
         this->s = s;
@@ -68,12 +46,21 @@ public:
                 if (has_invalid_word_count(2)) {
                     return;
                 }
-                create_table();
+
+                if (words[3] == "if") {
+                    create_table_with_if_not_exists();
+                } else {
+                    create_table_without_if_not_exists();
+                }
             } else if (secondWord == "index") {
                 if (has_invalid_word_count(2)) {
                     return;
                 }
-                create_index();
+                if (words[3] == "if") {
+                    create_index_with_if_not_exists();
+                } else {
+                    create_index_without_if_not_exists();
+                }
             } else {
                 std::cout << "Wrong statement! You can create a table or an index." << std::endl;
             }
@@ -109,7 +96,7 @@ public:
             if (has_invalid_word_count(1)) {
                 return;
             }
-            create_table();
+            select_from();
         } else if (firstWord == "delete") {
             if (has_invalid_word_count(1)) {
                 return;
@@ -160,11 +147,9 @@ public:
         }
 
         int noOfFields;
-        std::string *inputFields = parse_column(words[4], noOfFields);
+        std::string *inputFields = parser->parse_column(words[4], noOfFields);
 
         if (noOfFields != tableCatalog->getNumberOfColumns(tableName)) {
-            debug(noOfFields);
-            debug(tableCatalog->getNumberOfColumns(tableName));
             std::cout << std::endl << "Invalid input!" << std::endl;
             return;
         }
@@ -175,163 +160,175 @@ public:
     }
 
 
-    void create_table() {
-        if (noOfWords >= 3 && words[3] == "if") {
-            if (words[4] != "not" || words[5] != "exists") {
-                std::cout << "Syntax error!" << std::endl;
-                return;
-            }
-            std::string tableName = "";
-            for (int i = 0; i < words[2].length(); i++) {
-                tableName += tolower(words[2][i]);
-            }
-            if (tableCatalog->table_exists(tableName)) {
-                std::cout << "Table already exists." << std::endl;
-                return;
-            }
-
-            if (noOfWords != 7) {
-                // daca n are field introdus sau daca mai are ceva
-                // introdus dupa field/field-uri
-                std::cout << "Too many spaces" << std::endl;
-                return;
-            }
-            if ((words[6][0] != '(' || words[6][1] != '(' || words[6][words[6].length() - 2] != ')'
-                ) && (words[6][words[6].length() - 1] != ';' || words[6][words[6].length() - 1] != ')')
-            ) {
-                std::cout << "Invalid format primele 2" << std::endl;
-                return;
-            }
-
-            for (int i = 0; i < words[6].length(); i++) {
-                if (!isascii(words[6][i])) {
-                    std::cout << "Invalid format!!!!!!" << std::endl; // se accepta doar ((x,z3,f,d)), fara
-                    // spatii in plus sau alte caractere
-                    return;
-                }
-            }
-
-            int noOfColumns = 1;
-
-            for (int i = 2; i < words[6].length() - 3; i++) {
-                if (words[6][i] == ')'
-                    and
-                    (words[6][i + 1] != ',' or words[6][i + 2] != '(')
-                ) {
-                    std::cout << "Invalid format separator" << std::endl; // "separatorul" de coloane
-                    // este "),("
-                    return;
-                }
-
-                if (words[6][i] == ')' and words[6][i + 1]
-                    ==
-                    ','
-                    and
-                    words[6][i + 2]
-                    ==
-                    '('
-                ) {
-                    i += 2; // sarim peste separator
-                    noOfColumns++;
-                }
-                //   if (words[6][i] == '(') {
-                //   std::cout << "Invalid format ( in plus" << i;// '('
-                //   return;
-                // }
-            }
-
-            auto *columns = new std::string[noOfColumns + 1];
-            int k = 0;
-
-            for (int i = 2; i < words[6].length() - 1; i++) {
-                if (words[6][i] == ')') {
-                    k++;
-                    i += 2;
-                } else {
-                    columns[k] += words[6][i];
-                }
-            }
-
-            auto *columnNames = new std::string[noOfColumns];
-            for (int i = 0; i < noOfColumns; i++) {
-                columnNames[i] += tolower(columns[i][0]);
-                for (int j = 1; j < columns[i].length() && columns[i][j] != ','; j++) {
-                    columnNames[i] += columns[i][j];
-                }
-            }
-
-            int noOfFields;
-            for (int j = 0; j < noOfColumns; j++) {
-                std::string *fields = parse_column(columns[j], noOfFields);
-
-                if (noOfFields != 4) {
-                    std::cout << "Every column should contain only 4 fields." << std::endl;
-                    return;
-                }
-            }
-
-
-            // we create the table
-            Table *table = new Table(noOfColumns, tableName);
-            for (int i = 0; i < noOfColumns; i++) {
-                table->setColumn(i, columnNames[i]);
-            }
-            if (tableCatalog->add_table(*table) == 0) {
-                std::cout << "Table " << tableName << " created succesfully!" << std::endl;
-            }
-            delete table;
+    void create_table(std::string tableName) {
+        int indexOfLastWord = noOfWords - 1;
+        if ((words[indexOfLastWord][0] != '(' || words[indexOfLastWord][1] != '(' || words[indexOfLastWord][
+                 words[indexOfLastWord].length() - 2] != ')'
+        )) {
+            std::cout << "Invalid format paranteze" << std::endl;
+            return;
         }
+
+        for (int i = 0; i < words[indexOfLastWord].length(); i++) {
+            if (!isascii(words[indexOfLastWord][i])) {
+                std::cout << "Only ascii characters accepted." << std::endl;
+                return;
+            }
+        }
+
+        int noOfColumns = 1;
+
+        for (int i = 2; i < words[indexOfLastWord].length() - 2; i++) {
+            if (words[indexOfLastWord][i] == ')' && (
+                    words[indexOfLastWord][i + 1] != ',' || words[indexOfLastWord][i + 2] != '(')
+            ) {
+                std::cout << "Invalid format separator" << std::endl; // "separatorul" de coloane
+                // este "),("
+                return;
+            }
+
+            if (words[indexOfLastWord][i] == ')' && words[indexOfLastWord][i + 1] == ',' && words[indexOfLastWord][
+                    i + 2] == '(') {
+                i += 2; // sarim peste separator
+                noOfColumns++;
+            }
+        }
+
+        auto *columns = new std::string[noOfColumns + 1];
+        int k = 0;
+
+        for (int i = 2; i < words[indexOfLastWord].length() - 1; i++) {
+            if (words[indexOfLastWord][i] == ')') {
+                k++;
+                i += 2;
+            } else {
+                columns[k] += words[indexOfLastWord][i];
+            }
+        }
+
+        int noOfFields;
+        Table *table = new Table(noOfColumns, tableName);
+        for (int j = 0; j < noOfColumns; j++) {
+            std::string *fields = parser->parse_column(columns[j], noOfFields);
+
+            if (noOfFields != 4) {
+                std::cout << "Every column should contain only 4 fields." << std::endl;
+                return;
+            }
+            table->setColumn(j, fields[0]);
+        }
+
+        if (tableCatalog->add_table(*table) == 0) {
+            std::cout << "Table " << tableName << " created succesfully!" << std::endl;
+        }
+        delete table;
+    }
+
+    void create_table_without_if_not_exists() {
+        std::string tableName = "";
+        for (int i = 0; i < words[2].length(); i++) {
+            tableName += tolower(words[2][i]);
+        }
+
+        if (tableCatalog->table_exists(tableName)) {
+            std::cout << "Error! Table already exists!" << std::endl;
+            return;
+        }
+
+        create_table(tableName);
+    }
+
+    void create_table_with_if_not_exists() {
+        std::string tableName = "";
+        for (int i = 0; i < words[2].length(); i++) {
+            tableName += tolower(words[2][i]);
+        }
+
+        if (words[4] != "not" || words[5] != "exists") {
+            std::cout << "Syntax error!" << std::endl;
+            return;
+        }
+        if (tableCatalog->table_exists(tableName)) {
+            return;
+        }
+        create_table(tableName);
+    }
+
+    void create_index_without_if_not_exists() {
+        std::string indexName = "";
+        for (int i = 0; i < words[2].length(); i++) {
+            indexName += tolower(words[2][i]);
+        }
+
+        if (indexCatalog->index_exists(indexName)) {
+            std::cout << "Error! Index already exists!" << std::endl;
+            return;
+        }
+
+        create_index();
+    }
+
+    void create_index_with_if_not_exists() {
+        if (words[3] != "not" || words[4] != "exists" || words[6] != "on") {
+            std::cout << "Syntax error!" << std::endl;
+            return;
+        }
+
+        std::string indexName = "";
+        for (int i = 0; i < words[5].length(); i++) {
+            indexName += tolower(words[5][i]);
+        }
+
+        if (indexCatalog->index_exists(indexName)) {
+            return;
+        }
+        create_index();
     }
 
     void create_index() {
+        int indexOfLastWord = noOfWords - 1;
         if (noOfWords < 8) {
             std::cout << "Incomplete input!" << std::endl;
             return;
         }
-        if (words[2] == "if") {
-            if (words[3] != "not" || words[4] != "exists" || words[6] != "on") {
-                std::cout << "Syntax error!" << std::endl;
-                return;
-            }
-            std::string indexName = words[5];
-            if (indexCatalog->index_exists(indexName)) {
-                std::cout << "Index already exists!" << std::endl;
-                return;
-            }
+        std::string indexName = words[noOfWords - 3];
+        if (indexCatalog->index_exists(indexName)) {
+            std::cout << "Index already exists!" << std::endl;
+            return;
+        }
 
-            std::string tableName = words[7];
-            if (!tableCatalog->table_exists(tableName)) {
-                std::cout << "Table " << tableName << " does not exist! Cannot create index." << std::endl;
-                return;
-            }
+        std::string tableName = words[indexOfLastWord - 1];
+        if (!tableCatalog->table_exists(tableName)) {
+            std::cout << "Table " << tableName << " does not exist! Cannot create index." << std::endl;
+            return;
+        }
 
-            if (words[8][0] != '(' || words[8][words[8].length() - 1] != ')') {
-                std::cout << "Invalid format paranteze" << std::endl;
-                return;
-            }
+        if (words[indexOfLastWord][0] != '(' || words[indexOfLastWord][words[indexOfLastWord].length() - 1] != ')') {
+            std::cout << "Invalid format paranteze" << std::endl;
+            return;
+        }
 
-            std::string columnName;
-            for (int i = 1; i < words[8].length() - 1; i++) {
-                columnName += tolower(words[8][i]);
-            }
+        std::string columnName;
+        for (int i = 1; i < words[indexOfLastWord].length() - 1; i++) {
+            columnName += tolower(words[indexOfLastWord][i]);
+        }
 
-            Table *table = tableCatalog->getTable(tableName);
-            if (!table->column_exists(columnName)) {
-                std::cout << "Column " << columnName << " does not exist!" << std::endl;
-                return;
-            }
+        Table *table = tableCatalog->getTable(tableName);
+        if (!table->column_exists(columnName)) {
+            std::cout << "Column " << columnName << " does not exist!" << std::endl;
+            return;
+        }
 
-            if (table->setIndex(indexName, columnName) == 0) {
-                Index *index = new Index(indexName, tableName, columnName);
-                indexCatalog->add_index(*index);
-                std::cout << "Index " << indexName << " created succesfully!" << std::endl;
-                delete index;
-            } else {
-                std::cout << indexName << std::endl;
-                std::cout << table->getHasIndex() << std::endl;
-                std::cout << "The table \"" << tableName << "\" already has an index, and the index is on column \"" <<
-                        table->getColumnOfTheIndex() << "\"!" << std::endl;
-            }
+        if (table->setIndex(indexName, columnName) == 0) {
+            Index *index = new Index(indexName, tableName, columnName);
+            indexCatalog->add_index(*index);
+            std::cout << "Index " << indexName << " created succesfully!" << std::endl;
+            delete index;
+        } else {
+            std::cout << indexName << std::endl;
+            std::cout << table->getHasIndex() << std::endl;
+            std::cout << "The table \"" << tableName << "\" already has an index, and the index is on column \"" <<
+                    table->getColumnOfTheIndex() << "\"!" << std::endl;
         }
     }
 
@@ -387,6 +384,26 @@ public:
             std::cout << "Row deleted successfully!" << std::endl;
         }
     }
-};
 
-#endif // SQL_ENGINE_APPLICATION_H
+    void select_from() {
+    }
+
+    void startApplication() {
+        while (true) {
+            int noOfWords;
+
+            std::string *words;
+            parser->setCommand();
+            if (parser->checkBrackets() == true) {
+                words = parser->parse_with_brackets(noOfWords);
+            } else {
+                words = parser->parse_without_brackets(noOfWords);
+            }
+            setQuery(words, noOfWords, parser->getString());
+            if (noOfWords == 1 && words[0] == "exit") {
+                break;
+            }
+            parse_command();
+        }
+    }
+};
