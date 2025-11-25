@@ -1,5 +1,4 @@
-#ifndef UNTITLED_CATALOG_H
-#define UNTITLED_CATALOG_H
+#pragma once
 #include "Table.h"
 
 class Table_Catalog {
@@ -72,6 +71,7 @@ public:
     bool table_exists(std::string tableName) {
         for (int i = 0; i < noOfTables; i++) {
             if (tables[i].getName() == tableName) {
+                //avem eroare
                 return true;
             }
         }
@@ -133,5 +133,3 @@ public:
         }
     }
 };
-
-#endif //UNTITLED_CATALOG_H

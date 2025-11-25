@@ -1,10 +1,4 @@
-//
-// Created by ervin on 11/17/25.
-//
-
-#ifndef SQL_ENGINE_INDEX_H
-#define SQL_ENGINE_INDEX_H
-
+#pragma once
 
 class Index {
 private:
@@ -40,4 +34,3 @@ public:
 };
 
 
-#endif //SQL_ENGINE_INDEX_H

@@ -7,7 +7,6 @@
 #include <string>
 
 #include "Index.h"
-#include "Table.h"
 #include "Table_Catalog.h"
 #include "globals.h"
 
@@ -33,7 +32,7 @@ public:
 
     int add_index(Index newIndex) {
         if (index_exists(newIndex.getIndexName())) {
-            std::cout << "Index with this name already exists!";
+            std::cout << "ERROR: Index with name \"" << newIndex.getIndexName() << "\" already exists!" << std::endl;
             return -1;
         }
         //we create a new array of pointers to objects with updated size
@@ -61,17 +60,10 @@ public:
 
     int drop_index(std::string indexName) {
         int position = return_position_of_index(indexName);
-        if (position == -1) {
-            std::cout << "Index " << indexName << " does not exist!" << std::endl;
+        if (position != 0) {
+            std::cout << "ERROR: Index \"" << indexName << "\" does not exist!" << std::endl;
             return -1;
         }
-
-        Index *index = getIndex(indexName);
-        std::string tableName = index->getTableName();
-        Table *table = tableCatalog->getTable(tableName);
-        table->setHasIndex(false);
-        table->setIndex("", "");
-
         Index_Catalog *auxCatalog = new Index_Catalog;
         for (int i = 0; i < noOfIndexes; i++) {
             if (i == position)
@@ -89,9 +81,9 @@ public:
         return this->indexes;
     }
 
-    bool has_index(std::string columnName) {
+    bool has_index(std::string tableName, std::string columnName) {
         for (int i = 0; i < noOfIndexes; i++) {
-            if (indexes[i].getColumnName() == columnName) {
+            if (indexes[i].getTableName() == tableName && indexes[i].getColumnName() == columnName) {
                 return true;
             }
         }
@@ -107,21 +99,39 @@ public:
     }
 
     int return_position_of_index(std::string indexName) {
-        int position = -1;
         for (int i = 0; i < noOfIndexes; i++) {
-            if (indexes[i].getIndexName() == indexName) {
-                position = i;
-                break;
-            }
+            if (indexes[i].getIndexName() == indexName)
+                return i;
         }
-        return position;
+        return -1;
     }
 
     void setNoOfIndexes(int noOfIndexes) {
         if (noOfIndexes < 0) {
-            std::cout << "No. of indexes has to be at least 0!" << std::endl;
+            std::cout << "ERROR: No. of indexes has to be at least 0!" << std::endl;
             return;
         }
         this->noOfIndexes = noOfIndexes;
+    }
+
+    int getNoOfIndexes() {
+        return noOfIndexes;
+    }
+
+    int setIndex(std::string indexName, std::string columnName) {
+        for (int i = 0; i < noOfIndexes; i++) {
+            if (indexes[i].getIndexName() == indexName) {
+                std::cout << "ERROR: Index with name \"" << indexName << "\" already exists!" << std::endl;
+                return -1;
+            }
+
+            if (indexes[i].getColumnName() == columnName) {
+                std::cout << "ERROR: Column \"" << columnName << "\" already has index \"" << indexes[i].getIndexName()
+                        <<
+                        "\"!" << std::endl;
+                return -1;
+            }
+        }
+        return 0;
     }
 };

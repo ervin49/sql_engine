@@ -1,9 +1,4 @@
-//
-// Created by ervin on 26.10.2025.
-//
-
-#ifndef UNTITLED_TABLE_H
-#define UNTITLED_TABLE_H
+#pragma once
 #include <string>
 #include <iostream>
 
@@ -18,8 +13,7 @@ private:
     std::string tableName;
     std::string *columns = nullptr;
     std::string **rows;
-    std::string indexName;
-    std::string columnOfTheIndex;
+    std::string *indexNames;
 
 public:
     Table(int noOfColumns, std::string tableName) {
@@ -28,6 +22,7 @@ public:
         this->noOfRows = 0;
         columns = new std::string[this->noOfColumns];
         rows = nullptr;
+        indexNames = nullptr;
     }
 
     Table(const Table &other) {
@@ -49,9 +44,23 @@ public:
                 rows[i][j] = other.rows[i][j];
             }
         }
+
+        this->indexNames = other.indexNames;
     }
 
     Table() = default;
+
+    //table += row;
+    Table &operator+=(std::string *row) {
+        this->add_row(row);
+        return *this;
+    }
+
+    std::ostream &operator<<(std::ostream &out, const Table &table) {
+        return out;
+    }
+
+    //to be written
 
     void setNoOfColumns(int noOfColumns) {
         if (noOfColumns <= 0) {
@@ -103,20 +112,6 @@ public:
         }
 
         return false;
-    }
-
-    int setIndex(std::string indexName, std::string columnOfTheIndex) {
-        if (indexName != "" && indexCatalog->has_index(columnOfTheIndex) == true) {
-            this->indexName = indexName;
-            this->columnOfTheIndex = columnOfTheIndex;
-            return 0;
-        }
-        return -1;
-    }
-
-
-    std::string getColumnOfTheIndex() {
-        return columnOfTheIndex;
     }
 
     void add_row(std::string newRow[]) {
@@ -237,6 +232,10 @@ public:
         setNoOfRows(noOfRows - 1);
     }
 
+    void index_table(std::string indexName) {
+        std::string columnName = indexCatalog->getIndex(indexName)->getColumnName();
+    };
+
     int delete_from(std::string columnName, std::string nameOfValue) {
         int indexOfColumn;
         if ((indexOfColumn = return_index_of_column_by_name(columnName)) == -1) {
@@ -251,9 +250,6 @@ public:
                 i--;
             }
         }
-
         return 0;
     }
 };
-
-#endif //UNTITLED_TABLE_H
