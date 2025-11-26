@@ -1,4 +1,6 @@
 #pragma once
+#include <cstring>
+
 #include "Table_Catalog.h"
 #include "Parser.h"
 
@@ -179,16 +181,15 @@ public:
 
     void create_table(std::string tableName) const {
         int indexOfLastWord = noOfWords - 1;
-        if ((words[indexOfLastWord][0] != '(' || words[indexOfLastWord][1] != '(' || words[indexOfLastWord][
-                 words[indexOfLastWord].length() - 2] != ')'
-        )) {
+        if (words[indexOfLastWord][0] != '(' || words[indexOfLastWord][1] != '(' || words[indexOfLastWord][
+                words[indexOfLastWord].length() - 2] != ')') {
             std::cout << "ERROR: Invalid format paranteze!" << std::endl;
             return;
         }
 
         for (int i = 0; i < words[indexOfLastWord].length(); i++) {
             if (!isascii(words[indexOfLastWord][i])) {
-                std::cout << "ERROR: Only ascii characters accepted!" << std::endl;
+                std::cout << "ERROR: Only ascii characters allowed!" << std::endl;
                 return;
             }
         }
@@ -403,7 +404,36 @@ public:
             tableName = words[noOfWords - 1];
         }
 
+        int poz = 0;
+        while (poz < s.length() && s[poz] != '(') {
+            poz++; //dupa asta i se va afla pe prima paranteza
+        }
+
+        int noOfColumns = 1;
+        for (int i = poz + 1; i < s.length() && s[i] != ')'; i++) {
+            if (s[i] == ' ' && s[i - 1] != ' ' && i >= 1) {
+                noOfColumns++;
+            }
+        }
+
+        std::string *columns = new std::string[noOfColumns];
+        int k = 0;
+        for (int i = poz; i < s.length() && s[i] != ')'; i++) {
+            if (s[i] == ' ') {
+                continue;
+            }
+            if (s[i] == ',') {
+                k++;
+            } else {
+                columns[k] += s[i];
+            }
+        }
+
         std::cout << '[' << tableName << ']' << std::endl;
+        for (int i = 0; i < noOfColumns; i++) {
+            debug(columns[i]);
+        }
+        delete[] columns;
     }
 
     void startApplication() {
