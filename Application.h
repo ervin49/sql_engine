@@ -198,16 +198,16 @@ public:
 
         for (int i = 2; i < words[indexOfLastWord].length() - 2; i++) {
             if (words[indexOfLastWord][i] == ')' && (
-                    words[indexOfLastWord][i + 1] != ',' || words[indexOfLastWord][i + 2] != '(')
+                    words[indexOfLastWord][i + 1] != ',' || words[indexOfLastWord][i + 2] != ' ' || words[indexOfLastWord][i+3] != '(')
             ) {
                 std::cout << "ERROR: Invalid format separator" << std::endl; // "separatorul" de coloane
-                // este "),("
+                // este "), ("
                 return;
             }
 
             if (words[indexOfLastWord][i] == ')' && words[indexOfLastWord][i + 1] == ',' && words[indexOfLastWord][
-                    i + 2] == '(') {
-                i += 2; // sarim peste separator
+                    i + 2] == ' ' && words[indexOfLastWord][i + 3] == '(') {
+                i += 3; // sarim peste separator
                 noOfColumns++;
             }
         }
@@ -218,7 +218,7 @@ public:
         for (int i = 2; i < words[indexOfLastWord].length() - 1; i++) {
             if (words[indexOfLastWord][i] == ')') {
                 k++;
-                i += 2;
+                i += 3;
             } else {
                 columns[k] += words[indexOfLastWord][i];
             }
