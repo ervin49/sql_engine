@@ -12,6 +12,25 @@ public:
         noOfTables = 0;
     }
 
+    bool operator==(const Table_Catalog &tableCatalog) const {
+        if (this->noOfTables != tableCatalog.noOfTables) {
+            return false;
+        }
+
+        for (int i = 0; i < noOfTables; i++) {
+            if (this->tables[i] != tableCatalog.tables[i]) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    friend std::ostream &operator<<(std::ostream &out, const Table_Catalog &table_catalog) {
+        table_catalog.print_tables();
+        return out;
+    }
+
+
     int return_index_of_table(std::string tableName) {
         for (int i = 0; i < noOfTables; i++) {
             if (tables[i].getName() == tableName) {
@@ -125,7 +144,7 @@ public:
     }
 
     //print all the tables
-    void print_tables() {
+    void print_tables() const {
         std::cout << std::endl;
         for (Table *p = &tables[0]; p < &tables[noOfTables]; p++) {
             p->print_table();

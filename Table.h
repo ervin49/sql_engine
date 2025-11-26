@@ -25,6 +25,7 @@ public:
         indexNames = nullptr;
     }
 
+
     Table(const Table &other) {
         tableName = other.tableName;
         noOfColumns = other.noOfColumns;
@@ -50,17 +51,45 @@ public:
 
     Table() = default;
 
+    bool operator==(Table const &table) const {
+        if (this->noOfColumns != table.noOfColumns ||
+            this->noOfRows != table.noOfRows ||
+            this->tableName != table.tableName)
+            return false;
+
+        for (int i = 0; i < noOfColumns; i++) {
+            if (this->columns[i] != table.columns[i])
+                return false;
+        }
+
+        for (int i = 0; i < noOfRows; i++) {
+            for (int j = 0; j < noOfColumns; j++) {
+                if (this->rows[i][j] != table.rows[i][j]) {
+                    return false;
+                }
+            }
+        }
+
+        return true;
+    }
+
     //table += row;
     Table &operator+=(std::string *row) {
         this->add_row(row);
         return *this;
     }
 
-    std::ostream &operator<<(std::ostream &out, const Table &table) {
+    friend std::ostream &operator<<(std::ostream &out, const Table &table) {
+        table.print_table();
         return out;
     }
 
-    //to be written
+    bool operator!=(const Table &table) const {
+        if (*this == table) {
+            return false;
+        }
+        return true;
+    }
 
     void setNoOfColumns(int noOfColumns) {
         if (noOfColumns <= 0) {
@@ -136,7 +165,7 @@ public:
         return this->tableName;
     }
 
-    void print_table() {
+    void print_table() const {
         std::cout << '[' << tableName << ']' << std::endl;
         int *maxLengthOnColumn = new int[noOfColumns];
 

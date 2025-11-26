@@ -17,6 +17,13 @@ public:
         return s;
     }
 
+    bool operator==(const Parser &parser) const {
+        if (this->s != parser.s)
+            return false;
+
+        return true;
+    }
+
     bool checkBrackets() {
         for (int i = 0; i < this->s.length(); i++)
             if (s[i] == ')' || s[i] == '(') {

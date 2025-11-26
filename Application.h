@@ -21,6 +21,30 @@ public:
         delete parser;
     }
 
+    void print_application() const {
+        std::cout << "" << std::endl;
+    }
+
+    friend std::ostream &operator<<(std::ostream &out, const Application &application) {
+        application.print_application();
+        return out;
+    }
+
+    bool operator==(const Application &application) const {
+        if (this->parser != application.parser || this->noOfWords != application.noOfWords)
+            return false;
+
+        for (int i = 0; i < noOfWords; i++) {
+            if (this->words[i] != application.words[i]) {
+                return false;
+            }
+        }
+
+        if (this->s != application.s)
+            return false;
+
+        return true;
+    }
 
     void setQuery(std::string *words, int noOfWords, std::string s) {
         this->s = s;
@@ -206,6 +230,7 @@ public:
 
             if (noOfFields != 4) {
                 std::cout << "ERROR: Every column should contain only 4 fields!" << std::endl;
+                delete table;
                 return;
             }
             table->setColumn(j, fields[0]);
