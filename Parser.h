@@ -13,7 +13,7 @@ public:
         std::getline(std::cin, this->s);
     }
 
-    std::string getString() {
+    std::string getString() const {
         return s;
     }
 
@@ -24,7 +24,12 @@ public:
         return true;
     }
 
-    bool checkBrackets() {
+    friend std::ostream &operator<<(std::ostream &out, const Parser &parser) {
+        parser.print_parser();
+        return out;
+    }
+
+    bool checkBrackets() const {
         for (int i = 0; i < this->s.length(); i++)
             if (s[i] == ')' || s[i] == '(') {
                 return true;
@@ -32,7 +37,7 @@ public:
         return false;
     }
 
-    std::string *parse_without_brackets(int &noOfWords) {
+    std::string *parse_without_brackets(int &noOfWords) const {
         noOfWords = 0;
         int startIndex = -1;
         int stopIndex = -1;
@@ -66,7 +71,7 @@ public:
     }
 
 
-    std::string *parse_with_brackets(int &noOfWords) {
+    std::string *parse_with_brackets(int &noOfWords) const {
         noOfWords = 0;
         int startIndex = -1;
         int stopIndex = -1;
@@ -114,7 +119,7 @@ public:
         return words;
     }
 
-    std::string *parse_column(std::string column, int &noOfFields) {
+    static std::string *parse_column(std::string column, int &noOfFields) {
         noOfFields = 1;
         for (int i = 0; i < column.length(); i++) {
             if (column[i] == ',') {
@@ -164,5 +169,9 @@ public:
 
         // Returnam direct fields, nu parsedFields
         return fields;
+    }
+
+    void print_parser() const {
+        std::cout << "Current string stored in the parser is: \"" << s << "\"." << std::endl;
     }
 };

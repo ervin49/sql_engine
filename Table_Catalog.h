@@ -25,13 +25,17 @@ public:
         return true;
     }
 
+    Table &operator[](const int index) const {
+        return tables[index];
+    }
+
     friend std::ostream &operator<<(std::ostream &out, const Table_Catalog &table_catalog) {
         table_catalog.print_tables();
         return out;
     }
 
 
-    int return_index_of_table(std::string tableName) {
+    int return_index_of_table(std::string tableName) const {
         for (int i = 0; i < noOfTables; i++) {
             if (tables[i].getName() == tableName) {
                 return i;
@@ -81,13 +85,13 @@ public:
         return 0;
     }
 
-    int getNoOfTables() {
+    int getNoOfTables() const {
         return noOfTables;
     }
 
     //we iterate over the addresses array and compare each name
     //with the name we are checking for
-    bool table_exists(std::string tableName) {
+    bool table_exists(std::string tableName) const {
         for (int i = 0; i < noOfTables; i++) {
             if (tables[i].getName() == tableName) {
                 //avem eroare
@@ -97,7 +101,7 @@ public:
         return false;
     }
 
-    int getNumberOfColumns(std::string tableName) {
+    int getNumberOfColumns(std::string tableName) const {
         for (int i = 0; i < noOfTables; i++) {
             if (tables[i].getName() == tableName)
                 return tables[i].getNoOfColumns();
@@ -105,7 +109,7 @@ public:
         return 0;
     }
 
-    Table *getTables() {
+    Table *getTables() const {
         Table *aux = new Table[noOfTables];
         for (int i = 0; i < noOfTables; i++) {
             aux[i] = tables[i];
@@ -113,7 +117,7 @@ public:
         return aux;
     }
 
-    Table *getTable(std::string tableName) {
+    Table *getTable(std::string tableName) const {
         Table *aux = nullptr;
         for (int i = 0; i < noOfTables; i++) {
             if (tables[i].getName() == tableName) {

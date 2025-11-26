@@ -22,7 +22,7 @@ public:
     }
 
     void print_application() const {
-        std::cout << "" << std::endl;
+        std::cout << "Current running application: " << "de schimbat aici" << std::endl;
     }
 
     friend std::ostream &operator<<(std::ostream &out, const Application &application) {
@@ -144,15 +144,15 @@ public:
         }
     }
 
-    bool has_invalid_word_count(int noOfWords) {
-        if (this->noOfWords == noOfWords) {
+    bool has_invalid_word_count(int wordCount) const {
+        if (this->noOfWords == wordCount) {
             std::cout << "ERROR: Incomplete input!" << std::endl;
             return true;
         }
         return false;
     }
 
-    void insert_into_table() {
+    void insert_into_table() const {
         if (words[1] != "into" || words[3] != "values") {
             std::cout << "ERROR: Syntax error!" << std::endl;
             return;
@@ -177,7 +177,7 @@ public:
     }
 
 
-    void create_table(std::string tableName) {
+    void create_table(std::string tableName) const {
         int indexOfLastWord = noOfWords - 1;
         if ((words[indexOfLastWord][0] != '(' || words[indexOfLastWord][1] != '(' || words[indexOfLastWord][
                  words[indexOfLastWord].length() - 2] != ')'
@@ -242,7 +242,7 @@ public:
         delete table;
     }
 
-    void create_table_without_if_not_exists() {
+    void create_table_without_if_not_exists() const {
         std::string tableName = "";
         for (int i = 0; i < words[2].length(); i++) {
             tableName += tolower(words[2][i]);
@@ -256,7 +256,7 @@ public:
         create_table(tableName);
     }
 
-    void create_table_with_if_not_exists() {
+    void create_table_with_if_not_exists() const {
         std::string tableName = "";
         for (int i = 0; i < words[2].length(); i++) {
             tableName += tolower(words[2][i]);
@@ -272,7 +272,7 @@ public:
         create_table(tableName);
     }
 
-    void create_index_without_if_not_exists() {
+    void create_index_without_if_not_exists() const {
         std::string indexName = "";
         for (int i = 0; i < words[2].length(); i++) {
             indexName += tolower(words[2][i]);
@@ -286,7 +286,7 @@ public:
         create_index();
     }
 
-    void create_index_with_if_not_exists() {
+    void create_index_with_if_not_exists() const {
         if (words[3] != "not" || words[4] != "exists" || words[6] != "on") {
             std::cout << "Syntax error!" << std::endl;
             return;
@@ -303,7 +303,7 @@ public:
         create_index();
     }
 
-    void create_index() {
+    void create_index() const {
         int indexOfLastWord = noOfWords - 1;
         if (noOfWords < 6) {
             std::cout << "ERROR: Incomplete input!" << std::endl;
@@ -340,7 +340,7 @@ public:
         }
     }
 
-    void drop_table() {
+    void drop_table() const {
         std::string tableName = "", aux = words[2];
         for (int i = 0; i < words[2].length(); i++) {
             tableName += tolower(words[2][i]);
@@ -351,7 +351,7 @@ public:
         }
     }
 
-    void drop_index() {
+    void drop_index() const {
         std::string indexName = "", aux = words[2];
         for (int i = 0; i < words[2].length(); i++) {
             indexName += tolower(words[2][i]);
@@ -362,7 +362,7 @@ public:
         }
     }
 
-    void display_table() {
+    void display_table() const {
         std::string tableName = words[2];
         if (tableCatalog->table_exists(tableName)) {
             tableCatalog->getTable(tableName)->print_table();
@@ -371,9 +371,11 @@ public:
         }
     }
 
-    void update_table() { std::cout << "Updated table successfully!" << std::endl; }
+    void update_table() const {
+        std::cout << "Updated table successfully!" << std::endl;
+    }
 
-    void delete_from() {
+    void delete_from() const {
         if (words[1] != "from" || words[3] != "where") {
             std::cout << "Syntax error!" << std::endl;
             return;
@@ -393,7 +395,15 @@ public:
         }
     }
 
-    void select_from() {
+    void select_from() const {
+        std::string tableName;
+        if (words[noOfWords - 2][0] == '=') {
+            tableName = words[noOfWords - 5];
+        } else {
+            tableName = words[noOfWords - 1];
+        }
+
+        std::cout << '[' << tableName << ']' << std::endl;
     }
 
     void startApplication() {

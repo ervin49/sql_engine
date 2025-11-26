@@ -21,6 +21,21 @@ public:
         noOfIndexes = 0;
     }
 
+    bool operator==(const Index_Catalog &indexCatalog) const {
+        if (this->noOfIndexes != indexCatalog.noOfIndexes)
+            return false;
+        for (int i = 0; i < noOfIndexes; i++) {
+            if (this->indexes[i] != indexCatalog.indexes[i])
+                return false;
+        }
+        return true;
+    }
+
+    friend std::ostream &operator<<(std::ostream &out, Index_Catalog indexCatalog) {
+        indexCatalog.print_indexes();
+        return out;
+    }
+
     bool index_exists(std::string indexName) {
         for (int i = 0; i < noOfIndexes; i++) {
             if (indexes[i].getIndexName() == indexName) {

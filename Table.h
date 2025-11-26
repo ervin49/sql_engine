@@ -111,29 +111,31 @@ public:
                 newRows[i][j] = rows[i][j];
             }
         }
+
         for (int i = 0; i < noOfRows; i++) {
             delete[] rows[i];
         }
         delete[] rows;
+        rows = nullptr;
         rows = newRows;
     }
 
-    int getNoOfColumns() {
+    int getNoOfColumns() const {
         return noOfColumns;
     }
 
-    int getNoOfRows() {
+    int getNoOfRows() const {
         return noOfRows;
     }
 
-    void setColumn(int index, std::string columnName) {
+    void setColumn(int index, std::string columnName) const {
         if (index < 0 || index >= noOfColumns) {
             throw std::out_of_range("Index out of range");
         }
         columns[index] = columnName;
     }
 
-    bool column_exists(std::string columnName) {
+    bool column_exists(std::string columnName) const {
         for (int i = 0; i < noOfColumns; i++) {
             if (columns[i] == columnName) {
                 return true;
@@ -236,7 +238,7 @@ public:
         this->tableName = name;
     }
 
-    int return_index_of_column_by_name(std::string columnName) {
+    int return_index_of_column_by_name(std::string columnName) const {
         for (int i = 0; i < noOfColumns; i++) {
             if (columns[i] == columnName) {
                 return i;
@@ -263,6 +265,7 @@ public:
 
     void index_table(std::string indexName) {
         std::string columnName = indexCatalog->getIndex(indexName)->getColumnName();
+        //to be written
     };
 
     int delete_from(std::string columnName, std::string nameOfValue) {
