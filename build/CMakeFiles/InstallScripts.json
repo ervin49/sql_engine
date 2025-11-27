@@ -1,7 +1,0 @@
-{
-	"InstallScripts" : 
-	[
-		"/home/ervin/CLionProjects/sql_engine/build/cmake_install.cmake"
-	],
-	"Parallel" : false
-}
