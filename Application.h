@@ -1,7 +1,9 @@
 #pragma once
-#include <cstring>
 
 #include "Table_Catalog.h"
+#include "globals.h"
+#include "Index.h"
+#include "Index_Catalog.h"
 #include "Parser.h"
 
 
@@ -198,7 +200,8 @@ public:
 
         for (int i = 2; i < words[indexOfLastWord].length() - 2; i++) {
             if (words[indexOfLastWord][i] == ')' && (
-                    words[indexOfLastWord][i + 1] != ',' || words[indexOfLastWord][i + 2] != ' ' || words[indexOfLastWord][i+3] != '(')
+                    words[indexOfLastWord][i + 1] != ',' || words[indexOfLastWord][i + 2] != ' ' || words[
+                        indexOfLastWord][i + 3] != '(')
             ) {
                 std::cout << "ERROR: Invalid format separator" << std::endl; // "separatorul" de coloane
                 // este "), ("
@@ -403,6 +406,7 @@ public:
         } else {
             tableName = words[noOfWords - 1];
         }
+        debug(tableName);
 
         int poz = 0;
         while (poz < s.length() && s[poz] != '(') {
@@ -431,7 +435,6 @@ public:
 
         std::cout << '[' << tableName << ']' << std::endl;
         for (int i = 0; i < noOfColumns; i++) {
-            debug(columns[i]);
         }
         delete[] columns;
     }
