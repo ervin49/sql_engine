@@ -194,32 +194,36 @@ public:
             }
         }
 
-        int noOfColumns = 1;
+        int noOfColumns = 0;
 
-        for (int i = 2; i < words[indexOfLastWord].length() - 2; i++) {
-            if (words[indexOfLastWord][i] == ')' && (
-                    words[indexOfLastWord][i + 1] != ',' || words[indexOfLastWord][i + 2] != ' ' || words[indexOfLastWord][i+3] != '(')
-            ) {
-                std::cout << "ERROR: Invalid format separator" << std::endl; // "separatorul" de coloane
-                // este "), ("
-                return;
+        bool isColumnInfo = false;
+        bool isText = false;
+
+        for (int i = 1; i < words[indexOfLastWord].length() - 1; i++) {
+            if (words[indexOfLastWord][i] == '"') {
+                isText = !isText;
             }
-
-            if (words[indexOfLastWord][i] == ')' && words[indexOfLastWord][i + 1] == ',' && words[indexOfLastWord][
-                    i + 2] == ' ' && words[indexOfLastWord][i + 3] == '(') {
-                i += 3; // sarim peste separator
-                noOfColumns++;
+            if (isText == false) {
+                if (words[indexOfLastWord][i] == ')') {
+                    noOfColumns++;
+                }
             }
         }
-
         auto *columns = new std::string[noOfColumns + 1];
         int k = 0;
-
-        for (int i = 2; i < words[indexOfLastWord].length() - 1; i++) {
-            if (words[indexOfLastWord][i] == ')') {
-                k++;
-                i += 3;
-            } else {
+        for (int i = 1; i < words[indexOfLastWord].length() - 1; i++) {
+            if (words[indexOfLastWord][i] == '"') {
+                isText = !isText;
+            }
+            if (isText == false) {
+                if (words[indexOfLastWord][i] == '(') {
+                    isColumnInfo = true;
+                } else if (words[indexOfLastWord][i] == ')') {
+                    isColumnInfo = false;
+                    k++;
+                }
+            }
+            if (isColumnInfo == true || isText == true) {
                 columns[k] += words[indexOfLastWord][i];
             }
         }
