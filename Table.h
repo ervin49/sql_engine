@@ -3,7 +3,6 @@
 #include <iostream>
 
 #include "globals.h"
-#include "Index_Catalog.h"
 #define OFFSET 10
 
 class Table {
@@ -264,7 +263,6 @@ public:
     }
 
     void index_table(std::string indexName) {
-        std::string columnName = indexCatalog->getIndex(indexName)->getColumnName();
         //to be written
     };
 

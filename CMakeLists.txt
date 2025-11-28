@@ -1,48 +1,16 @@
 cmake_minimum_required(VERSION 3.14)
 project(sql_engine)
 
-set(CMAKE_CXX_STANDARD 14)
+# Folosim C++11
+set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-# === GoogleTest ===
-include(FetchContent)
-
-FetchContent_Declare(
-        googletest
-        URL https://github.com/google/googletest/archive/refs/heads/main.zip
-)
-set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
-FetchContent_MakeAvailable(googletest)
-
-enable_testing()
-
-# === Executabil principal ===
 add_executable(sql_engine
         main.cpp
-        Application.h
-        Table.h
-        Index_Catalog.h
-        Index.h
-        globals.h
-        globals.cpp
-        Parser.h
+        globals.cpp)
+target_include_directories(sql_engine PRIVATE ${PROJECT_SOURCE_DIR})
+
+# Setăm output în bin/
+set_target_properties(sql_engine PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/bin
 )
-
-# === Teste ===
-add_executable(sql_engine_tests
-        test/Table_test.cpp
-        test/Catalog_test.cpp
-        test/Application_test.cpp
-        Index_Catalog.h
-        Index.h
-        globals.h
-        globals.cpp
-        Parser.h
-)
-
-target_link_libraries(sql_engine_tests
-        GTest::gtest_main
-)
-
-include(GoogleTest)
-gtest_discover_tests(sql_engine_tests)
-

@@ -2,6 +2,9 @@
 #include <cstring>
 
 #include "Table_Catalog.h"
+#include "globals.h"
+#include "Index.h"
+#include "Index_Catalog.h"
 #include "Parser.h"
 
 
@@ -209,6 +212,7 @@ public:
                 }
             }
         }
+
         auto *columns = new std::string[noOfColumns + 1];
         int k = 0;
         for (int i = 1; i < words[indexOfLastWord].length() - 1; i++) {
@@ -407,6 +411,7 @@ public:
         } else {
             tableName = words[noOfWords - 1];
         }
+        debug(tableName);
 
         int poz = 0;
         while (poz < s.length() && s[poz] != '(') {
@@ -435,7 +440,6 @@ public:
 
         std::cout << '[' << tableName << ']' << std::endl;
         for (int i = 0; i < noOfColumns; i++) {
-            debug(columns[i]);
         }
         delete[] columns;
     }

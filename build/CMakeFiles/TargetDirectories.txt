@@ -1,3 +1,0 @@
-C:/Users/Andrei/SQL Engine/sql_engine-1/build/CMakeFiles/sql_engine.dir
-C:/Users/Andrei/SQL Engine/sql_engine-1/build/CMakeFiles/ALL_BUILD.dir
-C:/Users/Andrei/SQL Engine/sql_engine-1/build/CMakeFiles/ZERO_CHECK.dir
