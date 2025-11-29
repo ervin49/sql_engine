@@ -10,50 +10,61 @@
 #include "Table_Catalog.h"
 #include "globals.h"
 
-class Index_Catalog {
+class Index_Catalog
+{
 private:
-    Index *indexes;
+    Index* indexes;
     int noOfIndexes;
 
 public:
-    Index_Catalog() {
+    Index_Catalog()
+    {
         indexes = nullptr;
         noOfIndexes = 0;
     }
 
-    bool operator==(const Index_Catalog &indexCatalog) const {
+    bool operator==(const Index_Catalog& indexCatalog) const
+    {
         if (this->noOfIndexes != indexCatalog.noOfIndexes)
             return false;
-        for (int i = 0; i < noOfIndexes; i++) {
+        for (int i = 0; i < noOfIndexes; i++)
+        {
             if (this->indexes[i] != indexCatalog.indexes[i])
                 return false;
         }
         return true;
     }
 
-    friend std::ostream &operator<<(std::ostream &out, Index_Catalog indexCatalog) {
+    friend std::ostream& operator<<(std::ostream& out, Index_Catalog indexCatalog)
+    {
         indexCatalog.print_indexes();
         return out;
     }
 
-    bool index_exists(std::string indexName) {
-        for (int i = 0; i < noOfIndexes; i++) {
-            if (indexes[i].getIndexName() == indexName) {
+    bool index_exists(const std::string& indexName) const
+    {
+        for (int i = 0; i < noOfIndexes; i++)
+        {
+            if (indexes[i].getIndexName() == indexName)
+            {
                 return true;
             }
         }
         return false;
     }
 
-    int add_index(Index newIndex) {
-        if (index_exists(newIndex.getIndexName())) {
+    int add_index(const Index& newIndex)
+    {
+        if (index_exists(newIndex.getIndexName()) == true)
+        {
             std::cout << "ERROR: Index with name \"" << newIndex.getIndexName() << "\" already exists!" << std::endl;
             return -1;
         }
         //we create a new array of pointers to objects with updated size
-        Index *newIndexes = new Index [noOfIndexes + 1];
+        Index* newIndexes = new Index [noOfIndexes + 1];
 
-        for (int i = 0; i < noOfIndexes; i++) {
+        for (int i = 0; i < noOfIndexes; i++)
+        {
             newIndexes[i] = indexes[i];
         }
 
@@ -61,26 +72,32 @@ public:
         newIndexes[noOfIndexes] = newIndex;
 
         delete[] indexes;
+        indexes = nullptr;
         indexes = newIndexes;
         noOfIndexes++;
         return 0;
     }
 
-    void print_indexes() {
+    void print_indexes() const
+    {
         std::cout << "Your indexes are:" << std::endl;
-        for (Index *p = &indexes[0]; p < &indexes[noOfIndexes]; p++) {
+        for (Index* p = &indexes[0]; p < &indexes[noOfIndexes]; p++)
+        {
             p->print_index();
         }
     }
 
-    int drop_index(std::string indexName) {
+    int drop_index(const std::string& indexName)
+    {
         int position = return_position_of_index(indexName);
-        if (position != 0) {
+        if (position != 0)
+        {
             std::cout << "ERROR: Index \"" << indexName << "\" does not exist!" << std::endl;
             return -1;
         }
-        Index_Catalog *auxCatalog = new Index_Catalog;
-        for (int i = 0; i < noOfIndexes; i++) {
+        Index_Catalog* auxCatalog = new Index_Catalog;
+        for (int i = 0; i < noOfIndexes; i++)
+        {
             if (i == position)
                 continue;
             auxCatalog->add_index(indexes[i]);
@@ -92,58 +109,73 @@ public:
         return 0;
     }
 
-    Index *getIndexes() {
+    Index* getIndexes() const
+    {
         return this->indexes;
     }
 
-    bool has_index(std::string tableName, std::string columnName) {
-        for (int i = 0; i < noOfIndexes; i++) {
-            if (indexes[i].getTableName() == tableName && indexes[i].getColumnName() == columnName) {
+    bool has_index(const std::string& tableName, const std::string& columnName) const
+    {
+        for (int i = 0; i < noOfIndexes; i++)
+        {
+            if (indexes[i].getTableName() == tableName && indexes[i].getColumnName() == columnName)
+            {
                 return true;
             }
         }
         return false;
     }
 
-    Index *getIndex(std::string indexName) {
-        for (int i = 0; i < noOfIndexes; i++) {
+    Index* getIndex(const std::string& indexName) const
+    {
+        for (int i = 0; i < noOfIndexes; i++)
+        {
             if (indexes[i].getIndexName() == indexName)
                 return &indexes[i];
         }
         return nullptr;
     }
 
-    int return_position_of_index(std::string indexName) {
-        for (int i = 0; i < noOfIndexes; i++) {
+    int return_position_of_index(const std::string& indexName) const
+    {
+        for (int i = 0; i < noOfIndexes; i++)
+        {
             if (indexes[i].getIndexName() == indexName)
                 return i;
         }
         return -1;
     }
 
-    void setNoOfIndexes(int noOfIndexes) {
-        if (noOfIndexes < 0) {
+    void setNoOfIndexes(int noOfIndexes)
+    {
+        if (noOfIndexes < 0)
+        {
             std::cout << "ERROR: No. of indexes has to be at least 0!" << std::endl;
             return;
         }
         this->noOfIndexes = noOfIndexes;
     }
 
-    int getNoOfIndexes() {
+    int getNoOfIndexes() const
+    {
         return noOfIndexes;
     }
 
-    int setIndex(std::string indexName, std::string columnName) {
-        for (int i = 0; i < noOfIndexes; i++) {
-            if (indexes[i].getIndexName() == indexName) {
+    int setIndex(const std::string& indexName, const std::string& columnName) const
+    {
+        for (int i = 0; i < noOfIndexes; i++)
+        {
+            if (indexes[i].getIndexName() == indexName)
+            {
                 std::cout << "ERROR: Index with name \"" << indexName << "\" already exists!" << std::endl;
                 return -1;
             }
 
-            if (indexes[i].getColumnName() == columnName) {
+            if (indexes[i].getColumnName() == columnName)
+            {
                 std::cout << "ERROR: Column \"" << columnName << "\" already has index \"" << indexes[i].getIndexName()
-                        <<
-                        "\"!" << std::endl;
+                    <<
+                    "\"!" << std::endl;
                 return -1;
             }
         }

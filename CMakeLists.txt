@@ -7,7 +7,8 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 add_executable(sql_engine
         main.cpp
-        globals.cpp)
+        globals.cpp
+        StatusManager.h)
 target_include_directories(sql_engine PRIVATE ${PROJECT_SOURCE_DIR})
 
 # Setăm output în bin/

@@ -1,10 +1,10 @@
 cmake-build-debug/
 .vscode/
 build/
+bin/
 *.o
 *.exe
 main
 Catalog
 Table
 .clang-format
-bin
