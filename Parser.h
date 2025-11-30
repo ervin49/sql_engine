@@ -149,6 +149,84 @@ public:
         return words;
     }
 
+    std::string *parse_with_brackets_select(int &noOfWords) const {
+        noOfWords = 0;
+        int startIndex = -1;
+        int stopIndex = -1;
+        int startIndexAfter = -1;
+        int stopIndexAfter = -1;
+        bool bracketFound = false;
+        bool closedBracketFound = false;
+        int k = 0;
+        for (int i = 0; i < this->s.length(); i++) {
+            if (startIndex == -1 && this->s[i] != ' ') {
+                startIndex = i;
+            }
+            if (s[i] == '(' && bracketFound == false) {
+                bracketFound = true;
+                k = i;
+            }
+            if (this->s[i] != ' ' && bracketFound == false) {
+                stopIndex = i;
+            }
+            if (this->s[i] != ' ' )
+            {
+                stopIndexAfter = i;
+            }
+            if (this->s[i] == ')')
+            {
+                closedBracketFound = true;
+            }
+            if (startIndexAfter == -1 && closedBracketFound == true)
+            {
+                startIndexAfter = i;
+            }
+
+        }
+        for (int i = startIndex; i <= stopIndex; i++) {
+            if (this->s[i - 1] != ' ' && (this->s[i] == ' ' || i == stopIndex)) {
+                noOfWords++;
+            }
+        }
+        for (int i = startIndexAfter; i <= stopIndexAfter; i++)
+        {
+            if (this->s[i - 1] != ' ' && (this->s[i] == ' ' || i == stopIndexAfter)) {
+                noOfWords++;
+            }
+        }
+        noOfWords++;
+
+
+        auto *words = new std::string[noOfWords];
+        int currentWordIndex = 0;
+        for (int i = startIndex; i <= stopIndex; i++) {
+            if (this->s[i] == ' ' && this->s[i - 1] != ' ' && i > startIndex) {
+                currentWordIndex++;
+            } else if (this->s[i] != ' ') {
+                //adaugam caracterele direct lowercase, ca stringul sa fie case-insensitive
+                words[currentWordIndex] += tolower(this->s[i]);
+            }
+        }
+        currentWordIndex++;
+
+        for (int i = k; i < this->s.length(); i++) {
+            if (s[i - 1] == ')' && s[i] == ' ') {
+                break;
+            }
+            words[currentWordIndex] += tolower(this->s[i]);
+        }
+        for (int i = startIndexAfter+1; i <= stopIndexAfter; i++) {
+            if (this->s[i] == ' ' && this->s[i - 1] != ' ' && i > startIndex) {
+                currentWordIndex++;
+            } else if (this->s[i] != ' ') {
+                //adaugam caracterele direct lowercase, ca stringul sa fie case-insensitive
+                words[currentWordIndex] += tolower(this->s[i]);
+            }
+        }
+
+        return words;
+    }
+
     static std::string* parse_column(const std::string& column, int& noOfFields)
     {
         noOfFields = 1;
