@@ -92,6 +92,14 @@ public:
         return *this;
     }
 
+    //table -= column
+    Table& operator-=(const std::string& columnName)
+    {
+        this->remove_column(columnName);
+        return *this;
+    }
+
+
     friend std::ostream& operator<<(std::ostream& out, const Table& table)
     {
         table.print_table();
@@ -298,6 +306,40 @@ public:
         }
 
         return -1;
+    }
+
+    void remove_column(std::string columnName)
+    {
+        if (noOfColumns <= 1)
+        {
+            statusManager->print(StatusManager::Error, "You need at least 1 column!");
+        }
+        auto* newColumns = new std::string[noOfColumns - 1];
+
+        int k = 0;
+        for (int i = 0; i < noOfColumns; i++)
+        {
+            if (columns[i] == columnName)
+            {
+                continue;
+            }
+            newColumns[k++] = columns[i];
+        }
+        for (int i = 0; i < noOfColumns; i++)
+        {
+            columns[i] = newColumns[i];
+        }
+        this->setNoOfColumns(noOfColumns - 1);
+        delete[] newColumns;
+    }
+
+    void setNoOfColumns(int newNoOfColumns)
+    {
+        if (newNoOfColumns <= 1)
+        {
+            statusManager->print(StatusManager::Error, "You need at least 1 column!");
+        }
+        this->noOfColumns = newNoOfColumns;
     }
 
     void remove_row(int index)

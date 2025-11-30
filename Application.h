@@ -623,11 +623,11 @@ public:
         {
             int noOfWords;
 
-            std::string* words;
             parser->setCommand();
             std::string word = parser->getString();
-            int* numberOfParenthesis = parser->checkBrackets();
-            if (numberOfParenthesis[0] == numberOfParenthesis[1]) {
+            int* numberOfParentheses = parser->checkBrackets();
+            if (numberOfParentheses[0] == numberOfParentheses[1] && numberOfParentheses[0] != 0)
+            {
                 if (tolower(word[0]) == 's')
                 {
                     words = parser->parse_with_brackets_select(noOfWords);
@@ -636,11 +636,14 @@ public:
                 {
                     words = parser->parse_with_brackets(noOfWords);
                 }
-
-            } else if (numberOfParenthesis[0] == 0 && numberOfParenthesis[1] == 0) {words = parser->parse_without_brackets(noOfWords);
-            }else
+            }
+            else if (numberOfParentheses[0] == 0 && numberOfParentheses[1] == 0)
             {
-                std::cout<<"Invalid number of parenthesis!";
+                words = parser->parse_without_brackets(noOfWords);
+            }
+            else
+            {
+                statusManager->print(StatusManager::Error, "Invalid number of parentheses!");
             }
             setQuery(words, noOfWords, parser->getString());
             if (noOfWords == 1 && words[0] == "exit")
