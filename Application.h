@@ -317,6 +317,18 @@ public:
             }
         }
 
+        for (int i = 0; i < noOfColumns - 1; i++)
+        {
+            for (int j = i + 1; j < noOfColumns; j++)
+            {
+                if (columns[i] == columns[j])
+                {
+                    statusManager->print(StatusManager::Error, "You can't enter two identical column names!");
+                    return;
+                }
+            }
+        }
+
         int noOfFields;
         auto* table = new Table(noOfColumns, tableName);
         for (int j = 0; j < noOfColumns; j++)
