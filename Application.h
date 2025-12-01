@@ -672,7 +672,8 @@ public:
         }
 
         //we create a new table only with the columns we need
-        auto* tableWithSelectedColumns = new Table(columnIndex, tableName + '.');
+        auto* tableWithSelectedColumns = new Table(noOfColumns, tableName + '.');
+        //the dot is so we don't repeat table names
         auto* originalTable = tableCatalog->getTable(tableName);
 
         //we set the number of rows of new table to be the same as the original table
@@ -683,14 +684,14 @@ public:
         std::string** rowsOfNewTable = tableWithSelectedColumns->getRows();
 
         //we set the column names
-        for (int i = 0; i < columnIndex; i++)
+        for (int i = 0; i < noOfColumns; i++)
         {
             tableWithSelectedColumns->setColumn(i, selectedColumns[i]);
         }
 
         //we set the row values, but only on those columns that we need
         int k = 0;
-        for (int i = 0; i < noOfColumns && k <= columnIndex; i++)
+        for (int i = 0; i < noOfColumns && k < noOfColumns; i++)
         {
             if (columnsOfOriginalTable[i] == selectedColumns[k])
             {
@@ -702,8 +703,44 @@ public:
             }
         }
 
-        tableWithSelectedColumns->print_table();
+        if (noOfWords < 5)
+        {
+            tableWithSelectedColumns->print_table();
+            for (int i = 0; i < noOfRows; i++)
+            {
+                delete rowsOfOriginalTable[i];
+                delete rowsOfNewTable[i];
+            }
+            delete originalTable;
+            delete tableWithSelectedColumns;
+            delete[] selectedColumns;
+            delete[] columnsOfOriginalTable;
+            delete[] rowsOfOriginalTable;
+            delete[] rowsOfNewTable;
+            return;
+        } //for select with no where clause
 
+        std::string columnName = words[noOfWords - 3];
+        //value that we search for
+        std::string value = words[noOfWords - 1];
+        auto* tableWithSelectedRows = new Table(noOfColumns, tableName + ';');
+        //; is also so we don't repeat table names same as before
+        for (int i = 0; i < noOfRows; i++)
+        {
+            for (int j = 0; j < noOfColumns; j++)
+            {
+                if (rowsOfNewTable[i][j] == value)
+                {
+                    //it matches what we search for
+                    tableWithSelectedRows->add_row(rowsOfNewTable[i]);
+                }
+            }
+        }
+        //we print the table with the selected rows based on the value
+        //we were searching for
+        tableWithSelectedRows->print_table();
+
+        //we delete all dynamically allocated variables
         for (int i = 0; i < noOfRows; i++)
         {
             delete rowsOfOriginalTable[i];
@@ -711,6 +748,7 @@ public:
         }
         delete originalTable;
         delete tableWithSelectedColumns;
+        delete tableWithSelectedRows;
         delete[] selectedColumns;
         delete[] columnsOfOriginalTable;
         delete[] rowsOfOriginalTable;
