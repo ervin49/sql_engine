@@ -318,7 +318,7 @@ public:
         }
 
         int noOfFields;
-        Table* table = new Table(noOfColumns, tableName);
+        auto* table = new Table(noOfColumns, tableName);
         for (int j = 0; j < noOfColumns; j++)
         {
             std::string* fields = parser->parse_column(columns[j], noOfFields);
@@ -528,7 +528,34 @@ public:
 
     void update_table() const
     {
+        std::string tableName = words[1];
+        if (!tableCatalog->table_exists(tableName))
+        {
+            statusManager->print(StatusManager::Error, "Table \"" + tableName + "\" does not exist!");
+            return;
+        }
+
+        auto* table = tableCatalog->getTable(tableName);
+        std::string setColumnName = words[3];
+        if (!table->column_exists(setColumnName))
+        {
+            statusManager->print(StatusManager::Error,
+                                 "Table \"" + tableName + "\" does not have column \"" + setColumnName + "\"!");
+            return;
+        }
+
+        std::string whereColumnName = words[7];
+        if (!table->column_exists(whereColumnName))
+        {
+            statusManager->print(StatusManager::Error,
+                                 "Table \"" + tableName + "\" does not have column \"" + whereColumnName + "\"!");
+            return;
+        }
+        int setIndex = table->return_index_of_column_by_name(setColumnName);
+        int whereIndex = table->return_index_of_column_by_name(whereColumnName);
+        //to finish
         statusManager->print(StatusManager::Success, "Updated table successfully!");
+        delete table;
     }
 
     void delete_from() const
@@ -608,6 +635,18 @@ public:
             {
                 selectedColumns[columnIndex] += s[i];
             }
+        }
+
+        std::string checkForAll;
+        for (int i = 0; i < 3; i++)
+        {
+            checkForAll[i] += tolower(selectedColumns[0][i]);
+        }
+
+        if (noOfColumns == 1 && checkForAll == "all")
+        {
+            tableCatalog->getTable(tableName)->print_table();
+            return;
         }
 
         //we create a new table only with the columns we need
