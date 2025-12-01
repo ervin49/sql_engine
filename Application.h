@@ -628,14 +628,16 @@ public:
         }
 
         //we set the row values, but only on those columns that we need
-        for (int i = 0; i < noOfColumns; i++)
+        int k = 0;
+        for (int i = 0; i < noOfColumns && k <= columnIndex; i++)
         {
-            if (columnsOfOriginalTable[i] == selectedColumns[i])
+            if (columnsOfOriginalTable[i] == selectedColumns[k])
             {
                 for (int j = 0; j < noOfRows; j++)
                 {
                     rowsOfNewTable[j][i] = rowsOfOriginalTable[j][i];
                 }
+                k++;
             }
         }
 
