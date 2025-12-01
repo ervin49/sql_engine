@@ -115,6 +115,33 @@ public:
         return true;
     }
 
+    std::string* getColumns()
+    {
+        auto* newColumns = new std::string[noOfColumns];
+        for (int i = 0; i < noOfColumns; i++)
+        {
+            newColumns[i] = columns[i];
+        }
+        return newColumns;
+    }
+
+    std::string** getRows()
+    {
+        std::string** newRows = new std::string*[noOfRows];
+        for (int i = 0; i < noOfRows; i++)
+        {
+            newRows[i] = new std::string[noOfColumns];
+        }
+        for (int i = 0; i < noOfRows; i++)
+        {
+            for (int j = 0; j < noOfColumns; j++)
+            {
+                newRows[i][j] = rows[i][j];
+            }
+        }
+        return newRows;
+    }
+
     void setNoOfRows(int newNoOfRows)
     {
         if (newNoOfRows < 0)
@@ -288,7 +315,7 @@ public:
     {
         if (name.empty() || name.length() < 3)
         {
-            std::cout << "Invalid syntax!";
+            statusManager->print(StatusManager::Error, "Name needs to be at least 3 characters long!");
             return;
         }
 
@@ -308,7 +335,7 @@ public:
         return -1;
     }
 
-    void remove_column(std::string columnName)
+    void remove_column(const std::string& columnName)
     {
         if (noOfColumns <= 1)
         {

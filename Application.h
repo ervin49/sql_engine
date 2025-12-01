@@ -592,8 +592,8 @@ public:
             }
         }
 
-        auto* columns = new std::string[noOfColumns];
-        int k = 0;
+        auto* selectedColumns = new std::string[noOfColumns];
+        int columnIndex = 0;
         for (int i = poz; i < s.length() && s[i] != ')'; i++)
         {
             if (s[i] == ' ')
@@ -602,19 +602,56 @@ public:
             }
             if (s[i] == ',')
             {
-                k++;
+                columnIndex++;
             }
             else
             {
-                columns[k] += s[i];
+                selectedColumns[columnIndex] += s[i];
             }
         }
 
-        std::cout << '[' << tableName << ']' << std::endl;
+        //we create a new table only with the columns we need
+        auto* tableWithSelectedColumns = new Table(columnIndex, tableName + '.');
+        auto* originalTable = tableCatalog->getTable(tableName);
+
+        //we set the number of rows of new table to be the same as the original table
+        tableWithSelectedColumns->setNoOfRows(originalTable->getNoOfRows());
+        auto* columnsOfOriginalTable = originalTable->getColumns();
+        int noOfRows = originalTable->getNoOfRows();
+        std::string** rowsOfOriginalTable = originalTable->getRows();
+        std::string** rowsOfNewTable = tableWithSelectedColumns->getRows();
+
+        //we set the column names
+        for (int i = 0; i < columnIndex; i++)
+        {
+            tableWithSelectedColumns->setColumn(i, selectedColumns[i]);
+        }
+
+        //we set the row values, but only on those columns that we need
         for (int i = 0; i < noOfColumns; i++)
         {
+            if (columnsOfOriginalTable[i] == selectedColumns[i])
+            {
+                for (int j = 0; j < noOfRows; j++)
+                {
+                    rowsOfNewTable[j][i] = rowsOfOriginalTable[j][i];
+                }
+            }
         }
-        delete[] columns;
+
+        tableWithSelectedColumns->print_table();
+
+        for (int i = 0; i < noOfRows; i++)
+        {
+            delete rowsOfOriginalTable[i];
+            delete rowsOfNewTable[i];
+        }
+        delete originalTable;
+        delete tableWithSelectedColumns;
+        delete[] selectedColumns;
+        delete[] columnsOfOriginalTable;
+        delete[] rowsOfOriginalTable;
+        delete[] rowsOfNewTable;
     }
 
     void startApplication()
