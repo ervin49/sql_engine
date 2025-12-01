@@ -552,8 +552,18 @@ public:
             return;
         }
         int setIndex = table->return_index_of_column_by_name(setColumnName);
+        std::string setValue = words[5];
         int whereIndex = table->return_index_of_column_by_name(whereColumnName);
-        //to finish
+        std::string whereValue = words[9];
+        std::string** tableRows = table->getRows();
+        for (int i = 0; i < table->getNoOfRows(); i++)
+        {
+            if (tableRows[i][whereIndex] == whereValue)
+            {
+                tableRows[i][setIndex] = setValue;
+            }
+        }
+        table->setRows(tableRows);
         statusManager->print(StatusManager::Success, "Updated table successfully!");
         delete table;
     }

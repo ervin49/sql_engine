@@ -125,6 +125,17 @@ public:
         return newColumns;
     }
 
+    void setRows(std::string** newRows)
+    {
+        for (int i = 0; i < noOfRows; i++)
+        {
+            for (int j = 0; j < noOfColumns; j++)
+            {
+                rows[i][j] = newRows[i][j];
+            }
+        }
+    }
+
     std::string** getRows()
     {
         std::string** newRows = new std::string*[noOfRows];
