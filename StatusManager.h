@@ -1,38 +1,34 @@
 #pragma once
 #include <iostream>
 
-class StatusManager
-{
+class StatusManager {
 private:
     std::string msg;
 
 public:
     enum Status { Note, Success, Error };
 
-    void print(const Status status, const std::string& err)
-    {
+    void print(const Status status, const std::string &err) {
         toString(status);
-        if (err.empty() == false)
-        {
+        if (err.empty() == false) {
             msg += err;
         }
+        std::cout << msg << std::endl;
     }
 
-    void toString(Status status)
-    {
-        switch (status)
-        {
-        case(Note):
-            msg = "Note: ";
-            break;
-        case(Success):
-            msg = "Success: ";
-            break;
-        case(Error):
-            msg = "Error: ";
-            break;
-        default:
-            break;
+    void toString(Status status) {
+        switch (status) {
+            case(Note):
+                msg = "Note: ";
+                break;
+            case(Success):
+                msg = "Success: ";
+                break;
+            case(Error):
+                msg = "Error: ";
+                break;
+            default:
+                break;
         }
     }
 };
