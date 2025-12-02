@@ -250,6 +250,14 @@ public:
             }
         }
 
+        for (int i = 0; i <= k; i++)
+        {
+            if (fields[i][0] == '"' && fields[i][fields[i].length() - 1] == '"' || fields[i][0] == '\'' || fields[i][fields[i].length() - 1] == '\'')
+            {
+                fields[i] = fields[i].substr(1, fields[i].length() - 2);
+            }
+        }
+
         // Returnam direct fields, nu parsedFields
         return fields;
     }
