@@ -483,23 +483,22 @@ public:
         } else {
             tableName = words[noOfWords - 1];
         }
-        debug(tableName);
 
         int poz = 0;
         while (poz < s.length() && s[poz] != '(') {
             poz++; //dupa asta i se va afla pe prima paranteza
         }
 
-        int noOfColumns = 1;
+        int noOfSelectedColumns = 1;
         for (int i = poz + 1; i < s.length() && s[i] != ')'; i++) {
-            if (s[i] == ' ' && s[i - 1] != ' ' && i >= 1) {
-                noOfColumns++;
+            if (i > 0 && s[i] == ' ' && s[i - 1] != ' ') {
+                noOfSelectedColumns++;
             }
         }
 
-        auto *selectedColumns = new std::string[noOfColumns];
+        auto *selectedColumns = new std::string[noOfSelectedColumns];
         int columnIndex = 0;
-        for (int i = poz; i < s.length() && s[i] != ')'; i++) {
+        for (int i = poz + 1; i < s.length() && s[i] != ')'; i++) {
             if (s[i] == ' ') {
                 continue;
             }
@@ -510,52 +509,70 @@ public:
             }
         }
 
+
         std::string checkForAll;
         for (int i = 0; i < 3; i++) {
-            checkForAll[i] += tolower(selectedColumns[0][i]);
+            checkForAll += tolower(words[1][i]);
         }
 
-        if (noOfColumns == 1 && checkForAll == "all") {
+        if (noOfSelectedColumns == 1 && checkForAll == "all") {
             tableCatalog->getTable(tableName)->print_table();
             return;
         }
 
-        //we create a new table only with the columns we need
-        auto *tableWithSelectedColumns = new Table(noOfColumns, tableName + '.');
-        //the dot is so we don't repeat table names
-        auto *originalTable = tableCatalog->getTable(tableName);
 
+        auto *originalTable = tableCatalog->getTable(tableName);
+        for (int i = 0; i < noOfSelectedColumns; i++) {
+            if (originalTable->column_exists(selectedColumns[i]) == false) {
+                statusManager->print(StatusManager::Error,
+                                     "Column \"" + selectedColumns[i] + "\" does not exist in table \"" + tableName +
+                                     "\"!");
+                return;
+            }
+        }
         //we set the number of rows of new table to be the same as the original table
-        tableWithSelectedColumns->setNoOfRows(originalTable->getNoOfRows());
-        auto *columnsOfOriginalTable = originalTable->getColumns();
-        int noOfRows = originalTable->getNoOfRows();
+        //we create a new table only with the columns we need
+        auto *tableWithSelectedColumnsOnly = new Table(noOfSelectedColumns, "");
+        tableWithSelectedColumnsOnly->setName(tableName);
+
+        tableWithSelectedColumnsOnly->setNoOfRows(originalTable->getNoOfRows());
+        const auto *columnsOfOriginalTable = originalTable->getColumns();
+        const int noOfRows = originalTable->getNoOfRows();
         std::string **rowsOfOriginalTable = originalTable->getRows();
-        std::string **rowsOfNewTable = tableWithSelectedColumns->getRows();
+        std::string **rowsOfNewTable = tableWithSelectedColumnsOnly->getRows();
+        const int noOfColumnsOfOriginalTable = originalTable->getNoOfColumns();
 
         //we set the column names
-        for (int i = 0; i < noOfColumns; i++) {
-            tableWithSelectedColumns->setColumn(i, selectedColumns[i]);
+        for (int i = 0; i < noOfSelectedColumns; i++) {
+            tableWithSelectedColumnsOnly->setColumn(i, selectedColumns[i]);
         }
+        // for (int i = 0; i < noOfColumns; i++) {
+        //     debug(selectedColumns[i]);
+        // }
 
         //we set the row values, but only on those columns that we need
         int k = 0;
-        for (int i = 0; i < noOfColumns && k < noOfColumns; i++) {
-            if (columnsOfOriginalTable[i] == selectedColumns[k]) {
-                for (int j = 0; j < noOfRows; j++) {
-                    rowsOfNewTable[j][i] = rowsOfOriginalTable[j][i];
+        while (k < noOfSelectedColumns) {
+            for (int i = 0; i < noOfColumnsOfOriginalTable && k < noOfSelectedColumns; i++) {
+                if (columnsOfOriginalTable[i] == selectedColumns[k]) {
+                    for (int j = 0; j < noOfRows; j++) {
+                        rowsOfNewTable[j][k] = rowsOfOriginalTable[j][i];
+                    }
+                    k++;
                 }
-                k++;
             }
         }
+        tableWithSelectedColumnsOnly->setRows(rowsOfNewTable);
+
 
         if (noOfWords < 5) {
-            tableWithSelectedColumns->print_table();
+            tableWithSelectedColumnsOnly->print_table();
             for (int i = 0; i < noOfRows; i++) {
                 delete rowsOfOriginalTable[i];
                 delete rowsOfNewTable[i];
             }
             delete originalTable;
-            delete tableWithSelectedColumns;
+            delete tableWithSelectedColumnsOnly;
             delete[] selectedColumns;
             delete[] columnsOfOriginalTable;
             delete[] rowsOfOriginalTable;
@@ -566,19 +583,29 @@ public:
         std::string columnName = words[noOfWords - 3];
         //value that we search for
         std::string value = words[noOfWords - 1];
-        auto *tableWithSelectedRows = new Table(noOfColumns, tableName + ';');
-        //; is also so we don't repeat table names same as before
+        auto *tableWithSelectedRows = new Table(noOfSelectedColumns, "");
+        tableWithSelectedRows->setName(tableName);
+
+        for (int i = 0; i < noOfSelectedColumns; i++) {
+            tableWithSelectedRows->setColumn(i, selectedColumns[i]);
+        }
+
+        bool found = false;
         for (int i = 0; i < noOfRows; i++) {
-            for (int j = 0; j < noOfColumns; j++) {
+            for (int j = 0; j < noOfSelectedColumns; j++) {
                 if (rowsOfNewTable[i][j] == value) {
                     //it matches what we search for
+                    found = true;
                     tableWithSelectedRows->add_row(rowsOfNewTable[i]);
                 }
             }
         }
-        //we print the table with the selected rows based on the value
-        //we were searching for
-        tableWithSelectedRows->print_table();
+
+        if (!found) {
+            statusManager->print(StatusManager::Error, "There is no value that matches the one you are looking for!");
+        } else {
+            tableWithSelectedRows->print_table();
+        }
 
         //we delete all dynamically allocated variables
         for (int i = 0; i < noOfRows; i++) {
@@ -586,7 +613,7 @@ public:
             delete rowsOfNewTable[i];
         }
         delete originalTable;
-        delete tableWithSelectedColumns;
+        delete tableWithSelectedColumnsOnly;
         delete tableWithSelectedRows;
         delete[] selectedColumns;
         delete[] columnsOfOriginalTable;
@@ -605,7 +632,7 @@ public:
                 continue;
             }
 
-            int *numberOfParentheses = parser->checkBrackets();
+            auto *numberOfParentheses = parser->checkBrackets();
 
             this->words = nullptr;
 

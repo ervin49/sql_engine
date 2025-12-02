@@ -160,23 +160,23 @@ public:
                 startIndexAfter = i;
             }
         }
+
         for (int i = startIndex; i <= stopIndex; i++) {
-            if (i > 0 && (this->s[i - 1] != ' ' && (this->s[i] == ' ' || i == stopIndex))) {
+            if (i > 0 && this->s[i - 1] != ' ' && (this->s[i] == ' ' || i == stopIndex)) {
                 noOfWords++;
             }
         }
         for (int i = startIndexAfter; i <= stopIndexAfter; i++) {
-            if (i > 0 && (this->s[i - 1] != ' ' && (this->s[i] == ' ' || i == stopIndexAfter))) {
+            if (i > 0 && this->s[i - 1] != ' ' && (this->s[i] == ' ' || i == stopIndexAfter)) {
                 noOfWords++;
             }
         }
-        noOfWords++;
-
+        //aici era un noOfWords++ pe care l-am sters
 
         auto *words = new std::string[noOfWords];
         int currentWordIndex = 0;
         for (int i = startIndex; i <= stopIndex; i++) {
-            if (i > 0 && (this->s[i] == ' ' && this->s[i - 1] != ' ' && i > startIndex)) {
+            if (i > 0 && this->s[i] == ' ' && this->s[i - 1] != ' ' && i > startIndex) {
                 currentWordIndex++;
             } else if (this->s[i] != ' ') {
                 //adaugam caracterele direct lowercase, ca stringul sa fie case-insensitive
@@ -186,13 +186,13 @@ public:
         currentWordIndex++;
 
         for (int i = k; i < this->s.length(); i++) {
-            if (i > 0 && (s[i - 1] == ')' && s[i] == ' ')) {
+            if (i > 0 && s[i - 1] == ')' && s[i] == ' ') {
                 break;
             }
             words[currentWordIndex] += tolower(this->s[i]);
         }
         for (int i = startIndexAfter + 1; i <= stopIndexAfter; i++) {
-            if (i > 0 && (this->s[i] == ' ' && this->s[i - 1] != ' ' && i > startIndex)) {
+            if (i > 0 && this->s[i] == ' ' && this->s[i - 1] != ' ' && i > startIndex) {
                 currentWordIndex++;
             } else if (this->s[i] != ' ') {
                 //adaugam caracterele direct lowercase, ca stringul sa fie case-insensitive
@@ -203,7 +203,7 @@ public:
         return words;
     }
 
-    static std::string *parse_column(const std::string &column, int &noOfFields) {
+    std::string *parse_column(const std::string &column, int &noOfFields) {
         noOfFields = 1;
         for (int i = 0; i < column.length(); i++) {
             if (column[i] == ',') {
