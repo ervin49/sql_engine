@@ -391,6 +391,13 @@ public:
 
     void drop_table() const {
         std::string tableName, aux = words[2];
+
+        if (noOfWords != 3)
+        {
+            statusManager->print(StatusManager::Error, "Argument count mismatch: expected 3, got " + std::to_string(noOfWords) + "!");
+            return;
+        }
+
         for (int i = 0; i < words[2].length(); i++) {
             tableName += tolower(words[2][i]);
         }
