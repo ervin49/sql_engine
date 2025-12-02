@@ -264,6 +264,13 @@ public:
 
     void create_table_without_if_not_exists() const {
         std::string tableName;
+
+        if (noOfWords != 4)
+        {
+            statusManager->print(StatusManager::Error, "Argument count mismatch: expected 4, got " + std::to_string(noOfWords) + "!");
+            return;
+        }
+
         for (int i = 0; i < words[2].length(); i++) {
             tableName += tolower(words[2][i]);
         }
