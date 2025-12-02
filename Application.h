@@ -419,6 +419,13 @@ public:
     }
 
     void display_table() const {
+
+        if (noOfWords != 3)
+        {
+            statusManager->print(StatusManager::Error, "Argument count mismatch: expected 3, got " + std::to_string(noOfWords) + "!");
+            return;
+        }
+
         std::string tableName = words[2];
         if (tableCatalog->table_exists(tableName)) {
             tableCatalog->getTable(tableName)->print_table();
