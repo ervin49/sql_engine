@@ -16,7 +16,7 @@ input_text = (
     "CREATE    TABLE studenti IF NOT EXISTS ((id, INT, 11, 0), (nume, VARCHAR, 50, ''), (varsta, INT, 3, 18), (medie, FLOAT, 5, 0.0), (email, VARCHAR, 100, ''), (telefon, VARCHAR, 15, ''))\n"
     "INSERT INTO studenti VALUES (1, \"Ion Popescu\", 20, 8.75, \"ion.popescu@example.com\", \"0712345678\")\n"
     "INSERT INTO studenti VALUES (2, \"Maria Ionescu Maria\", 19, 9.30, \"maria.ionescu@example.com\", \"0722334455\")\n"
-    "INSERT INTO studenti VALUES (3, \"Alexandru Constantin Regele\", 21, 9.85, \"alexandru.constantin@exemplu.com\", 072299999998877)\n"
+    "INSERT INTO studenti VALUES (3, \"Alexandru Constantin\", 21, 9.85, \"alexandru.constantin@exemplu.com\", 072299999998877)\n"
     "SELECT ALL FROM studenti\n"
     "SELECT (nume, varsta, email, id, telefon) FROM studenti\n"
 )
