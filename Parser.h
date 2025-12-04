@@ -82,7 +82,7 @@ public:
     }
 
 
-    std::string *parse_with_brackets(int &noOfWords) const {
+    std::string *parse_with_brackets(int &noOfWords, const bool isValueFromInsert = false) const {
         noOfWords = 0;
         int startIndex = -1;
         int stopIndex = -1;
@@ -124,7 +124,9 @@ public:
                 words[currentWordIndex] += tolower(this->s[i]);
                 break;
             }
-            words[currentWordIndex] += tolower(this->s[i]);
+            if (isValueFromInsert == true) {
+                words[currentWordIndex] += s[i];
+            } else { words[currentWordIndex] += tolower(this->s[i]); }
         }
 
         return words;

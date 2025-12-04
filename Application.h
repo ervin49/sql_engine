@@ -163,6 +163,7 @@ public:
             statusManager->print(StatusManager::Error, "Syntax error!");
             return;
         }
+
         std::string tableName = words[2];
         if (!tableCatalog->table_exists(tableName)) {
             statusManager->print(StatusManager::Error, "Table \"" + tableName + "\" does not exist!");
@@ -171,6 +172,15 @@ public:
 
         int noOfFields;
         std::string *inputFields = parser->parse_column(words[4], noOfFields);
+        //we erase the ""
+        for (int i = 0; i < noOfFields; i++) {
+            if (inputFields[i][0] == '"') {
+                inputFields[i].erase(0, 1);
+            }
+            if (inputFields[i][inputFields[i].size() - 1] == '"') {
+                inputFields[i].erase(inputFields[i].size() - 1, 1);
+            }
+        }
 
         if (noOfFields != tableCatalog->getNumberOfColumns(tableName)) {
             statusManager->print(StatusManager::Error, "Invalid input!");
@@ -554,7 +564,6 @@ public:
         //we set the number of rows of new table to be the same as the original table
         //we create a new table only with the columns we need
         auto *tableWithSelectedColumnsOnly = new Table(noOfSelectedColumns, "");
-        tableWithSelectedColumnsOnly->setName(tableName);
 
         tableWithSelectedColumnsOnly->setNoOfRows(originalTable->getNoOfRows());
         const auto *columnsOfOriginalTable = originalTable->getColumns();
@@ -588,16 +597,8 @@ public:
 
         if (noOfWords < 5) {
             tableWithSelectedColumnsOnly->print_table();
-            for (int i = 0; i < noOfRows; i++) {
-                delete rowsOfOriginalTable[i];
-                delete rowsOfNewTable[i];
-            }
-            delete originalTable;
             delete tableWithSelectedColumnsOnly;
             delete[] selectedColumns;
-            delete[] columnsOfOriginalTable;
-            delete[] rowsOfOriginalTable;
-            delete[] rowsOfNewTable;
             return;
         } //for select with no where clause
 
@@ -605,7 +606,6 @@ public:
         //value that we search for
         std::string value = words[noOfWords - 1];
         auto *tableWithSelectedRows = new Table(noOfSelectedColumns, "");
-        tableWithSelectedRows->setName(tableName);
 
         for (int i = 0; i < noOfSelectedColumns; i++) {
             tableWithSelectedRows->setColumn(i, selectedColumns[i]);
@@ -615,7 +615,7 @@ public:
         for (int i = 0; i < noOfRows; i++) {
             for (int j = 0; j < noOfSelectedColumns; j++) {
                 if (rowsOfNewTable[i][j] == value) {
-                    //it matches what we search for
+                    //it matches what we are searching for
                     found = true;
                     tableWithSelectedRows->add_row(rowsOfNewTable[i]);
                 }
@@ -623,23 +623,15 @@ public:
         }
 
         if (!found) {
-            statusManager->print(StatusManager::Error, "There is no value that matches the one you are looking for!");
+            statusManager->print(StatusManager::Error, "No matching values for: \"" + value + "\"!");
         } else {
             tableWithSelectedRows->print_table();
         }
 
         //we delete all dynamically allocated variables
-        for (int i = 0; i < noOfRows; i++) {
-            delete rowsOfOriginalTable[i];
-            delete rowsOfNewTable[i];
-        }
-        delete originalTable;
         delete tableWithSelectedColumnsOnly;
         delete tableWithSelectedRows;
         delete[] selectedColumns;
-        delete[] columnsOfOriginalTable;
-        delete[] rowsOfOriginalTable;
-        delete[] rowsOfNewTable;
     }
 
     void startApplication() {
@@ -661,7 +653,11 @@ public:
                 if (numberOfParentheses[0] == 1 && tolower(word[0]) == 's') {
                     words = parser->parse_with_brackets_select(noOfWords);
                 } else {
-                    words = parser->parse_with_brackets(noOfWords);
+                    if (tolower(word[0]) == 'i') {
+                        words = parser->parse_with_brackets(noOfWords, true);
+                    } else {
+                        words = parser->parse_with_brackets(noOfWords);
+                    }
                 }
             } else if (numberOfParentheses[0] == 0 && numberOfParentheses[1] == 0) {
                 words = parser->parse_without_brackets(noOfWords);
