@@ -136,18 +136,18 @@ public:
         noOfWords = 0;
         int startIndex = -1;
         int stopIndex = -1;
-        int startIndexAfter = -1;
+        int firstIndexAfterClosedBracket = -1;
         int stopIndexAfter = -1;
         bool bracketFound = false;
         bool closedBracketFound = false;
-        int k = 0;
+        int indexOfFirstParenthese = 0;
         for (int i = 0; i < this->s.length(); i++) {
             if (startIndex == -1 && this->s[i] != ' ') {
                 startIndex = i;
             }
             if (s[i] == '(' && bracketFound == false) {
                 bracketFound = true;
-                k = i;
+                indexOfFirstParenthese = i;
             }
             if (this->s[i] != ' ' && bracketFound == false) {
                 stopIndex = i;
@@ -158,8 +158,8 @@ public:
             if (this->s[i] == ')') {
                 closedBracketFound = true;
             }
-            if (startIndexAfter == -1 && closedBracketFound == true) {
-                startIndexAfter = i;
+            if (firstIndexAfterClosedBracket == -1 && closedBracketFound == true) {
+                firstIndexAfterClosedBracket = i;
             }
         }
 
@@ -167,14 +167,23 @@ public:
             if (i > 0 && this->s[i - 1] != ' ' && (this->s[i] == ' ' || i == stopIndex)) {
                 noOfWords++;
             }
+            if (s[i] == '\'') {
+                break;
+            }
         }
-        for (int i = startIndexAfter; i <= stopIndexAfter; i++) {
+        for (int i = firstIndexAfterClosedBracket; i <= stopIndexAfter; i++) {
             if (i > 0 && this->s[i - 1] != ' ' && (this->s[i] == ' ' || i == stopIndexAfter)) {
                 noOfWords++;
             }
+            if (s[i] == '\'') {
+                break;
+            }
         }
+        if (strchr(s.c_str(), '\'') != nullptr) {
+            noOfWords++;
+        }
+        debug(noOfWords);
         //aici era un noOfWords++ pe care l-am sters
-
         auto *words = new std::string[noOfWords];
         int currentWordIndex = 0;
         for (int i = startIndex; i <= stopIndex; i++) {
@@ -187,20 +196,30 @@ public:
         }
         currentWordIndex++;
 
-        for (int i = k; i < this->s.length(); i++) {
+        for (int i = indexOfFirstParenthese; i < this->s.length(); i++) {
             if (i > 0 && s[i - 1] == ')' && s[i] == ' ') {
                 break;
             }
             words[currentWordIndex] += tolower(this->s[i]);
         }
-        for (int i = startIndexAfter + 1; i <= stopIndexAfter; i++) {
-            if (i > 0 && this->s[i] == ' ' && this->s[i - 1] != ' ' && i > startIndex) {
+        for (int i = firstIndexAfterClosedBracket + 1; i > 0 && i <= stopIndexAfter && i < s.length(); i++) {
+            if (this->s[i] == ' ' && this->s[i - 1] != ' ' && i > startIndex) {
                 currentWordIndex++;
             } else if (this->s[i] != ' ') {
                 //adaugam caracterele direct lowercase, ca stringul sa fie case-insensitive
                 words[currentWordIndex] += tolower(this->s[i]);
             }
         }
+
+        const char *posOfFirstQuote = strchr(s.c_str(), '\'');
+        if (posOfFirstQuote != nullptr) {
+            words[noOfWords - 1] = "";
+            words[noOfWords - 1] += posOfFirstQuote;
+            words[noOfWords - 1].erase(0, 1);
+            words[noOfWords - 1].erase(words[noOfWords - 1].size() - 1, 1);
+        } //we do this so it's not lowercase anymore, the value has to be case-sensitive, if it exists
+
+        debug(words[noOfWords - 1]);
 
         return words;
     }
@@ -252,10 +271,9 @@ public:
             }
         }
 
-        for (int i = 0; i <= k; i++)
-        {
-            if (fields[i][0] == '"' && fields[i][fields[i].length() - 1] == '"' || fields[i][0] == '\'' || fields[i][fields[i].length() - 1] == '\'')
-            {
+        for (int i = 0; i <= k; i++) {
+            if (fields[i][0] == '"' && fields[i][fields[i].length() - 1] == '"' || fields[i][0] == '\'' || fields[i][
+                    fields[i].length() - 1] == '\'') {
                 fields[i] = fields[i].substr(1, fields[i].length() - 2);
             }
         }

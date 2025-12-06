@@ -259,16 +259,22 @@ public:
         for (int i = 0; i < OFFSET / 2 - 1; i++) {
             std::cout << ' ';
         }
+
         //we display the column names
         for (int i = 0; i < noOfColumns; i++) {
             std::cout << columns[i];
 
             if (columns[i].length() == maxLengthOnColumn[i]) {
-                for (int k = 0; k < OFFSET / 2; k++) {
+                for (int k = 0; k < OFFSET / 2 && i < noOfColumns - 1; k++) {
                     std::cout << ' ';
                 }
-                std::cout << '|';
+                if (i < noOfColumns - 1) {
+                    std::cout << '|';
+                }
                 for (int k = OFFSET / 2 + 1; k < OFFSET; k++) {
+                    std::cout << ' ';
+                }
+                if (i == noOfColumns - 1) {
                     std::cout << ' ';
                 }
             } else {

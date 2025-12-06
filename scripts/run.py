@@ -13,12 +13,12 @@ executable_name = "sql_engine"
 
 # Comanda SQL de test
 input_text = (
-    "CREATE    TABLE studenti IF NOT EXISTS ((id, INT, 11, 0), (nume, VARCHAR, 50, ''), (varsta, INT, 3, 18), (medie, FLOAT, 5, 0.0), (email, VARCHAR, 100, ''), (telefon, VARCHAR, 15, ''))\n"
-    "INSERT INTO studenti VALUES (1, \"Ion Popescu\", 20, 8.75, \"ion.popescu@example.com\", \"0712345678\")\n"
-    "INSERT INTO studenti VALUES (2, \"Maria Ionescu Maria\", 19, 9.30, \"maria.ionescu@example.com\", \"0722334455\")\n"
-    "INSERT INTO studenti VALUES (3, \"Alexandru Constantin\", 21, 9.85, \"alexandru.constantin@exemplu.com\", 072299999998877)\n"
-    "SELECT ALL FROM studenti\n"
-    "SELECT (nume, varsta, email, id, telefon) FROM studenti\n"
+    "CREATE    TABLE produse IF NOT EXISTS ((id_produs, INT, 10, 0), (denumire, VARCHAR, 50, ''), (stoc, INT, 5, 0), (pret, FLOAT, 8, 0.0), (categorie, VARCHAR, 30, 'General'), (cod_bar, VARCHAR, 20, ''))\n"
+    "INSERT INTO produse VALUES (101, \"Laptop Gaming X\", 15, 4500.99, \"Laptopuri\", \"LPT-GAM-2024\")\n"
+    "INSERT INTO produse VALUES (102, \"Mouse Wireless\", 120, 89.50, \"Periferice\", \"PER-MSE-001\")\n"
+    "INSERT INTO produse VALUES (103, \"Monitor UltraWide\", 7, 1250.00, \"Monitoare\", 998877665544332211)\n"
+    "SELECT ALL FROM produse\n"
+    "SELECT (denumire, pret, categorie, stoc) FROM produse where denumire = 'Mouse Wireless'\n"
 )
 
 print(f"--- Proiect: {project_dir} ---")

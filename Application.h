@@ -275,9 +275,9 @@ public:
     void create_table_without_if_not_exists() const {
         std::string tableName;
 
-        if (noOfWords != 4)
-        {
-            statusManager->print(StatusManager::Error, "Argument count mismatch: expected 4, got " + std::to_string(noOfWords) + "!");
+        if (noOfWords != 4) {
+            statusManager->print(StatusManager::Error,
+                                 "Argument count mismatch: expected 4, got " + std::to_string(noOfWords) + "!");
             return;
         }
 
@@ -402,9 +402,9 @@ public:
     void drop_table() const {
         std::string tableName, aux = words[2];
 
-        if (noOfWords != 3)
-        {
-            statusManager->print(StatusManager::Error, "Argument count mismatch: expected 3, got " + std::to_string(noOfWords) + "!");
+        if (noOfWords != 3) {
+            statusManager->print(StatusManager::Error,
+                                 "Argument count mismatch: expected 3, got " + std::to_string(noOfWords) + "!");
             return;
         }
 
@@ -429,10 +429,9 @@ public:
     }
 
     void display_table() const {
-
-        if (noOfWords != 3)
-        {
-            statusManager->print(StatusManager::Error, "Argument count mismatch: expected 3, got " + std::to_string(noOfWords) + "!");
+        if (noOfWords != 3) {
+            statusManager->print(StatusManager::Error,
+                                 "Argument count mismatch: expected 3, got " + std::to_string(noOfWords) + "!");
             return;
         }
 
@@ -508,12 +507,8 @@ public:
     }
 
     void select_from() const {
-        std::string tableName;
-        if (words[noOfWords - 2][0] == '=') {
-            tableName = words[noOfWords - 5];
-        } else {
-            tableName = words[noOfWords - 1];
-        }
+        std::string tableName = words[3];
+        debug(tableName);
 
         int poz = 0;
         while (poz < s.length() && s[poz] != '(') {
@@ -541,12 +536,13 @@ public:
         }
 
 
-        std::string checkForAll;
+        std::string secondWord;
         for (int i = 0; i < 3; i++) {
-            checkForAll += tolower(words[1][i]);
+            secondWord += tolower(words[1][i]);
         }
+        bool checkForAll = secondWord == "all";
 
-        if (noOfSelectedColumns == 1 && checkForAll == "all") {
+        if (noOfSelectedColumns == 1 && checkForAll == true) {
             tableCatalog->getTable(tableName)->print_table();
             return;
         }
@@ -576,11 +572,8 @@ public:
         for (int i = 0; i < noOfSelectedColumns; i++) {
             tableWithSelectedColumnsOnly->setColumn(i, selectedColumns[i]);
         }
-        // for (int i = 0; i < noOfColumns; i++) {
-        //     debug(selectedColumns[i]);
-        // }
 
-        //we set the row values, but only on those columns that we need
+        //we set the row values, but only o those columns that we need
         int k = 0;
         while (k < noOfSelectedColumns) {
             for (int i = 0; i < noOfColumnsOfOriginalTable && k < noOfSelectedColumns; i++) {
@@ -623,7 +616,8 @@ public:
         }
 
         if (!found) {
-            statusManager->print(StatusManager::Error, "No matching values for: \"" + value + "\"!");
+            statusManager->print(StatusManager::Error,
+                                 "No matching values for: \"" + value + "\" in column: \"" + columnName + "\"!");
         } else {
             tableWithSelectedRows->print_table();
         }
