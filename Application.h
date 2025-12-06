@@ -475,8 +475,9 @@ public:
             }
         }
         table->setRows(tableRows);
+        std::cout<<setValue << std::endl;
         statusManager->print(StatusManager::Success, "Updated table successfully!");
-        delete table;
+        //delete table;
     }
 
     void delete_from() const {
@@ -517,7 +518,7 @@ public:
 
         int noOfSelectedColumns = 1;
         for (int i = poz + 1; i < s.length() && s[i] != ')'; i++) {
-            if (i > 0 && s[i] == ' ' && s[i - 1] != ' ') {
+            if (i > 0 && s[i] == ',') {
                 noOfSelectedColumns++;
             }
         }
@@ -605,9 +606,11 @@ public:
         }
 
         bool found = false;
+        int index = tableWithSelectedRows->return_index_of_column_by_name(columnName);
+
         for (int i = 0; i < noOfRows; i++) {
             for (int j = 0; j < noOfSelectedColumns; j++) {
-                if (rowsOfNewTable[i][j] == value) {
+                if (rowsOfNewTable[i][j] == value && j == index) {
                     //it matches what we are searching for
                     found = true;
                     tableWithSelectedRows->add_row(rowsOfNewTable[i]);

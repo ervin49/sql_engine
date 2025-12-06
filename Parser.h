@@ -158,7 +158,7 @@ public:
             if (this->s[i] == ')') {
                 closedBracketFound = true;
             }
-            if (firstIndexAfterClosedBracket == -1 && closedBracketFound == true) {
+            if (firstIndexAfterClosedBracket == -1 && this->s[i] != ' ' && closedBracketFound == true) {
                 firstIndexAfterClosedBracket = i;
             }
         }
@@ -184,7 +184,7 @@ public:
         }
         debug(noOfWords);
         //aici era un noOfWords++ pe care l-am sters
-        auto *words = new std::string[noOfWords];
+        auto *words = new std::string[noOfWords+1];
         int currentWordIndex = 0;
         for (int i = startIndex; i <= stopIndex; i++) {
             if (i > 0 && this->s[i] == ' ' && this->s[i - 1] != ' ' && i > startIndex) {
@@ -202,8 +202,12 @@ public:
             }
             words[currentWordIndex] += tolower(this->s[i]);
         }
+        bool quoteFound = false;
         for (int i = firstIndexAfterClosedBracket + 1; i > 0 && i <= stopIndexAfter && i < s.length(); i++) {
-            if (this->s[i] == ' ' && this->s[i - 1] != ' ' && i > startIndex) {
+            if (this->s[i] == '\'') {
+                quoteFound = true;
+            }
+            if (this->s[i] == ' ' && this->s[i - 1] != ' ' && i > startIndex && quoteFound == false) {
                 currentWordIndex++;
             } else if (this->s[i] != ' ') {
                 //adaugam caracterele direct lowercase, ca stringul sa fie case-insensitive
