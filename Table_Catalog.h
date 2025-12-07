@@ -13,6 +13,49 @@ public:
         tables = nullptr;
         noOfTables = 0;
     }
+    Table_Catalog(Table* tables, int noOfTables) {
+        if (noOfTables != 0 && tables != nullptr) {
+            this->noOfTables = noOfTables;
+            this->tables = new Table[noOfTables];
+            for (int i = 0; i < noOfTables; i++) {
+                this->tables[i] = tables[i];
+            }
+        }
+    }
+
+    Table_Catalog(const Table_Catalog& that) {
+        if (that.noOfTables!=0 && that.tables!=nullptr) {
+            this->noOfTables = that.noOfTables;
+            this->tables = new Table[noOfTables];
+            for (int i = 0; i < noOfTables; i++) {
+                this->tables[i] = that.tables[i];
+            }
+        }
+        else {
+            this->noOfTables = 0;
+            this->tables = nullptr;
+        }
+
+    }
+    Table_Catalog& operator=(const Table_Catalog& that) {
+        if (this != &that) {
+            if (this->tables != nullptr) {
+                delete[] this->tables;
+                this->tables = nullptr;
+            }
+            if (that.noOfTables!=0 && that.tables!=nullptr) {
+                this->noOfTables = that.noOfTables;
+                this->tables = new Table[noOfTables];
+                for (int i = 0; i < noOfTables; i++) {
+                    this->tables[i] = that.tables[i];
+                }
+            }
+            else {
+                this->noOfTables = 0;
+            }
+        }
+        return *this;
+    }
 
     bool operator==(const Table_Catalog& table_catalog) const
     {

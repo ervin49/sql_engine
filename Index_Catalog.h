@@ -23,6 +23,52 @@ public:
         noOfIndexes = 0;
     }
 
+    Index_Catalog(Index* indexes, int noOfIndexes) {
+        if (noOfIndexes != 0 && indexes != nullptr) {
+            this->noOfIndexes = noOfIndexes;
+            this->indexes = new Index[noOfIndexes];
+            for (int i = 0; i < noOfIndexes; i++)
+                this->indexes[i] = indexes[i];
+        }
+    }
+
+    Index_Catalog(const Index_Catalog& i) {
+        if (this->indexes != nullptr) {
+            delete[] this->indexes;
+            this->indexes = nullptr;
+        }
+        if (i.indexes != nullptr && i.noOfIndexes != 0) {
+            this->noOfIndexes = i.noOfIndexes;
+            this->indexes = new Index[noOfIndexes];
+            for (int j = 0; j < noOfIndexes; j++) {
+                this->indexes[j] = i.indexes[j];
+            }
+        }
+        else {
+            this->noOfIndexes = 0;
+        }
+    }
+
+    Index_Catalog& operator=(const Index_Catalog& i) {
+        if (this != &i) {
+            if (this->indexes != nullptr) {
+                delete[] this->indexes;
+                this->indexes = nullptr;
+            }
+            if (i.indexes != nullptr && i.noOfIndexes != 0) {
+                this->noOfIndexes = i.noOfIndexes;
+                this->indexes = new Index[noOfIndexes];
+                for (int j = 0; j < noOfIndexes; j++) {
+                    this->indexes[j] = i.indexes[j];
+                }
+            }
+            else {
+                this->noOfIndexes = 0;
+            }
+        }
+        return *this;
+    }
+
     bool operator==(const Index_Catalog& indexCatalog) const
     {
         if (this->noOfIndexes != indexCatalog.noOfIndexes)

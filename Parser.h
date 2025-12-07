@@ -18,6 +18,13 @@ public:
         this->s = p.s;
     }
 
+    Parser& operator=(const Parser& p) {
+        if (this != &p) {
+            this->s = p.s;
+        }
+        return *this;
+    }
+
     void setCommand() {
         std::getline(std::cin, this->s);
     }

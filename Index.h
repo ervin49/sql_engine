@@ -15,6 +15,21 @@ public:
 
     Index() = default;
 
+    Index(const Index& i) {
+        this->indexName = i.indexName;
+        this->tableName = i.tableName;
+        this->columnName = i.columnName;
+    }
+
+    Index& operator=(const Index& i) {
+        if (this != &i) {
+            this->indexName = i.indexName;
+            this->tableName = i.tableName;
+            this->columnName = i.columnName;
+        }
+        return *this;
+    }
+
     bool operator==(const Index &index) const {
         if (this->indexName != index.indexName ||
             this->tableName != index.tableName ||

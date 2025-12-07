@@ -6,6 +6,21 @@ private:
     std::string msg;
 
 public:
+
+    StatusManager() {}
+    StatusManager(std::string msg) {
+        this->msg = msg;
+    }
+    StatusManager(const StatusManager& statusManager) {
+        this->msg = statusManager.msg;
+    }
+    StatusManager& operator=(const StatusManager& statusManager) {
+        if (this != &statusManager) {
+            this->msg = statusManager.msg;
+        }
+        return *this;
+    }
+
     enum Status { Note, Success, Error };
 
     void print(const Status status, const std::string &err) {
