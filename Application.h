@@ -445,8 +445,18 @@ public:
 
     void update_table() const {
         std::string tableName = words[1];
+
+        if (noOfWords != 9) {
+            statusManager->print(StatusManager::Error,"Invalid number of tokens, expected 9, got " + std::to_string(noOfWords) + "!");
+            return;
+        }
+
         if (!tableCatalog->table_exists(tableName)) {
             statusManager->print(StatusManager::Error, "Table \"" + tableName + "\" does not exist!");
+            return;
+        }
+        if (words[2] != "set") {
+            statusManager->print(StatusManager::Error,"Syntax Error: Expected 'SET' at position 2, but found \"" + words[2] + "\".");
             return;
         }
 
@@ -455,6 +465,14 @@ public:
         if (!table->column_exists(setColumnName)) {
             statusManager->print(StatusManager::Error,
                                  "Table \"" + tableName + "\" does not have column \"" + setColumnName + "\"!");
+            return;
+        }
+        if (words[4] != "=") {
+            statusManager->print(StatusManager::Error,"Syntax Error: Expected '=' at position 4, but found \"" + words[4] + "\".");
+            return;
+        }
+        if (words[8] != "=") {
+            statusManager->print(StatusManager::Error,"Syntax Error: Expected '=' at position 8, but found \"" + words[8] + "\".");
             return;
         }
 
@@ -481,8 +499,13 @@ public:
     }
 
     void delete_from() const {
+        if (noOfWords > 7) {
+            statusManager->print(StatusManager::Error,"Invalid number of tokens.");
+            return;
+        }
         if (noOfWords < 6) {
             statusManager->print(StatusManager::Error, "Incomplete input!");
+            return;
         }
         if (words[1] != "from") {
             statusManager->print(StatusManager::Error, "Parse error near \"" + words[1] + "\"!");
@@ -511,6 +534,76 @@ public:
         std::string tableName = words[3];
         debug(tableName);
 
+        if (!tableCatalog->table_exists(tableName)) {
+            statusManager->print(StatusManager::Error, "Table \"" + tableName + "\" does not exist!");
+            return;
+        }
+
+        std::string secondWord;
+        for (int i = 0; i < 3; i++) {
+            secondWord += tolower(words[1][i]);
+        }
+        bool checkForAll = secondWord == "all";
+
+        if (checkForAll == true) {
+            if (noOfWords == 4) {
+                tableCatalog->getTable(tableName)->print_table();
+            }
+            else {
+                if (words[4] != "where") {
+                    statusManager->print(StatusManager::Error,
+                                         "Syntax Error: Expected keyword 'WHERE', but found \"" + words[4] + "\" instead.");
+                }
+                else if (words[6] != "=") {
+                    statusManager->print(StatusManager::Error,"Syntax Error: Expected symbol '=', but found \"" + words[6] + "\" instead.");
+                }
+                auto *originalTable = tableCatalog->getTable(tableName);
+                std::string columnName = words[noOfWords - 3];
+                //value that we search for
+                std::string value = words[noOfWords - 1];
+
+                bool found = false;
+                int index = originalTable->return_index_of_column_by_name(columnName);
+                const int noOfRows = originalTable->getNoOfRows();
+                const int noOfColumns = originalTable->getNoOfColumns();
+                std::string **rowsOfOriginalTable = originalTable->getRows();
+                auto *tableWithSelectedRows = new Table(noOfColumns, "");
+
+                std::string* selectedColumns = originalTable->getColumns();
+                for (int i = 0; i < noOfColumns; i++) {
+                    tableWithSelectedRows->setColumn(i, selectedColumns[i]);
+                }
+
+                for (int i = 0; i < noOfRows; i++) {
+                    for (int j = 0; j < noOfColumns; j++) {
+                        if (rowsOfOriginalTable[i][j] == value && j == index) {
+                            //it matches what we are searching for
+                            found = true;
+                            tableWithSelectedRows->add_row(rowsOfOriginalTable[i]);
+                        }
+                    }
+                }
+
+                if (!found) {
+                    statusManager->print(StatusManager::Error,
+                                         "No matching values for: \"" + value + "\" in column: \"" + columnName + "\"!");
+                } else {
+                    tableWithSelectedRows->print_table();
+                }
+
+                //we delete all dynamically allocated variables
+                delete tableWithSelectedRows;
+
+
+            }
+            return;
+        }
+
+        if (noOfWords > 8) {
+            statusManager->print(StatusManager::Error, "Invalid number of tokens");
+            return;
+        }
+
         int poz = 0;
         while (poz < s.length() && s[poz] != '(') {
             poz++; //dupa asta i se va afla pe prima paranteza
@@ -534,18 +627,6 @@ public:
             } else {
                 selectedColumns[columnIndex] += s[i];
             }
-        }
-
-
-        std::string secondWord;
-        for (int i = 0; i < 3; i++) {
-            secondWord += tolower(words[1][i]);
-        }
-        bool checkForAll = secondWord == "all";
-
-        if (noOfSelectedColumns == 1 && checkForAll == true) {
-            tableCatalog->getTable(tableName)->print_table();
-            return;
         }
 
 
@@ -595,6 +676,14 @@ public:
             delete[] selectedColumns;
             return;
         } //for select with no where clause
+
+        if (words[4] != "where") {
+            statusManager->print(StatusManager::Error,
+                                 "Syntax Error: Expected keyword 'WHERE', but found \"" + words[4] + "\" instead.");
+        }
+        else if (words[6] != "=") {
+            statusManager->print(StatusManager::Error,"Syntax Error: Expected symbol '=', but found \"" + words[6] + "\" instead.");
+        }
 
         std::string columnName = words[noOfWords - 3];
         //value that we search for
