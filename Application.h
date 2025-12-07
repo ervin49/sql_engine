@@ -22,9 +22,72 @@ public:
         this->noOfWords = 0;
     }
 
+    Application(std::string *words, int noOfWords) {
+        if (noOfWords != 0 && words != nullptr) {
+            this->noOfWords = noOfWords;
+            this->words = new std::string[noOfWords];
+            for (int i = 0; i < noOfWords; i++) {
+                this->words[i] = words[i];
+            }
+        }
+    }
+
     ~Application() {
         delete[] this->words;
         delete parser;
+    }
+
+    Application(const Application& a) {
+
+        this->s = a.s;
+        if (a.words != nullptr && a.noOfWords != 0) {
+            this->noOfWords = a.noOfWords;
+            this->words = new std::string[this->noOfWords];
+            for (int i = 0; i < this->noOfWords; i++) {
+                this->words[i] = a.words[i];
+            }
+        }
+        else {
+            this->noOfWords = 0;
+            this->words = nullptr;
+        }
+        if (a.parser != nullptr) {//a.parser can not be nullptr (class invariant), but for safety reasons
+            this->parser = new Parser(*a.parser);
+        }
+        else {
+            this->parser = new Parser;
+        }
+
+    }
+
+
+    Application& operator=(const Application &a){
+        if (this != &a) {
+            if (this->words != nullptr) {
+                delete[] this->words;
+                this->words = nullptr;
+            }
+
+            this->s = a.s;
+            if (a.words != nullptr && a.noOfWords != 0) {
+                this->noOfWords = a.noOfWords;
+                this->words = new std::string[this->noOfWords];
+                for (int i = 0; i < this->noOfWords; i++) {
+                    this->words[i] = a.words[i];
+                }
+            }
+            else {
+                this->noOfWords = 0;
+            }
+            if (a.parser != nullptr) {//a.parser can not be nullptr (class invariant), but for safety reasons x2
+                this->parser = new Parser(*a.parser);
+            }
+            else {
+                this->parser = new Parser;
+            }
+
+        }
+        return *this;
     }
 
     void print_application() const {
@@ -561,7 +624,8 @@ public:
                 std::string columnName = words[noOfWords - 3];
                 //value that we search for
                 std::string value = words[noOfWords - 1];
-
+                std::cout<<"x";
+                debug(noOfWords);
                 bool found = false;
                 int index = originalTable->return_index_of_column_by_name(columnName);
                 const int noOfRows = originalTable->getNoOfRows();
@@ -628,7 +692,7 @@ public:
                 selectedColumns[columnIndex] += s[i];
             }
         }
-
+        debug(selectedColumns[columnIndex]);
 
         auto *originalTable = tableCatalog->getTable(tableName);
         for (int i = 0; i < noOfSelectedColumns; i++) {
@@ -685,9 +749,11 @@ public:
             statusManager->print(StatusManager::Error,"Syntax Error: Expected symbol '=', but found \"" + words[6] + "\" instead.");
         }
 
-        std::string columnName = words[noOfWords - 3];
+
+
+        std::string columnName = words[noOfWords - 3];//
         //value that we search for
-        std::string value = words[noOfWords - 1];
+        std::string value = words[noOfWords - 1];//
         auto *tableWithSelectedRows = new Table(noOfSelectedColumns, "");
 
         for (int i = 0; i < noOfSelectedColumns; i++) {

@@ -9,6 +9,15 @@ private:
 public:
     Parser() = default;
 
+
+    Parser(std::string s) {
+        this->s = s;
+    }
+
+    Parser(const Parser& p) {
+        this->s = p.s;
+    }
+
     void setCommand() {
         std::getline(std::cin, this->s);
     }
@@ -205,7 +214,7 @@ public:
         bool quoteFound = false;
         for (int i = firstIndexAfterClosedBracket + 1; i > 0 && i <= stopIndexAfter && i < s.length(); i++) {
             if (this->s[i] == '\'') {
-                quoteFound = true;
+                quoteFound = !quoteFound;
             }
             if (this->s[i] == ' ' && this->s[i - 1] != ' ' && i > startIndex && quoteFound == false) {
                 currentWordIndex++;
