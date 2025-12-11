@@ -14,11 +14,11 @@ public:
         this->s = s;
     }
 
-    Parser(const Parser& p) {
+    Parser(const Parser &p) {
         this->s = p.s;
     }
 
-    Parser& operator=(const Parser& p) {
+    Parser &operator=(const Parser &p) {
         if (this != &p) {
             this->s = p.s;
         }
@@ -27,6 +27,10 @@ public:
 
     void setCommand() {
         std::getline(std::cin, this->s);
+    }
+
+    void setCommandFromFile(const std::string &line) {
+        this->s = line;
     }
 
     std::string getString() const {
@@ -198,9 +202,8 @@ public:
         if (strchr(s.c_str(), '\'') != nullptr) {
             noOfWords++;
         }
-        debug(noOfWords);
         //aici era un noOfWords++ pe care l-am sters
-        auto *words = new std::string[noOfWords+1];
+        auto *words = new std::string[noOfWords + 1];
         int currentWordIndex = 0;
         for (int i = startIndex; i <= stopIndex; i++) {
             if (i > 0 && this->s[i] == ' ' && this->s[i - 1] != ' ' && i > startIndex) {
@@ -238,8 +241,6 @@ public:
             words[noOfWords - 1].erase(0, 1);
             words[noOfWords - 1].erase(words[noOfWords - 1].size() - 1, 1);
         } //we do this so it's not lowercase anymore, the value has to be case-sensitive, if it exists
-
-        debug(words[noOfWords - 1]);
 
         return words;
     }
@@ -304,5 +305,8 @@ public:
 
     void print_parser() const {
         std::cout << "Current string stored in the parser is: \"" << s << "\"." << std::endl;
+    }
+
+    void parse_command() {
     }
 };

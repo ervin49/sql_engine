@@ -1,5 +1,6 @@
 #pragma once
 #include <cstring>
+#include <fstream>
 
 #include "StatusManager.h"
 #include "Table_Catalog.h"
@@ -11,7 +12,7 @@
 
 class Application {
 private:
-    Parser *parser = new Parser;
+    Parser *parser = new Parser();
     std::string *words;
     int noOfWords = 0;
     std::string s;
@@ -37,8 +38,8 @@ public:
         delete parser;
     }
 
-    Application(const Application& a) {
 
+    Application(const Application &a) {
         this->s = a.s;
         if (a.words != nullptr && a.noOfWords != 0) {
             this->noOfWords = a.noOfWords;
@@ -46,22 +47,20 @@ public:
             for (int i = 0; i < this->noOfWords; i++) {
                 this->words[i] = a.words[i];
             }
-        }
-        else {
+        } else {
             this->noOfWords = 0;
             this->words = nullptr;
         }
-        if (a.parser != nullptr) {//a.parser can not be nullptr (class invariant), but for safety reasons
+        if (a.parser != nullptr) {
+            //a.parser can not be nullptr (class invariant), but for safety reasons
             this->parser = new Parser(*a.parser);
-        }
-        else {
+        } else {
             this->parser = new Parser;
         }
-
     }
 
 
-    Application& operator=(const Application &a){
+    Application &operator=(const Application &a) {
         if (this != &a) {
             if (this->words != nullptr) {
                 delete[] this->words;
@@ -75,17 +74,15 @@ public:
                 for (int i = 0; i < this->noOfWords; i++) {
                     this->words[i] = a.words[i];
                 }
-            }
-            else {
+            } else {
                 this->noOfWords = 0;
             }
-            if (a.parser != nullptr) {//a.parser can not be nullptr (class invariant), but for safety reasons x2
+            if (a.parser != nullptr) {
+                //a.parser can not be nullptr (class invariant), but for safety reasons x2
                 this->parser = new Parser(*a.parser);
-            }
-            else {
+            } else {
                 this->parser = new Parser;
             }
-
         }
         return *this;
     }
@@ -93,6 +90,7 @@ public:
     void print_application() const {
         std::cout << "Current running application: " << "de schimbat aici" << std::endl;
     }
+
 
     friend std::ostream &operator<<(std::ostream &out, const Application &application) {
         application.print_application();
@@ -114,6 +112,7 @@ public:
 
         return true;
     }
+
 
     void setQuery(std::string *words, int noOfWords, std::string s) {
         this->s = s;
@@ -252,7 +251,9 @@ public:
 
         Table *table = tableCatalog->getTable(tableName);
         table->add_row(inputFields);
-        statusManager->print(StatusManager::Success, "Inserted successfully!");
+        int noOfRows = table->getNoOfRows();
+        statusManager->print(StatusManager::Success,
+                             "Inserted successfully! (Total number of rows: " + std::to_string(noOfRows) + ')');
     }
 
 
@@ -510,7 +511,8 @@ public:
         std::string tableName = words[1];
 
         if (noOfWords != 9) {
-            statusManager->print(StatusManager::Error,"Invalid number of tokens, expected 9, got " + std::to_string(noOfWords) + "!");
+            statusManager->print(StatusManager::Error,
+                                 "Invalid number of tokens, expected 9, got " + std::to_string(noOfWords) + "!");
             return;
         }
 
@@ -519,7 +521,8 @@ public:
             return;
         }
         if (words[2] != "set") {
-            statusManager->print(StatusManager::Error,"Syntax Error: Expected 'SET' at position 2, but found \"" + words[2] + "\".");
+            statusManager->print(StatusManager::Error,
+                                 "Syntax Error: Expected 'SET' at position 2, but found \"" + words[2] + "\".");
             return;
         }
 
@@ -531,11 +534,13 @@ public:
             return;
         }
         if (words[4] != "=") {
-            statusManager->print(StatusManager::Error,"Syntax Error: Expected '=' at position 4, but found \"" + words[4] + "\".");
+            statusManager->print(StatusManager::Error,
+                                 "Syntax Error: Expected '=' at position 4, but found \"" + words[4] + "\".");
             return;
         }
         if (words[8] != "=") {
-            statusManager->print(StatusManager::Error,"Syntax Error: Expected '=' at position 8, but found \"" + words[8] + "\".");
+            statusManager->print(StatusManager::Error,
+                                 "Syntax Error: Expected '=' at position 8, but found \"" + words[8] + "\".");
             return;
         }
 
@@ -556,14 +561,14 @@ public:
             }
         }
         table->setRows(tableRows);
-        std::cout<<setValue << std::endl;
+        std::cout << setValue << std::endl;
         statusManager->print(StatusManager::Success, "Updated table successfully!");
         //delete table;
     }
 
     void delete_from() const {
         if (noOfWords > 7) {
-            statusManager->print(StatusManager::Error,"Invalid number of tokens.");
+            statusManager->print(StatusManager::Error, "Invalid number of tokens.");
             return;
         }
         if (noOfWords < 6) {
@@ -595,7 +600,6 @@ public:
 
     void select_from() const {
         std::string tableName = words[3];
-        debug(tableName);
 
         if (!tableCatalog->table_exists(tableName)) {
             statusManager->print(StatusManager::Error, "Table \"" + tableName + "\" does not exist!");
@@ -611,21 +615,20 @@ public:
         if (checkForAll == true) {
             if (noOfWords == 4) {
                 tableCatalog->getTable(tableName)->print_table();
-            }
-            else {
+            } else {
                 if (words[4] != "where") {
                     statusManager->print(StatusManager::Error,
-                                         "Syntax Error: Expected keyword 'WHERE', but found \"" + words[4] + "\" instead.");
-                }
-                else if (words[6] != "=") {
-                    statusManager->print(StatusManager::Error,"Syntax Error: Expected symbol '=', but found \"" + words[6] + "\" instead.");
+                                         "Syntax Error: Expected keyword 'WHERE', but found \"" + words[4] +
+                                         "\" instead.");
+                } else if (words[6] != "=") {
+                    statusManager->print(StatusManager::Error,
+                                         "Syntax Error: Expected symbol '=', but found \"" + words[6] + "\" instead.");
                 }
                 auto *originalTable = tableCatalog->getTable(tableName);
                 std::string columnName = words[noOfWords - 3];
                 //value that we search for
                 std::string value = words[noOfWords - 1];
-                std::cout<<"x";
-                debug(noOfWords);
+                std::cout << "x";
                 bool found = false;
                 int index = originalTable->return_index_of_column_by_name(columnName);
                 const int noOfRows = originalTable->getNoOfRows();
@@ -633,7 +636,7 @@ public:
                 std::string **rowsOfOriginalTable = originalTable->getRows();
                 auto *tableWithSelectedRows = new Table(noOfColumns, "");
 
-                std::string* selectedColumns = originalTable->getColumns();
+                std::string *selectedColumns = originalTable->getColumns();
                 for (int i = 0; i < noOfColumns; i++) {
                     tableWithSelectedRows->setColumn(i, selectedColumns[i]);
                 }
@@ -650,15 +653,14 @@ public:
 
                 if (!found) {
                     statusManager->print(StatusManager::Error,
-                                         "No matching values for: \"" + value + "\" in column: \"" + columnName + "\"!");
+                                         "No matching values for: \"" + value + "\" in column: \"" + columnName +
+                                         "\"!");
                 } else {
                     tableWithSelectedRows->print_table();
                 }
 
                 //we delete all dynamically allocated variables
                 delete tableWithSelectedRows;
-
-
             }
             return;
         }
@@ -692,7 +694,6 @@ public:
                 selectedColumns[columnIndex] += s[i];
             }
         }
-        debug(selectedColumns[columnIndex]);
 
         auto *originalTable = tableCatalog->getTable(tableName);
         for (int i = 0; i < noOfSelectedColumns; i++) {
@@ -744,16 +745,15 @@ public:
         if (words[4] != "where") {
             statusManager->print(StatusManager::Error,
                                  "Syntax Error: Expected keyword 'WHERE', but found \"" + words[4] + "\" instead.");
+        } else if (words[6] != "=") {
+            statusManager->print(StatusManager::Error,
+                                 "Syntax Error: Expected symbol '=', but found \"" + words[6] + "\" instead.");
         }
-        else if (words[6] != "=") {
-            statusManager->print(StatusManager::Error,"Syntax Error: Expected symbol '=', but found \"" + words[6] + "\" instead.");
-        }
 
 
-
-        std::string columnName = words[noOfWords - 3];//
+        std::string columnName = words[noOfWords - 3]; //
         //value that we search for
-        std::string value = words[noOfWords - 1];//
+        std::string value = words[noOfWords - 1]; //
         auto *tableWithSelectedRows = new Table(noOfSelectedColumns, "");
 
         for (int i = 0; i < noOfSelectedColumns; i++) {
@@ -786,7 +786,54 @@ public:
         delete[] selectedColumns;
     }
 
-    void startApplication() {
+    void parseCommandsFromFiles(int argc, char **argv) {
+        int i = 1;
+        for (std::string fileName; i < argc; i++) {
+            fileName = argv[i];
+            std::ifstream file(fileName);
+            for (std::string line; std::getline(file, line);) {
+                int noOfWords;
+
+                parser->setCommandFromFile(line);
+                std::string word = parser->getString();
+
+                if (word.empty()) {
+                    continue;
+                }
+
+                auto *numberOfParentheses = parser->checkBrackets();
+
+                this->words = nullptr;
+
+                if (numberOfParentheses[0] == numberOfParentheses[1] && numberOfParentheses[0] != 0) {
+                    if (numberOfParentheses[0] == 1 && tolower(word[0]) == 's') {
+                        words = parser->parse_with_brackets_select(noOfWords);
+                    } else {
+                        if (tolower(word[0]) == 'i') {
+                            words = parser->parse_with_brackets(noOfWords, true);
+                        } else {
+                            words = parser->parse_with_brackets(noOfWords);
+                        }
+                    }
+                } else if (numberOfParentheses[0] == 0 && numberOfParentheses[1] == 0) {
+                    words = parser->parse_without_brackets(noOfWords);
+                } else {
+                    statusManager->print(StatusManager::Error, "Invalid number of parentheses!");
+                    delete[] numberOfParentheses;
+                    continue;
+                }
+
+                setQuery(words, noOfWords, parser->getString());
+                if (noOfWords == 1 && words[0] == "exit") {
+                    break;
+                }
+                parse_command();
+                delete[] numberOfParentheses;
+            }
+        }
+    }
+
+    void parseCommands() {
         while (true) {
             int noOfWords;
 
