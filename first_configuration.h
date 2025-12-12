@@ -8,12 +8,11 @@
 
 class first_configuration {
 private:
-    DIR *dir;
-    std::string target_path = "./tables";
+    std::string target_path = "./tables/";
 
 public:
-    void load_tables() {
-        dir = opendir(target_path.c_str());
+    void load_tables() const {
+        DIR *dir = opendir(target_path.c_str());
         if (dir == nullptr) {
             statusManager->print(StatusManager::Error, "Wrong directory!");
             return;
@@ -24,16 +23,20 @@ public:
         while ((file = readdir(dir)) != nullptr) {
             noOfTables++;
         }
-        std::string *tableNames = new std::string[noOfTables];
+        const auto tableNames = new std::string[noOfTables];
 
         if (noOfTables <= 0) {
+            closedir(dir);
             return;
         }
 
+        closedir(dir);
+        dir = opendir(target_path.c_str());
+
         int currIndex = 0;
-        while ((file = readdir(dir)) != nullptr) {
-            if (file->d_name != "." && file->d_name != "..") {
-                std::string fileName = file->d_name;
+        while ((file = readdir(dir))) {
+            std::string fileName = file->d_name;
+            if (fileName != "." && fileName != "..") {
                 if (fileName.substr(fileName.length() - 4, 4) != ".bin") {
                     statusManager->print(StatusManager::Error,
                                          "File \"" + fileName + "\" does not have extension .bin!");
@@ -42,7 +45,12 @@ public:
 
                 std::string tableName = fileName.substr(0, fileName.length() - 4);
                 tableNames[currIndex++] = tableName;
-                tableCatalog->add_table(*tableCatalog->getTable(tableName));
+
+                //now we have to retrieve all data from the table file
+                std::ifstream sameFile(target_path + fileName);
+                Table *table;
+                sameFile.read(reinterpret_cast<char *>(&table), sizeof table);
+                tableCatalog->add_table(*table); //eroare aici
             }
         }
 
