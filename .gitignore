@@ -8,3 +8,4 @@ main
 Catalog
 Table
 .clang-format
+.venv

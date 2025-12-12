@@ -2,6 +2,7 @@
 #include <cstring>
 #include <fstream>
 
+#include "first_configuration.h"
 #include "StatusManager.h"
 #include "Table_Catalog.h"
 #include "globals.h"
@@ -331,6 +332,9 @@ public:
         }
 
         if (tableCatalog->add_table(*table) == 0) {
+            std::ofstream out("./tables/" + tableName + ".bin");
+            char *data = reinterpret_cast<char *>(table);
+            out.write(data, sizeof table);
             statusManager->print(StatusManager::Success, "Table \"" + tableName + "\" created successfully!");
         }
         delete table;
@@ -341,7 +345,7 @@ public:
 
         if (noOfWords != 4) {
             statusManager->print(StatusManager::Error,
-                                 "Argument count mismatch: expected 4, got " + std::to_string(noOfWords) + "!");
+                                 "Invalid syntax!");
             return;
         }
 
@@ -401,13 +405,13 @@ public:
         if (words[3] != "not") {
             statusManager->print(StatusManager::Error, "Parse error near \"" + words[3] + "\"!");
             return;
-        } //de adaugat parse error cu "near"
+        }
         if (words[4] != "exists") {
             statusManager->print(StatusManager::Error, "Parse error near \"" + words[4] + "\"!");
             return;
         }
         if (words[6] != "on") {
-            statusManager->print(StatusManager::Error, "Parse error near \"" + words[5] + "\"!");
+            statusManager->print(StatusManager::Error, "Parse error near \"" + words[6] + "\"!");
             return;
         }
 
@@ -428,7 +432,9 @@ public:
             statusManager->print(StatusManager::Error, "Incomplete input!");
             return;
         }
-        std::string indexName = words[noOfWords - 3];
+
+        std::string indexName = words[noOfWords - 4];
+
         std::string tableName = words[indexOfLastWord - 1];
         if (!tableCatalog->table_exists(tableName)) {
             statusManager->print(StatusManager::Error,
@@ -477,6 +483,8 @@ public:
         }
 
         if (tableCatalog->drop_table(tableName) == 0) {
+            std::cout << "./tables/" + tableName + ".bin" << std::endl;
+            remove(("./tables/" + tableName + ".bin").c_str());
             statusManager->print(StatusManager::Success, "Dropped table \"" + aux + "\" successfully!");
         }
     }
@@ -750,7 +758,6 @@ public:
                                  "Syntax Error: Expected symbol '=', but found \"" + words[6] + "\" instead.");
         }
 
-
         std::string columnName = words[noOfWords - 3]; //
         //value that we search for
         std::string value = words[noOfWords - 1]; //
@@ -787,6 +794,19 @@ public:
     }
 
     void parseCommandsFromFiles(int argc, char **argv) {
+        if (argc > 6) {
+            throw std::runtime_error("You can't enter more than 5 input files!");
+        }
+
+        for (int i = 1; i < argc; i++) {
+            std::string str = argv[i];
+            if (str.substr(str.length() - 4, 4) != ".txt") {
+                throw std::runtime_error("Input files need to have .txt extension!");
+            }
+        }
+        first_configuration config;
+        config.load_tables();
+
         int i = 1;
         for (std::string fileName; i < argc; i++) {
             fileName = argv[i];

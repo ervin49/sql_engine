@@ -101,7 +101,6 @@ public:
         return words;
     }
 
-
     std::string *parse_with_brackets(int &noOfWords, const bool isValueFromInsert = false) const {
         noOfWords = 0;
         int startIndex = -1;

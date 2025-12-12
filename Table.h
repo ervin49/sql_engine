@@ -210,6 +210,8 @@ public:
     }
 
     void print_table() const {
+        std::cout << std::endl;
+
         if (!tableName.empty()) {
             std::cout << '[' << tableName << ']' << std::endl;
         }
@@ -466,5 +468,9 @@ public:
             }
         }
         return 0;
+    }
+
+    std::string getTableName() {
+        return tableName;
     }
 };

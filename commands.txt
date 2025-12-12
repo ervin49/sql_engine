@@ -1,2 +1,0 @@
-CREATE    TABLE produse IF NOT EXISTS ((id_produs, INT, 10, 0), (denumire, VARCHAR, 50, ''), (stoc, INT, 5, 0), (pret, FLOAT, 8, 0.0), (categorie, VARCHAR, 30, 'General'), (cod_bar, VARCHAR, 20, ''))
-INSERT INTO produse VALUES (101, Laptop Gaming X, 15, 4500.99, Laptopuri, LPT-GAM-2024)
