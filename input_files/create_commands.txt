@@ -1,0 +1,1 @@
+create index if not exists index_on_stoc on produse (stoc)
