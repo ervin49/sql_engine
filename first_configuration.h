@@ -11,6 +11,49 @@ private:
     std::string target_path = "./tables/";
 
 public:
+    first_configuration() = default;
+
+    first_configuration(std::string path) {
+        this->target_path = path;
+    }
+
+    first_configuration(const first_configuration& other) {
+        this->target_path = other.target_path;
+    }
+
+    ~first_configuration() {}
+
+    first_configuration& operator=(const first_configuration& other) {
+        if (this != &other) {
+            this->target_path = other.target_path;
+        }
+        return *this;
+    }
+
+    bool operator==(const first_configuration& other) const {
+        return this->target_path == other.target_path;
+    }
+
+    bool operator!() const {
+        return target_path.empty();
+    }
+
+    char operator[](int index) const {
+        if (index >= 0 && index < target_path.length()) {
+            return target_path[index];
+        }
+        return '\0';
+    }
+
+    friend std::ostream& operator<<(std::ostream& out, const first_configuration& fc) {
+        out << "Path: " << fc.target_path;
+        return out;
+    }
+
+    operator std::string() const {
+        return this->target_path;
+    }
+
     void load_tables() const {
         DIR *dir = opendir(target_path.c_str());
         if (dir == nullptr) {

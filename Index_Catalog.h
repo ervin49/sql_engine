@@ -33,10 +33,6 @@ public:
     }
 
     Index_Catalog(const Index_Catalog& i) {
-        if (this->indexes != nullptr) {
-            delete[] this->indexes;
-            this->indexes = nullptr;
-        }
         if (i.indexes != nullptr && i.noOfIndexes != 0) {
             this->noOfIndexes = i.noOfIndexes;
             this->indexes = new Index[noOfIndexes];
@@ -46,6 +42,12 @@ public:
         }
         else {
             this->noOfIndexes = 0;
+        }
+    }
+
+    ~Index_Catalog() {
+        if (indexes != nullptr) {
+            delete[] indexes;
         }
     }
 
@@ -69,6 +71,10 @@ public:
         return *this;
     }
 
+    operator int() const {
+        return this->noOfIndexes;
+    }
+
     bool operator==(const Index_Catalog& indexCatalog) const
     {
         if (this->noOfIndexes != indexCatalog.noOfIndexes)
@@ -79,6 +85,14 @@ public:
                 return false;
         }
         return true;
+    }
+
+    Index& operator[](int index) const {
+        return indexes[index];
+    }
+
+    void operator+=(const Index& idx) {
+        this->add_index(idx);
     }
 
     friend std::ostream& operator<<(std::ostream& out, Index_Catalog indexCatalog)

@@ -35,8 +35,14 @@ public:
             this->noOfTables = 0;
             this->tables = nullptr;
         }
-
     }
+
+    ~Table_Catalog() {
+        if (tables != nullptr) {
+            delete[] tables;
+        }
+    }
+
     Table_Catalog& operator=(const Table_Catalog& that) {
         if (this != &that) {
             if (this->tables != nullptr) {
@@ -55,6 +61,10 @@ public:
             }
         }
         return *this;
+    }
+
+    operator int() const {
+        return this->noOfTables;
     }
 
     bool operator==(const Table_Catalog& table_catalog) const
@@ -77,6 +87,14 @@ public:
     Table& operator[](const int index) const
     {
         return tables[index];
+    }
+
+    void operator+=(Table t) {
+        this->add_table(t);
+    }
+
+    bool operator!() const {
+        return noOfTables == 0;
     }
 
     friend std::ostream& operator<<(std::ostream& out, const Table_Catalog& table_catalog)

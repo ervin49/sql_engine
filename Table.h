@@ -80,7 +80,52 @@ public:
         return true;
     }
 
-    //table += row;
+    ~Table() {
+        if (columns != nullptr) {
+            delete[] columns;
+        }
+        if (rows != nullptr) {
+            for (int i = 0; i < noOfRows; i++) {
+                delete[] rows[i];
+            }
+            delete[] rows;
+        }
+    }
+
+    Table& operator=(const Table& other) {
+        if (this != &other) {
+            // Pas A: Curatam memoria veche a obiectului curent
+            if (columns != nullptr) delete[] columns;
+            if (rows != nullptr) {
+                for (int i = 0; i < noOfRows; i++) delete[] rows[i];
+                delete[] rows;
+            }
+
+            this->tableName = other.tableName;
+            this->noOfColumns = other.noOfColumns;
+            this->noOfRows = other.noOfRows;
+
+            this->columns = new std::string[noOfColumns];
+            for (int i = 0; i < noOfColumns; i++) {
+                this->columns[i] = other.columns[i];
+            }
+
+            this->rows = new std::string*[noOfRows];
+            for (int i = 0; i < noOfRows; i++) {
+                this->rows[i] = new std::string[noOfColumns];
+                for (int j = 0; j < noOfColumns; j++) {
+                    this->rows[i][j] = other.rows[i][j];
+                }
+            }
+            this->indexNames = other.indexNames;
+        }
+        return *this;
+    }
+
+    operator int() const {
+        return this->noOfRows;
+    }
+
     Table &operator+=(std::string *row) {
         this->add_row(row);
         return *this;
@@ -92,6 +137,16 @@ public:
         return *this;
     }
 
+    std::string* operator[](int index) const {
+        if (index >= 0 && index < noOfRows) {
+            return rows[index];
+        }
+        return nullptr;
+    }
+
+    bool operator!() const {
+        return noOfRows == 0;
+    }
 
     friend std::ostream &operator<<(std::ostream &out, const Table &table) {
         table.print_table();

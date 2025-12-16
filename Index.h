@@ -21,6 +21,8 @@ public:
         this->columnName = i.columnName;
     }
 
+    ~Index() {}
+
     Index& operator=(const Index& i) {
         if (this != &i) {
             this->indexName = i.indexName;
@@ -30,6 +32,10 @@ public:
         return *this;
     }
 
+    operator std::string() const {
+        return this->indexName;
+    }
+
     bool operator==(const Index &index) const {
         if (this->indexName != index.indexName ||
             this->tableName != index.tableName ||
@@ -37,6 +43,14 @@ public:
             return false;
 
         return true;
+    }
+
+    bool operator!() const {
+        return indexName.empty();
+    }
+
+    bool operator<(const Index& other) const {
+        return this->indexName < other.indexName;
     }
 
     friend std::ostream &operator<<(std::ostream &out, const Index &index) {

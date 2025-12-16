@@ -88,6 +88,21 @@ public:
         return *this;
     }
 
+    operator int() const {
+        return this->noOfWords;
+    }
+
+    bool operator!() const {
+        return noOfWords == 0;
+    }
+
+    std::string operator[](int index) const {
+        if (index >= 0 && index < noOfWords) {
+            return words[index];
+        }
+        return "";
+    }
+
     void print_application() const {
         std::cout << "Current running application: " << "de schimbat aici" << std::endl;
     }

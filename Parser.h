@@ -18,11 +18,28 @@ public:
         this->s = p.s;
     }
 
+    ~Parser() {}
+
     Parser &operator=(const Parser &p) {
         if (this != &p) {
             this->s = p.s;
         }
         return *this;
+    }
+
+    operator std::string() const {
+        return this->s;
+    }
+
+    bool operator!() const {
+        return s.empty();
+    }
+
+    char operator[](int index) const {
+        if (index >= 0 && index < s.length()) {
+            return s[index];
+        }
+        return '\0';
     }
 
     void setCommand() {
