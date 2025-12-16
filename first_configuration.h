@@ -91,9 +91,9 @@ public:
 
                 //now we have to retrieve all data from the table file
                 std::ifstream sameFile(target_path + fileName);
-                Table *table;
-                sameFile.read(reinterpret_cast<char *>(&table), sizeof table);
-                tableCatalog->add_table(*table); //eroare aici
+                Table tempTable;
+                sameFile.read(reinterpret_cast<char *>(&tempTable), sizeof(Table));
+                tableCatalog->add_table(tempTable);
             }
         }
 
