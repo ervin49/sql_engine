@@ -1,0 +1,1 @@
+UPDATE produse SET denumire = 'MonitorUltraHD' WHERE id_produs = 103

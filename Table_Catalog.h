@@ -108,7 +108,7 @@ public:
     {
         for (int i = 0; i < noOfTables; i++)
         {
-            if (tables[i].getName() == tableName)
+            if (tables[i].getTableName() == tableName)
             {
                 return i;
             }
@@ -141,12 +141,12 @@ public:
 
     int add_table(Table newTable)
     {
-        if (table_exists(newTable.getName()))
+        if (table_exists(newTable.getTableName()))
         {
             std::cout << "Table with this name already exists!";
             return -1;
         }
-        //we create a new array of pointers to objects with updated size
+        //create a new array of pointers to objects with updated size
         Table* newTables = new Table [noOfTables + 1];
 
         for (int i = 0; i < noOfTables; i++)
@@ -154,7 +154,7 @@ public:
             newTables[i] = tables[i];
         }
 
-        //we add the new table at the end of the new array
+        //add the new table at the end of the new array
         newTables[noOfTables] = newTable;
 
         delete[] tables;
@@ -169,15 +169,14 @@ public:
         return noOfTables;
     }
 
-    //we iterate over the addresses array and compare each name
+    //iterate over the addresses array and compare each name
     //with the name we are checking for
     bool table_exists(const std::string& tableName) const
     {
         for (int i = 0; i < noOfTables; i++)
         {
-            if (tables[i].getName() == tableName)
+            if (tables[i].getTableName() == tableName)
             {
-                //we have error
                 return true;
             }
         }
@@ -188,7 +187,7 @@ public:
     {
         for (int i = 0; i < noOfTables; i++)
         {
-            if (tables[i].getName() == tableName)
+            if (tables[i].getTableName() == tableName)
                 return tables[i].getNoOfColumns();
         }
         return 0;
@@ -209,7 +208,7 @@ public:
         Table* aux = nullptr;
         for (int i = 0; i < noOfTables; i++)
         {
-            if (tables[i].getName() == tableName)
+            if (tables[i].getTableName() == tableName)
             {
                 aux = &tables[i];
                 break;
@@ -222,7 +221,7 @@ public:
     {
         for (int i = 0; i < noOfTables; i++)
         {
-            if (newTables[i].getName() == "")
+            if (newTables[i].getTableName() == "")
             {
                 statusManager->print(StatusManager::Error, "Table names can't be empty!");
                 return;

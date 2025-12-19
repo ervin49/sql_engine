@@ -8,10 +8,11 @@
 
 class Table {
 private:
-    int noOfColumns = 0;
+    int noOfColumns;
     int noOfRows;
+    int noOfIndexes;
     std::string tableName;
-    std::string *columns = nullptr;
+    std::string *columns;
     std::string **rows;
     std::string *indexNames;
 
@@ -19,7 +20,8 @@ public:
     Table(int noOfColumns, const std::string &tableName) {
         this->tableName = tableName;
         this->noOfColumns = noOfColumns;
-        this->noOfRows = 0;
+        noOfRows = 0;
+        noOfIndexes = 0;
         columns = new std::string[this->noOfColumns];
         rows = nullptr;
         indexNames = nullptr;
@@ -31,6 +33,7 @@ public:
         noOfColumns = other.noOfColumns;
         noOfRows = other.noOfRows;
         columns = new std::string[noOfColumns];
+        noOfIndexes = other.noOfIndexes;
         for (int i = 0; i < noOfColumns; i++) {
             columns[i] = other.columns[i];
         }
@@ -55,6 +58,7 @@ public:
         this->indexNames = nullptr;
         this->columns = nullptr;
         this->noOfColumns = 0;
+        this->noOfIndexes = 0;
         this->tableName = "";
     }
 
@@ -92,7 +96,7 @@ public:
         }
     }
 
-    Table& operator=(const Table& other) {
+    Table &operator=(const Table &other) {
         if (this != &other) {
             // Pas A: Curatam memoria veche a obiectului curent
             if (columns != nullptr) delete[] columns;
@@ -110,7 +114,7 @@ public:
                 this->columns[i] = other.columns[i];
             }
 
-            this->rows = new std::string*[noOfRows];
+            this->rows = new std::string *[noOfRows];
             for (int i = 0; i < noOfRows; i++) {
                 this->rows[i] = new std::string[noOfColumns];
                 for (int j = 0; j < noOfColumns; j++) {
@@ -137,7 +141,7 @@ public:
         return *this;
     }
 
-    std::string* operator[](int index) const {
+    std::string *operator[](int index) const {
         if (index >= 0 && index < noOfRows) {
             return rows[index];
         }
@@ -168,12 +172,26 @@ public:
         return newColumns;
     }
 
-    void setRows(std::string **newRows) {
+    void setRows(std::string **newRows, const int noOfRows, const int noOfColumns) {
+        if (noOfRows < 0 || noOfColumns <= 0) {
+            throw std::runtime_error("Invalid no. of rows or columns!");
+        }
+
+        for (int i = 0; i < this->noOfRows; i++) {
+            delete[] rows[i];
+        }
+        delete[] rows;
+
+        rows = new std::string *[noOfRows];
         for (int i = 0; i < noOfRows; i++) {
+            rows[i] = new std::string[noOfColumns];
             for (int j = 0; j < noOfColumns; j++) {
                 rows[i][j] = newRows[i][j];
             }
         }
+
+        this->noOfRows = noOfRows;
+        this->noOfColumns = noOfColumns;
     }
 
     std::string **getRows() {
@@ -260,7 +278,7 @@ public:
         this->noOfRows++;
     }
 
-    std::string getName() {
+    std::string getTableName() {
         return this->tableName;
     }
 
@@ -272,12 +290,12 @@ public:
         }
         int *maxLengthOnColumn = new int[noOfColumns];
 
-        //we initialize all the max lengths with 0
+        //initialize all the max lengths with 0
         for (int i = 0; i < noOfColumns; i++) {
             maxLengthOnColumn[i] = 0;
         }
 
-        //we find the max length of each column
+        //find the max length of each column
         for (int j = 0; j < noOfColumns; j++) {
             for (int i = 0; i < noOfRows; i++) {
                 if (rows[i][j].length() > maxLengthOnColumn[j]) {
@@ -301,23 +319,23 @@ public:
         sum -= OFFSET;
         sum += 2 * (OFFSET / 2 - 1);
 
-        //we display the first line
-        std::cout << '|';
+        //display the first line
+        std::cout << '+';
         for (int i = 0; i < noOfColumns; i++) {
             for (int j = 0; j < maxLengthOnColumn[i] + OFFSET - 1; j++) {
                 std::cout << '-';
             }
             if (i < noOfColumns - 1) {
-                std::cout << '|';
+                std::cout << '+';
             }
         }
-        std::cout << '|' << std::endl << '|';
+        std::cout << '+' << std::endl << '|';
 
         for (int i = 0; i < OFFSET / 2 - 1; i++) {
             std::cout << ' ';
         }
 
-        //we display the column names
+        //display the column names
         for (int i = 0; i < noOfColumns; i++) {
             std::cout << columns[i];
 
@@ -356,21 +374,21 @@ public:
             }
         }
 
-        std::cout << '|' << std::endl << '|';
+        std::cout << '|' << std::endl << '+';
 
-        //we display the line below the column names
+        //display the line below the column names
         for (int i = 0; i < noOfColumns; i++) {
             for (int j = 0; j < maxLengthOnColumn[i] + OFFSET - 1; j++) {
                 std::cout << '-';
             }
             if (i < noOfColumns - 1) {
-                std::cout << '|';
+                std::cout << '+';
             }
         }
 
-        std::cout << '|' << std::endl;
+        std::cout << '+' << std::endl;
 
-        //we display the rows
+        //display the rows
         for (int i = 0; i < noOfRows; i++) {
             std::cout << '|';
             for (int k = 0; k < OFFSET / 2 - 1; k++) {
@@ -419,17 +437,17 @@ public:
             std::cout << '|' << std::endl;
         }
 
-        //we display the last line
-        std::cout << '|';
+        //display the last line
+        std::cout << '+';
         for (int i = 0; i < noOfColumns; i++) {
             for (int j = 0; j < maxLengthOnColumn[i] + OFFSET - 1; j++) {
                 std::cout << '-';
             }
             if (i < noOfColumns - 1) {
-                std::cout << '|';
+                std::cout << '+';
             }
         }
-        std::cout << '|' << std::endl << std::endl;
+        std::cout << '+' << std::endl << std::endl;
 
         delete[] maxLengthOnColumn;
     }
@@ -505,9 +523,6 @@ public:
         delete index;
     }
 
-    void swap_rows(int firstRowIndex, int secondRowIndex) {
-    }
-
     int delete_from(const std::string &columnName, const std::string &nameOfValue) {
         int indexOfColumn;
         if ((indexOfColumn = return_index_of_column_by_name(columnName)) == -1) {
@@ -525,7 +540,27 @@ public:
         return 0;
     }
 
-    std::string getTableName() {
-        return tableName;
+    std::string *getIndexNames() const {
+        const auto newIndexNames = new std::string[noOfIndexes];
+        for (int i = 0; i < noOfIndexes; i++) {
+            newIndexNames[i] = indexNames[i];
+        }
+
+        return newIndexNames;
+    }
+
+    int getNoOfIndexes() const {
+        return noOfIndexes;
+    }
+
+    void setIndexNames(std::string *indexNames, int noOfIndexes) {
+        std::string *newIndexNames = new std::string[noOfIndexes];
+        for (int i = 0; i < noOfIndexes; i++) {
+            newIndexNames[i] = indexNames[i];
+        }
+
+        delete[] this->indexNames;
+        this->indexNames = newIndexNames;
+        this->noOfIndexes = noOfIndexes;
     }
 };

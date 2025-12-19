@@ -250,7 +250,7 @@ public:
 
         int noOfFields;
         std::string *inputFields = parser->parse_column(words[4], noOfFields);
-        //we erase the ""
+        //erase the ""
         for (int i = 0; i < noOfFields; i++) {
             if (inputFields[i][0] == '"') {
                 inputFields[i].erase(0, 1);
@@ -267,6 +267,7 @@ public:
 
         Table *table = tableCatalog->getTable(tableName);
         table->add_row(inputFields);
+        write_table_to_file(*table);
         int noOfRows = table->getNoOfRows();
         statusManager->print(StatusManager::Success,
                              "Inserted successfully! (Total number of rows: " + std::to_string(noOfRows) + ')');
@@ -347,12 +348,59 @@ public:
         }
 
         if (tableCatalog->add_table(*table) == 0) {
-            std::ofstream out("./tables/" + tableName + ".bin");
-            char *data = reinterpret_cast<char *>(table);
-            out.write(data, sizeof table);
+            write_table_to_file(*table);
             statusManager->print(StatusManager::Success, "Table \"" + tableName + "\" created successfully!");
         }
         delete table;
+    }
+
+    void write_table_to_file(Table table) const {
+        //open the file(or create it if it doesn't exist already)
+        std::string tableName = table.getTableName();
+        std::ofstream file("./tables/" + tableName + ".bin");
+
+        //get all the variables from the table
+        int noOfColumns = table.getNoOfColumns(), noOfRows = table.getNoOfRows(), noOfIndexes = table.getNoOfIndexes();
+        std::string *columns = table.getColumns();
+        std::string **rows = table.getRows();
+        std::string *indexNames = table.getIndexNames();
+
+        //write into the file
+        file.write(reinterpret_cast<char *>(&noOfColumns), sizeof(int));
+        file.write(reinterpret_cast<char *>(&noOfRows), sizeof(int));
+        file.write(reinterpret_cast<char *>(&noOfIndexes), sizeof(int));
+
+        //have to write the strings lengths
+        //before the strings themselves
+        int len = tableName.size();
+        file.write(reinterpret_cast<char *>(&len), sizeof(int));
+        file.write(tableName.data(), len);
+
+        //write the columns
+        for (int i = 0; i < noOfColumns; i++) {
+            len = columns[i].length();
+            file.write(reinterpret_cast<char *>(&len), sizeof(int));
+            file.write(columns[i].c_str(), len);
+        }
+
+        //write the rows
+        //if this function was called from create table
+        //then noOfRows will be 0 so it won't enter the for loop
+        for (int i = 0; i < noOfRows; i++) {
+            for (int j = 0; j < noOfColumns; j++) {
+                len = rows[i][j].size();
+                file.write(reinterpret_cast<char *>(&len), sizeof(int));
+                file.write(rows[i][j].data(), len);
+            }
+        }
+
+        //write the indexes
+        //same thing as the rows
+        for (int i = 0; i < noOfIndexes; i++) {
+            len = indexNames[i].size();
+            file.write(reinterpret_cast<char *>(&len), sizeof(int));
+            file.write(indexNames[i].data(), len);
+        }
     }
 
     void create_table_without_if_not_exists() const {
@@ -533,7 +581,7 @@ public:
     void update_table() const {
         std::string tableName = words[1];
 
-        if (noOfWords != 9) {
+        if (noOfWords != 10) {
             statusManager->print(StatusManager::Error,
                                  "Invalid number of tokens, expected 9, got " + std::to_string(noOfWords) + "!");
             return;
@@ -583,7 +631,8 @@ public:
                 tableRows[i][setIndex] = setValue;
             }
         }
-        table->setRows(tableRows);
+        table->setRows(tableRows, table->getNoOfRows(), table->getNoOfColumns());
+        write_table_to_file(*table);
         std::cout << setValue << std::endl;
         statusManager->print(StatusManager::Success, "Updated table successfully!");
         //delete table;
@@ -651,7 +700,6 @@ public:
                 std::string columnName = words[noOfWords - 3];
                 //value that we search for
                 std::string value = words[noOfWords - 1];
-                std::cout << "x";
                 bool found = false;
                 int index = originalTable->return_index_of_column_by_name(columnName);
                 const int noOfRows = originalTable->getNoOfRows();
@@ -682,7 +730,7 @@ public:
                     tableWithSelectedRows->print_table();
                 }
 
-                //we delete all dynamically allocated variables
+                //delete all dynamically allocated variables
                 delete tableWithSelectedRows;
             }
             return;
@@ -727,8 +775,8 @@ public:
                 return;
             }
         }
-        //we set the number of rows of new table to be the same as the original table
-        //we create a new table only with the columns we need
+        //set the number of rows of new table to be the same as the original table
+        //create a new table only with the columns we need
         auto *tableWithSelectedColumnsOnly = new Table(noOfSelectedColumns, "");
 
         tableWithSelectedColumnsOnly->setNoOfRows(originalTable->getNoOfRows());
@@ -738,12 +786,12 @@ public:
         std::string **rowsOfNewTable = tableWithSelectedColumnsOnly->getRows();
         const int noOfColumnsOfOriginalTable = originalTable->getNoOfColumns();
 
-        //we set the column names
+        //set the column names
         for (int i = 0; i < noOfSelectedColumns; i++) {
             tableWithSelectedColumnsOnly->setColumn(i, selectedColumns[i]);
         }
 
-        //we set the row values, but only o those columns that we need
+        //set the row values, but only on those columns that we need
         int k = 0;
         while (k < noOfSelectedColumns) {
             for (int i = 0; i < noOfColumnsOfOriginalTable && k < noOfSelectedColumns; i++) {
@@ -755,7 +803,7 @@ public:
                 }
             }
         }
-        tableWithSelectedColumnsOnly->setRows(rowsOfNewTable);
+        tableWithSelectedColumnsOnly->setRows(rowsOfNewTable, noOfRows, noOfSelectedColumns);
 
 
         if (noOfWords < 5) {
@@ -802,7 +850,7 @@ public:
             tableWithSelectedRows->print_table();
         }
 
-        //we delete all dynamically allocated variables
+        //delete all dynamically allocated variables
         delete tableWithSelectedColumnsOnly;
         delete tableWithSelectedRows;
         delete[] selectedColumns;

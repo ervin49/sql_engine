@@ -1,5 +1,5 @@
 #pragma once
-#include <dirent.h>     /* for DIR, opendir, readdir, and dirent */
+#include <dirent.h>
 #include <iostream>
 
 #include "globals.h"
@@ -17,20 +17,21 @@ public:
         this->target_path = path;
     }
 
-    first_configuration(const first_configuration& other) {
+    first_configuration(const first_configuration &other) {
         this->target_path = other.target_path;
     }
 
-    ~first_configuration() {}
+    ~first_configuration() {
+    }
 
-    first_configuration& operator=(const first_configuration& other) {
+    first_configuration &operator=(const first_configuration &other) {
         if (this != &other) {
             this->target_path = other.target_path;
         }
         return *this;
     }
 
-    bool operator==(const first_configuration& other) const {
+    bool operator==(const first_configuration &other) const {
         return this->target_path == other.target_path;
     }
 
@@ -45,7 +46,7 @@ public:
         return '\0';
     }
 
-    friend std::ostream& operator<<(std::ostream& out, const first_configuration& fc) {
+    friend std::ostream &operator<<(std::ostream &out, const first_configuration &fc) {
         out << "Path: " << fc.target_path;
         return out;
     }
@@ -83,17 +84,23 @@ public:
                 if (fileName.substr(fileName.length() - 4, 4) != ".bin") {
                     statusManager->print(StatusManager::Error,
                                          "File \"" + fileName + "\" does not have extension .bin!");
+                    noOfTables--; //it's not a table
                     continue;
                 }
 
                 std::string tableName = fileName.substr(0, fileName.length() - 4);
                 tableNames[currIndex++] = tableName;
 
-                //now we have to retrieve all data from the table file
-                std::ifstream sameFile(target_path + fileName);
-                Table tempTable;
-                sameFile.read(reinterpret_cast<char *>(&tempTable), sizeof(Table));
-                tableCatalog->add_table(tempTable);
+                //we retrieve all data from the table file
+                std::ifstream sameFile(target_path + fileName, std::ios::binary);
+                if (!sameFile.is_open()) {
+                    statusManager->print(StatusManager::Error, "Can't open file!");
+                    return;
+                }
+
+                Table *tempTable = read_table_from_file(target_path + fileName);
+                tableCatalog->add_table(*tempTable);
+                delete tempTable;
             }
         }
 
@@ -108,5 +115,61 @@ public:
         }
 
         std::cout << '"' << tableNames[noOfTables - 1] << "\" " << "successfully." << std::endl;
+    }
+
+    Table *read_table_from_file(std::string fileLocation) const {
+        std::ifstream file(fileLocation);
+        int noOfRows, noOfColumns, noOfIndexes;
+        std::string *columns, *indexNames;
+        std::string **rows;
+
+        //retrieve variables
+        file.read(reinterpret_cast<char *>(&noOfColumns), sizeof(int));
+        file.read(reinterpret_cast<char *>(&noOfRows), sizeof(int));
+        file.read(reinterpret_cast<char *>(&noOfIndexes), sizeof(int));
+
+        int tableNameLength;
+        file.read(reinterpret_cast<char *>(&tableNameLength), sizeof(int));
+        std::string tableName;
+        tableName.resize(tableNameLength);
+        file.read(&tableName[0], tableNameLength);
+
+        //allocate memory
+        columns = new std::string[noOfColumns];
+        rows = new std::string *[noOfRows];
+        for (int i = 0; i < noOfRows; i++) {
+            rows[i] = new std::string [noOfColumns];
+        }
+        indexNames = new std::string[noOfIndexes];
+
+        //retrieve arrays
+        int len;
+        for (int i = 0; i < noOfColumns; i++) {
+            //aici am ramas
+            file.read(reinterpret_cast<char *>(&len), sizeof(int));
+            columns[i].resize(len);
+            file.read(&columns[i][0], len);
+        }
+        for (int i = 0; i < noOfRows; i++) {
+            for (int j = 0; j < noOfColumns; j++) {
+                file.read(reinterpret_cast<char *>(&len), sizeof(int));
+                rows[i][j].resize(len);
+                file.read(&rows[i][j][0], len);
+            }
+        }
+        for (int i = 0; i < noOfIndexes; i++) {
+            file.read(reinterpret_cast<char *>(&len), sizeof(int));
+            indexNames[i].resize(len);
+            file.read(&indexNames[i][0], len);
+        }
+
+        //set the values
+        auto table = new Table(noOfColumns, tableName);
+        for (int i = 0; i < noOfColumns; i++) {
+            table->setColumn(i, columns[i]);
+        }
+        table->setRows(rows, noOfRows, noOfColumns);
+        table->setIndexNames(indexNames, noOfIndexes);
+        return table;
     }
 };
