@@ -1,3 +1,4 @@
 SELECT ALL FROM produse
 SELECT (denumire, pret, categorie, stoc) FROM produse where denumire = 'Mouse Wireless'
+debug indexes
 

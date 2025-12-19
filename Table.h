@@ -153,7 +153,7 @@ public:
     }
 
     friend std::ostream &operator<<(std::ostream &out, const Table &table) {
-        table.print_table();
+        table.print_table(out);
         return out;
     }
 
@@ -282,11 +282,11 @@ public:
         return this->tableName;
     }
 
-    void print_table() const {
-        std::cout << std::endl;
+    void print_table(std::ostream &out) const {
+        out << std::endl;
 
         if (!tableName.empty()) {
-            std::cout << '[' << tableName << ']' << std::endl;
+            out << '[' << tableName << ']' << std::endl;
         }
         int *maxLengthOnColumn = new int[noOfColumns];
 
@@ -320,134 +320,134 @@ public:
         sum += 2 * (OFFSET / 2 - 1);
 
         //display the first line
-        std::cout << '+';
+        out << '+';
         for (int i = 0; i < noOfColumns; i++) {
             for (int j = 0; j < maxLengthOnColumn[i] + OFFSET - 1; j++) {
-                std::cout << '-';
+                out << '-';
             }
             if (i < noOfColumns - 1) {
-                std::cout << '+';
+                out << '+';
             }
         }
-        std::cout << '+' << std::endl << '|';
+        out << '+' << std::endl << '|';
 
         for (int i = 0; i < OFFSET / 2 - 1; i++) {
-            std::cout << ' ';
+            out << ' ';
         }
 
         //display the column names
         for (int i = 0; i < noOfColumns; i++) {
-            std::cout << columns[i];
+            out << columns[i];
 
             if (columns[i].length() == maxLengthOnColumn[i]) {
                 for (int k = 0; k < OFFSET / 2 && i < noOfColumns - 1; k++) {
-                    std::cout << ' ';
+                    out << ' ';
                 }
                 if (i < noOfColumns - 1) {
-                    std::cout << '|';
+                    out << '|';
                 }
                 for (int k = OFFSET / 2 + 1; k < OFFSET; k++) {
-                    std::cout << ' ';
+                    out << ' ';
                 }
                 if (i == noOfColumns - 1) {
-                    std::cout << ' ';
+                    out << ' ';
                 }
             } else {
                 for (int k = 0; k < maxLengthOnColumn[i] - columns[i].length(); k++) {
-                    std::cout << ' ';
+                    out << ' ';
                 }
                 for (int k = 0; k < OFFSET / 2 && i < noOfColumns - 1; k++) {
-                    std::cout << ' ';
+                    out << ' ';
                 }
                 if (i < noOfColumns - 1) {
-                    std::cout << '|';
+                    out << '|';
                 }
                 if (i == noOfColumns - 1) {
                     for (int k = OFFSET / 2; k < OFFSET; k++) {
-                        std::cout << ' ';
+                        out << ' ';
                     }
                 } else {
                     for (int k = OFFSET / 2 + 1; k < OFFSET; k++) {
-                        std::cout << ' ';
+                        out << ' ';
                     }
                 }
             }
         }
 
-        std::cout << '|' << std::endl << '+';
+        out << '|' << std::endl << '+';
 
         //display the line below the column names
         for (int i = 0; i < noOfColumns; i++) {
             for (int j = 0; j < maxLengthOnColumn[i] + OFFSET - 1; j++) {
-                std::cout << '-';
+                out << '-';
             }
             if (i < noOfColumns - 1) {
-                std::cout << '+';
+                out << '+';
             }
         }
 
-        std::cout << '+' << std::endl;
+        out << '+' << std::endl;
 
         //display the rows
         for (int i = 0; i < noOfRows; i++) {
-            std::cout << '|';
+            out << '|';
             for (int k = 0; k < OFFSET / 2 - 1; k++) {
-                std::cout << ' ';
+                out << ' ';
             }
             for (int j = 0; j < noOfColumns; j++) {
-                std::cout << rows[i][j];
+                out << rows[i][j];
 
                 if (rows[i][j].length() == maxLengthOnColumn[j]) {
                     for (int k = 0; k < OFFSET / 2 && j < noOfColumns - 1; k++) {
-                        std::cout << ' ';
+                        out << ' ';
                     }
                     if (j < noOfColumns - 1) {
-                        std::cout << '|';
+                        out << '|';
                     }
                     if (j == noOfColumns - 1) {
                         for (int k = 0; k < OFFSET / 2; k++) {
-                            std::cout << ' ';
+                            out << ' ';
                         }
                     } else {
                         for (int k = 0; k < OFFSET / 2 - 1; k++) {
-                            std::cout << ' ';
+                            out << ' ';
                         }
                     }
                 } else {
                     for (int k = 0; k < maxLengthOnColumn[j] - rows[i][j].length(); k++) {
-                        std::cout << ' ';
+                        out << ' ';
                     }
                     for (int k = 0; k < OFFSET / 2 && j < noOfColumns - 1; k++) {
-                        std::cout << ' ';
+                        out << ' ';
                     }
                     if (j < noOfColumns - 1) {
-                        std::cout << '|';
+                        out << '|';
                     }
                     if (j == noOfColumns - 1) {
                         for (int k = 0; k < OFFSET / 2; k++) {
-                            std::cout << ' ';
+                            out << ' ';
                         }
                     } else {
                         for (int k = 0; k < OFFSET / 2 - 1; k++) {
-                            std::cout << ' ';
+                            out << ' ';
                         }
                     }
                 }
             }
-            std::cout << '|' << std::endl;
+            out << '|' << std::endl;
         }
 
         //display the last line
-        std::cout << '+';
+        out << '+';
         for (int i = 0; i < noOfColumns; i++) {
             for (int j = 0; j < maxLengthOnColumn[i] + OFFSET - 1; j++) {
-                std::cout << '-';
+                out << '-';
             }
             if (i < noOfColumns - 1) {
-                std::cout << '+';
+                out << '+';
             }
         }
-        std::cout << '+' << std::endl << std::endl;
+        out << '+' << std::endl << std::endl;
 
         delete[] maxLengthOnColumn;
     }
@@ -562,5 +562,17 @@ public:
         delete[] this->indexNames;
         this->indexNames = newIndexNames;
         this->noOfIndexes = noOfIndexes;
+    }
+
+    void add_index(std::string indexName) {
+        auto newIndexNames = new std::string[noOfIndexes + 1];
+        for (int i = 0; i < noOfIndexes; i++) {
+            newIndexNames[i] = indexNames[i];
+        }
+
+        newIndexNames[noOfIndexes] = indexName;
+        delete[] indexNames;
+        indexNames = newIndexNames;
+        noOfIndexes++;
     }
 };

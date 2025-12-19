@@ -24,7 +24,7 @@ public:
         this->noOfWords = 0;
     }
 
-    Application(std::string *words, int noOfWords) {
+    Application(const std::string *words, const int noOfWords) {
         if (noOfWords != 0 && words != nullptr) {
             this->noOfWords = noOfWords;
             this->words = new std::string[noOfWords];
@@ -136,7 +136,7 @@ public:
         this->noOfWords = noOfWords;
     }
 
-    void parse_command() {
+    void parse_command() const {
         std::string firstWord = words[0];
         if (firstWord == "create") {
             if (has_invalid_word_count(1)) {
@@ -516,7 +516,7 @@ public:
             columnName += tolower(words[indexOfLastWord][i]);
         }
 
-        Table *table = tableCatalog->getTable(tableName);
+        auto table = tableCatalog->getTable(tableName);
         if (!table->column_exists(columnName)) {
             statusManager->print(StatusManager::Error,
                                  "Column " + columnName + " does not exist!");
@@ -526,6 +526,8 @@ public:
         if (indexCatalog->setIndex(indexName, columnName) == 0) {
             Index *index = new Index(indexName, tableName, columnName);
             indexCatalog->add_index(*index);
+            table->add_index(indexName);
+            write_table_to_file(*table); //inca nu merge
             statusManager->print(StatusManager::Success,
                                  "Index \"" + indexName + "\" created successfully!");
             delete index;
@@ -572,7 +574,7 @@ public:
 
         std::string tableName = words[2];
         if (tableCatalog->table_exists(tableName)) {
-            tableCatalog->getTable(tableName)->print_table();
+            tableCatalog->getTable(tableName)->print_table(std::cout);
         } else {
             statusManager->print(StatusManager::Error, "Table \"" + tableName + "\" does not exist!");
         }
@@ -667,7 +669,20 @@ public:
         Table *table = tableCatalog->getTable(tableName);
         if (table->delete_from(columnName, value) == 0) {
             statusManager->print(StatusManager::Success, "Row deleted successfully!");
+            write_table_to_file(*table);
         }
+    }
+
+    void write_select_to_file(Table *table) const {
+        std::string targetPath = "./select_outputs/";
+        int index = -1; //subtract "." and ".."
+        DIR *dir = opendir(targetPath.c_str());
+        while (readdir(dir) != nullptr) {
+            index++;
+        }
+        std::ofstream file;
+        file.open(targetPath + "select_" + std::to_string(index));
+        table->print_table(file);
     }
 
     void select_from() const {
@@ -686,7 +701,8 @@ public:
 
         if (checkForAll == true) {
             if (noOfWords == 4) {
-                tableCatalog->getTable(tableName)->print_table();
+                tableCatalog->getTable(tableName)->print_table(std::cout);
+                write_select_to_file(tableCatalog->getTable(tableName));
             } else {
                 if (words[4] != "where") {
                     statusManager->print(StatusManager::Error,
@@ -727,7 +743,8 @@ public:
                                          "No matching values for: \"" + value + "\" in column: \"" + columnName +
                                          "\"!");
                 } else {
-                    tableWithSelectedRows->print_table();
+                    tableWithSelectedRows->print_table(std::cout);
+                    write_select_to_file(tableWithSelectedRows);
                 }
 
                 //delete all dynamically allocated variables
@@ -807,7 +824,8 @@ public:
 
 
         if (noOfWords < 5) {
-            tableWithSelectedColumnsOnly->print_table();
+            tableWithSelectedColumnsOnly->print_table(std::cout);
+            write_select_to_file(tableWithSelectedColumnsOnly);
             delete tableWithSelectedColumnsOnly;
             delete[] selectedColumns;
             return;
@@ -847,7 +865,8 @@ public:
             statusManager->print(StatusManager::Error,
                                  "No matching values for: \"" + value + "\" in column: \"" + columnName + "\"!");
         } else {
-            tableWithSelectedRows->print_table();
+            tableWithSelectedRows->print_table(std::cout);
+            write_select_to_file(tableWithSelectedRows);
         }
 
         //delete all dynamically allocated variables
