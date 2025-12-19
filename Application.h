@@ -575,6 +575,7 @@ public:
         std::string tableName = words[2];
         if (tableCatalog->table_exists(tableName)) {
             tableCatalog->getTable(tableName)->print_table(std::cout);
+            write_select_to_file(tableCatalog->getTable(tableName));
         } else {
             statusManager->print(StatusManager::Error, "Table \"" + tableName + "\" does not exist!");
         }
