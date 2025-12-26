@@ -21,8 +21,7 @@ public:
         this->target_path = other.target_path;
     }
 
-    ~first_configuration() {
-    }
+    ~first_configuration() = default;
 
     first_configuration &operator=(const first_configuration &other) {
         if (this != &other) {
@@ -58,7 +57,6 @@ public:
     void load_tables() const {
         DIR *dir = opendir(target_path.c_str());
         if (dir == nullptr) {
-            statusManager->print(StatusManager::Error, "Wrong directory!");
             return;
         }
         dirent *file;
