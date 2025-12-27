@@ -296,7 +296,7 @@ public:
                 {
                     if (tableCatalog->getNoOfTables() == 0)
                     {
-                        statusManager->print(StatusManager::Error, "ERROR: There are no tables!");
+                        statusManager->print(StatusManager::Error, "There are no tables!");
                     }
                     else
                     {
@@ -431,6 +431,7 @@ public:
         auto* table = new Table(noOfColumns, tableName);
         auto* columnNames = new std::string[noOfColumns];
         auto* columnTypes = new std::string[noOfColumns];
+        auto* maxColumnLengths = new int[noOfColumns];
         for (int j = 0; j < noOfColumns; j++)
         {
             const auto fields = parser->parse_column(columns[j], noOfFields);
@@ -440,12 +441,29 @@ public:
                 statusManager->print(StatusManager::Error, "Every column should contain exactly 4 fields!");
                 delete table;
                 delete[] columnTypes;
+                delete[] maxColumnLengths;
                 delete[] columnNames;
                 delete[] columns;
                 return;
             }
             columnNames[j] = fields[0];
             columnTypes[j] = fields[1];
+            if (table->is_integer(fields[2]))
+            {
+                maxColumnLengths[j] = stoi(fields[2]);
+            }
+            else
+            {
+                statusManager->print(StatusManager::Error,
+                                     "The value \"" + fields[2] +
+                                     "\" is invalid! You need to specify a positive integer for the attribute size.");
+                delete table;
+                delete[] maxColumnLengths;
+                delete[] columnTypes;
+                delete[] columnNames;
+                delete[] columns;
+                return;
+            }
         }
 
         for (int i = 0; i < noOfColumns - 1; i++)
@@ -466,6 +484,7 @@ public:
 
         table->setColumnNames(columnNames, noOfColumns);
         table->setColumnTypes(columnTypes, noOfColumns);
+        table->setMaxColumnLengths(maxColumnLengths, noOfColumns);
 
         if (tableCatalog->add_table(*table) == 0)
         {
@@ -491,6 +510,7 @@ public:
         std::string** rows = table.getRows();
         std::string* indexNames = table.getIndexNames();
         std::string* columnTypes = table.getColumnTypes();
+        int* maxColumnLengths = table.getMaxColumnLengths();
 
         //write into the file
         file.write(reinterpret_cast<char*>(&noOfColumns), sizeof(int));
@@ -513,6 +533,8 @@ public:
             len = columnTypes[i].length();
             file.write(reinterpret_cast<char*>(&len), sizeof(int));
             file.write(columnTypes[i].data(), len);
+
+            file.write(reinterpret_cast<char*>(&maxColumnLengths[i]), sizeof(int));
         }
 
         //write the rows
@@ -714,9 +736,8 @@ public:
 
         if (tableCatalog->drop_table(tableName) == 0)
         {
-            std::cout << "./tables/" + tableName + ".bin" << std::endl;
             remove(("./tables/" + tableName + ".bin").c_str());
-            statusManager->print(StatusManager::Success, "Dropped table \"" + aux + "\" successfully!");
+            statusManager->print(StatusManager::Success, "Table \"" + aux + "\" dropped successfully!");
         }
     }
 
@@ -730,7 +751,7 @@ public:
 
         if (indexCatalog->drop_index(indexName) == 0)
         {
-            statusManager->print(StatusManager::Success, "Dropped index \"" + aux + "\" successfully!");
+            statusManager->print(StatusManager::Success, "Index \"" + aux + "\" dropped successfully!");
         }
     }
 

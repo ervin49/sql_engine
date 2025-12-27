@@ -17,6 +17,7 @@ private:
     std::string** rows;
     std::string* columnTypes;
     std::string* indexNames;
+    int* maxColumnLengths;
 
 public:
     Table(int noOfColumns, const std::string& tableName, const std::string* columnTypes)
@@ -36,6 +37,7 @@ public:
         noOfIndexes = 0;
         columnNames = new std::string[this->noOfColumns];
         this->columnTypes = new std::string[this->noOfColumns];
+        this->maxColumnLengths = new int[this->noOfColumns];
         for (int i = 0; i < noOfColumns; i++)
         {
             this->columnTypes[i] = columnTypes[i];
@@ -49,9 +51,11 @@ public:
     Table(const Table& other)
     {
         noOfColumns = other.noOfColumns;
+        columnNames = new std::string[noOfColumns];
+        maxColumnLengths = new int[noOfColumns];
+        this->columnTypes = new std::string[noOfColumns];
         tableName = other.tableName;
         noOfRows = other.noOfRows;
-        columnNames = new std::string[noOfColumns];
         noOfIndexes = other.noOfIndexes;
         for (int i = 0; i < noOfColumns; i++)
         {
@@ -78,10 +82,14 @@ public:
             this->indexNames[i] = other.indexNames[i];
         }
 
-        this->columnTypes = new std::string[noOfColumns];
         for (int i = 0; i < noOfColumns; i++)
         {
             this->columnTypes[i] = other.columnTypes[i];
+        }
+
+        for (int i = 0; i < noOfColumns; i++)
+        {
+            this->maxColumnLengths[i] = other.maxColumnLengths[i];
         }
     }
 
@@ -89,10 +97,11 @@ public:
     Table()
     {
         this->rows = nullptr;
-        this->noOfRows = 0;
         this->indexNames = nullptr;
         this->columnNames = nullptr;
         this->columnTypes = nullptr;
+        this->maxColumnLengths = nullptr;
+        this->noOfRows = 0;
         this->noOfColumns = 0;
         this->noOfIndexes = 0;
         this->tableName = "";
@@ -106,6 +115,7 @@ public:
         noOfIndexes = 0;
         columnNames = new std::string[this->noOfColumns];
         columnTypes = new std::string[this->noOfColumns];
+        maxColumnLengths = new int[this->noOfColumns];
         rows = nullptr;
         indexNames = nullptr;
     }
@@ -119,9 +129,14 @@ public:
 
         for (int i = 0; i < noOfColumns; i++)
         {
-            if (this->columnNames[i] != table.columnNames[i])
+            if (this->columnNames[i] != table.columnNames[i] ||
+                this->columnTypes[i] != table.columnTypes[i] ||
+                this->maxColumnLengths[i] != table.maxColumnLengths[i])
+            {
                 return false;
+            }
         }
+
 
         for (int i = 0; i < noOfRows; i++)
         {
@@ -189,6 +204,12 @@ public:
             for (int i = 0; i < noOfColumns; i++)
             {
                 columnTypes[i] = other.columnTypes[i];
+            }
+
+            this->maxColumnLengths = new int[noOfColumns];
+            for (int i = 0; i < noOfColumns; i++)
+            {
+                maxColumnLengths[i] = other.maxColumnLengths[i];
             }
         }
         return *this;
@@ -443,6 +464,15 @@ public:
                 statusManager->print(StatusManager::Error,
                                      "Value \"" + newRow[i] + "\" does not match column type \"" + columnTypes[i] +
                                      "\"!");
+                return 1;
+            }
+            if (maxColumnLengths[i] < newRow[i].length())
+            {
+                statusManager->print(StatusManager::Error,
+                                     "Value \"" + newRow[i] + "\" in column \"" + columnNames[i] +
+                                     "\" exceeds max length! (Length: " + std::to_string(newRow[i].length()) + ", Max: "
+                                     +
+                                     std::to_string(maxColumnLengths[i]) + ")");
                 return 1;
             }
             if (columnTypes[i] == "text" || columnTypes[i] == "varchar")
@@ -907,5 +937,37 @@ public:
     std::string* getColumnTypes()
     {
         return columnTypes;
+    }
+
+    void setMaxColumnLengths(int* maxColumnLengths, int noOfColumns)
+    {
+        if (maxColumnLengths == nullptr)
+        {
+            return;
+        }
+
+        if (this->maxColumnLengths == maxColumnLengths)
+        {
+            return;
+        }
+
+        delete[] this->maxColumnLengths;
+        this->noOfColumns = noOfColumns;
+        this->maxColumnLengths = new int[noOfColumns];
+
+        for (int i = 0; i < noOfColumns; i++)
+        {
+            this->maxColumnLengths[i] = maxColumnLengths[i];
+        }
+    }
+
+    int* getMaxColumnLengths() const
+    {
+        int* aux = new int[noOfColumns];
+        for (int i = 0; i < noOfColumns; i++)
+        {
+            aux[i] = maxColumnLengths[i];
+        }
+        return aux;
     }
 };
