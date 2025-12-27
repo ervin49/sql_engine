@@ -1,0 +1,2 @@
+INSERT INTO produse VALUES (1,'Laptop',15,3499.99,'Electronice','1234567890123')
+INSERT INTO produse VALUES (2,'Mouse',100,79.99,'Periferice','9876543210987')

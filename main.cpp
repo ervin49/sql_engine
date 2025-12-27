@@ -1,8 +1,11 @@
 #include "Application.h"
+#include "globals.cpp"
 
-int main(const int argc, char **argv) {
+int main(const int argc, char** argv)
+{
     const auto application = new Application;
-    if (argc == 1) {
+    if (argc == 1)
+    {
         application->parseCommands();
         delete application;
         return 0;
