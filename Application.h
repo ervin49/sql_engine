@@ -312,7 +312,7 @@ public:
         }
         else
         {
-            statusManager->print(StatusManager::Error, "Command is wrong. Please enter a new command. ");
+            statusManager->print(StatusManager::Error, "Command is wrong! Please enter a new command. ");
         }
     }
 
@@ -334,7 +334,7 @@ public:
             return;
         }
 
-        std::string tableName = words[2];
+        const std::string tableName = words[2];
         if (!tableCatalog->table_exists(tableName))
         {
             statusManager->print(StatusManager::Error, "Table \"" + tableName + "\" does not exist!");
@@ -343,18 +343,6 @@ public:
 
         int noOfFields;
         std::string* inputFields = parser->parse_column(words[4], noOfFields);
-        //erase the ""
-        for (int i = 0; i < noOfFields; i++)
-        {
-            if (inputFields[i][0] == '"')
-            {
-                inputFields[i].erase(0, 1);
-            }
-            if (inputFields[i][inputFields[i].size() - 1] == '"')
-            {
-                inputFields[i].erase(inputFields[i].size() - 1, 1);
-            }
-        }
 
         if (noOfFields != tableCatalog->getNumberOfColumns(tableName))
         {
@@ -362,7 +350,7 @@ public:
             return;
         }
 
-        Table* table = tableCatalog->getTable(tableName);
+        auto table = tableCatalog->getTable(tableName);
         if (table->add_row(inputFields) == 0)
         {
             write_table_to_file(*table);
@@ -373,7 +361,7 @@ public:
     }
 
 
-    void create_table(std::string tableName) const
+    void create_table(const std::string& tableName) const
     {
         int indexOfLastWord = noOfWords - 1;
         if (words[indexOfLastWord][0] != '(' || words[indexOfLastWord][1] != '(' || words[indexOfLastWord][
@@ -438,43 +426,57 @@ public:
             }
         }
 
-        for (int i = 0; i < noOfColumns - 1; i++)
-        {
-            for (int j = i + 1; j < noOfColumns; j++)
-            {
-                if (columns[i] == columns[j])
-                {
-                    statusManager->print(StatusManager::Error, "You can't enter two identical column names!");
-                    delete[] columns;
-                    return;
-                }
-            }
-        }
 
         int noOfFields;
-        //needs to be changed
         auto* table = new Table(noOfColumns, tableName);
+        auto* columnNames = new std::string[noOfColumns];
+        auto* columnTypes = new std::string[noOfColumns];
         for (int j = 0; j < noOfColumns; j++)
         {
-            std::string* fields = parser->parse_column(columns[j], noOfFields);
+            const auto fields = parser->parse_column(columns[j], noOfFields);
 
             if (noOfFields != 4)
             {
                 statusManager->print(StatusManager::Error, "Every column should contain exactly 4 fields!");
                 delete table;
+                delete[] columnTypes;
+                delete[] columnNames;
                 delete[] columns;
                 return;
             }
-            table->setColumn(j, fields[0]);
-            table->setColumnType(j, fields[1]);
+            columnNames[j] = fields[0];
+            columnTypes[j] = fields[1];
         }
+
+        for (int i = 0; i < noOfColumns - 1; i++)
+        {
+            for (int j = i + 1; j < noOfColumns; j++)
+            {
+                if (columnNames[i] == columnNames[j])
+                {
+                    statusManager->print(StatusManager::Error, "You can't enter two identical column names!");
+                    delete table;
+                    delete[] columns;
+                    delete[] columnNames;
+                    delete[] columnTypes;
+                    return;
+                }
+            }
+        }
+
+        table->setColumnNames(columnNames, noOfColumns);
+        table->setColumnTypes(columnTypes, noOfColumns);
 
         if (tableCatalog->add_table(*table) == 0)
         {
             write_table_to_file(*table);
             statusManager->print(StatusManager::Success, "Table \"" + tableName + "\" created successfully!");
         }
+
         delete table;
+        delete[] columnTypes;
+        delete[] columnNames;
+        delete[] columns;
     }
 
     void write_table_to_file(Table table) const
@@ -488,6 +490,7 @@ public:
         std::string* columns = table.getColumns();
         std::string** rows = table.getRows();
         std::string* indexNames = table.getIndexNames();
+        std::string* columnTypes = table.getColumnTypes();
 
         //write into the file
         file.write(reinterpret_cast<char*>(&noOfColumns), sizeof(int));
@@ -505,7 +508,11 @@ public:
         {
             len = columns[i].length();
             file.write(reinterpret_cast<char*>(&len), sizeof(int));
-            file.write(columns[i].c_str(), len);
+            file.write(columns[i].data(), len);
+
+            len = columnTypes[i].length();
+            file.write(reinterpret_cast<char*>(&len), sizeof(int));
+            file.write(columnTypes[i].data(), len);
         }
 
         //write the rows
@@ -740,7 +747,7 @@ public:
         if (tableCatalog->table_exists(tableName))
         {
             tableCatalog->getTable(tableName)->print_table(std::cout);
-            write_select_to_file(tableCatalog->getTable(tableName));
+            write_select_to_file(*tableCatalog->getTable(tableName));
         }
         else
         {
@@ -771,7 +778,7 @@ public:
             return;
         }
 
-        auto* table = tableCatalog->getTable(tableName);
+        auto table = tableCatalog->getTable(tableName);
         std::string setColumnName = words[3];
         if (!table->column_exists(setColumnName))
         {
@@ -857,7 +864,7 @@ public:
         }
     }
 
-    void write_select_to_file(Table* table) const
+    void write_select_to_file(Table table) const
     {
         std::string targetPath = "./select_outputs/";
         int index = -1; //subtract "." and ".."
@@ -868,7 +875,7 @@ public:
         }
         std::ofstream file;
         file.open(targetPath + "select_" + std::to_string(index));
-        table->print_table(file);
+        table.print_table(file);
     }
 
     void select_from() const
@@ -893,7 +900,7 @@ public:
             if (noOfWords == 4)
             {
                 tableCatalog->getTable(tableName)->print_table(std::cout);
-                write_select_to_file(tableCatalog->getTable(tableName));
+                write_select_to_file(*tableCatalog->getTable(tableName));
             }
             else
             {
@@ -908,7 +915,7 @@ public:
                     statusManager->print(StatusManager::Error,
                                          "Syntax Error: Expected symbol '=', but found \"" + words[6] + "\" instead.");
                 }
-                auto* originalTable = tableCatalog->getTable(tableName);
+                auto originalTable = tableCatalog->getTable(tableName);
                 std::string columnName = words[noOfWords - 3];
                 //value that we search for
                 std::string value = words[noOfWords - 1];
@@ -947,7 +954,7 @@ public:
                 else
                 {
                     tableWithSelectedRows->print_table(std::cout);
-                    write_select_to_file(tableWithSelectedRows);
+                    write_select_to_file(*tableWithSelectedRows);
                 }
 
                 //delete all dynamically allocated variables
@@ -995,7 +1002,7 @@ public:
             }
         }
 
-        auto* originalTable = tableCatalog->getTable(tableName);
+        auto originalTable = tableCatalog->getTable(tableName);
         for (int i = 0; i < noOfSelectedColumns; i++)
         {
             if (originalTable->column_exists(selectedColumns[i]) == false)
@@ -1045,7 +1052,7 @@ public:
         if (noOfWords < 5)
         {
             tableWithSelectedColumnsOnly->print_table(std::cout);
-            write_select_to_file(tableWithSelectedColumnsOnly);
+            write_select_to_file(*tableWithSelectedColumnsOnly);
             delete tableWithSelectedColumnsOnly;
             delete[] selectedColumns;
             return;
@@ -1096,7 +1103,7 @@ public:
         else
         {
             tableWithSelectedRows->print_table(std::cout);
-            write_select_to_file(tableWithSelectedRows);
+            write_select_to_file(*tableWithSelectedRows);
         }
 
         //delete all dynamically allocated variables
@@ -1186,6 +1193,8 @@ public:
 
     void parseCommands()
     {
+        first_configuration config;
+        config.load_tables();
         while (true)
         {
             int noOfWords;

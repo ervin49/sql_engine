@@ -13,7 +13,7 @@ private:
     int noOfRows;
     int noOfIndexes;
     std::string tableName;
-    std::string* columns;
+    std::string* columnNames;
     std::string** rows;
     std::string* columnTypes;
     std::string* indexNames;
@@ -34,14 +34,15 @@ public:
         this->noOfColumns = noOfColumns;
         noOfRows = 0;
         noOfIndexes = 0;
-        columns = new std::string[this->noOfColumns];
-        rows = nullptr;
-        indexNames = nullptr;
+        columnNames = new std::string[this->noOfColumns];
         this->columnTypes = new std::string[this->noOfColumns];
         for (int i = 0; i < noOfColumns; i++)
         {
             this->columnTypes[i] = columnTypes[i];
         }
+
+        rows = nullptr;
+        indexNames = nullptr;
     }
 
 
@@ -50,11 +51,11 @@ public:
         noOfColumns = other.noOfColumns;
         tableName = other.tableName;
         noOfRows = other.noOfRows;
-        columns = new std::string[noOfColumns];
+        columnNames = new std::string[noOfColumns];
         noOfIndexes = other.noOfIndexes;
         for (int i = 0; i < noOfColumns; i++)
         {
-            columns[i] = other.columns[i];
+            columnNames[i] = other.columnNames[i];
         }
 
         rows = new std::string*[noOfRows];
@@ -90,7 +91,8 @@ public:
         this->rows = nullptr;
         this->noOfRows = 0;
         this->indexNames = nullptr;
-        this->columns = nullptr;
+        this->columnNames = nullptr;
+        this->columnTypes = nullptr;
         this->noOfColumns = 0;
         this->noOfIndexes = 0;
         this->tableName = "";
@@ -100,13 +102,12 @@ public:
     {
         this->noOfColumns = noOfColumns;
         this->tableName = tableName;
-        this->noOfColumns = noOfColumns;
         noOfRows = 0;
         noOfIndexes = 0;
-        columns = new std::string[this->noOfColumns];
+        columnNames = new std::string[this->noOfColumns];
+        columnTypes = new std::string[this->noOfColumns];
         rows = nullptr;
         indexNames = nullptr;
-        this->columnTypes = new std::string[this->noOfColumns];
     }
 
     bool operator==(Table const& table) const
@@ -118,7 +119,7 @@ public:
 
         for (int i = 0; i < noOfColumns; i++)
         {
-            if (this->columns[i] != table.columns[i])
+            if (this->columnNames[i] != table.columnNames[i])
                 return false;
         }
 
@@ -138,26 +139,20 @@ public:
 
     ~Table()
     {
-        if (columns != nullptr)
+        delete[] columnNames;
+        delete[] indexNames;
+        for (int i = 0; i < noOfRows; i++)
         {
-            delete[] columns;
+            delete[] rows[i];
         }
-        if (rows != nullptr)
-        {
-            for (int i = 0; i < noOfRows; i++)
-            {
-                delete[] rows[i];
-            }
-            delete[] rows;
-        }
+        delete[] rows;
     }
 
     Table& operator=(const Table& other)
     {
         if (this != &other)
         {
-            // Pas A: Curatam memoria veche a obiectului curent
-            if (columns != nullptr) delete[] columns;
+            if (columnNames != nullptr) delete[] columnNames;
             if (rows != nullptr)
             {
                 for (int i = 0; i < noOfRows; i++) delete[] rows[i];
@@ -168,10 +163,10 @@ public:
             this->noOfColumns = other.noOfColumns;
             this->noOfRows = other.noOfRows;
 
-            this->columns = new std::string[noOfColumns];
+            this->columnNames = new std::string[noOfColumns];
             for (int i = 0; i < noOfColumns; i++)
             {
-                this->columns[i] = other.columns[i];
+                this->columnNames[i] = other.columnNames[i];
             }
 
             this->rows = new std::string*[noOfRows];
@@ -183,7 +178,18 @@ public:
                     this->rows[i][j] = other.rows[i][j];
                 }
             }
-            this->indexNames = other.indexNames;
+
+            this->indexNames = new std::string[noOfIndexes];
+            for (int i = 0; i < noOfIndexes; i++)
+            {
+                indexNames[i] = other.indexNames[i];
+            }
+
+            this->columnTypes = new std::string[noOfColumns];
+            for (int i = 0; i < noOfColumns; i++)
+            {
+                columnTypes[i] = other.columnTypes[i];
+            }
         }
         return *this;
     }
@@ -237,6 +243,11 @@ public:
 
     bool is_column_type(const std::string& value, const std::string& columnType)
     {
+        if (value[0] == '\'' && value[value.length() - 1] == '\'' && (columnType == "text" || columnType == "varchar"))
+        {
+            return true;
+        }
+
         if ((columnType == "int" || columnType == "integer" || columnType == "numeric") &&
             is_integer(value))
         {
@@ -244,11 +255,6 @@ public:
         }
 
         if (columnType == "float" && is_float(value))
-        {
-            return true;
-        }
-
-        if ((columnType == "text" || columnType == "varchar") && is_float(value) == false && is_integer(value) == false)
         {
             return true;
         }
@@ -273,7 +279,7 @@ public:
         bool hasDot = false;
         for (int i = 0; i < str.length(); i++)
         {
-            if (std::isdigit(str[i]) == false)
+            if (std::isdigit(str[i]) == false && str[i] != '.')
             {
                 return false;
             }
@@ -290,7 +296,7 @@ public:
                 }
                 else
                 {
-                    //if hasDot was already true, the string has more than 2 dots, so it's not valid
+                    //if hasDot was already true, the string has 2 dots, so it's not valid
                     return false;
                 }
             }
@@ -303,7 +309,7 @@ public:
         auto* newColumns = new std::string[noOfColumns];
         for (int i = 0; i < noOfColumns; i++)
         {
-            newColumns[i] = columns[i];
+            newColumns[i] = columnNames[i];
         }
         return newColumns;
     }
@@ -402,7 +408,7 @@ public:
             throw std::runtime_error("Index out of range!");
         }
 
-        columns[index] = columnName;
+        columnNames[index] = columnName;
     }
 
     void setColumnType(const int index, const std::string& columnType)
@@ -419,7 +425,7 @@ public:
     {
         for (int i = 0; i < noOfColumns; i++)
         {
-            if (columns[i] == columnName)
+            if (columnNames[i] == columnName)
             {
                 return true;
             }
@@ -439,10 +445,14 @@ public:
                                      "\"!");
                 return 1;
             }
+            if (columnTypes[i] == "text" || columnTypes[i] == "varchar")
+            {
+                newRow[i] = newRow[i].substr(1, newRow[i].length() - 2);
+            }
         }
 
         std::string** newRows = new std::string*[noOfRows + 1];
-        for (int i = 0; i < noOfRows; i++)
+        for (int i = 0; i <= noOfRows; i++)
         {
             newRows[i] = new std::string[noOfColumns];
         }
@@ -501,9 +511,9 @@ public:
 
         for (int i = 0; i < noOfColumns; i++)
         {
-            if (columns[i].length() > maxLengthOnColumn[i])
+            if (columnNames[i].length() > maxLengthOnColumn[i])
             {
-                maxLengthOnColumn[i] = columns[i].length();
+                maxLengthOnColumn[i] = columnNames[i].length();
             }
         }
 
@@ -540,9 +550,9 @@ public:
         //display the column names
         for (int i = 0; i < noOfColumns; i++)
         {
-            out << columns[i];
+            out << columnNames[i];
 
-            if (columns[i].length() == maxLengthOnColumn[i])
+            if (columnNames[i].length() == maxLengthOnColumn[i])
             {
                 for (int k = 0; k < OFFSET / 2 && i < noOfColumns - 1; k++)
                 {
@@ -563,7 +573,7 @@ public:
             }
             else
             {
-                for (int k = 0; k < maxLengthOnColumn[i] - columns[i].length(); k++)
+                for (int k = 0; k < maxLengthOnColumn[i] - columnNames[i].length(); k++)
                 {
                     out << ' ';
                 }
@@ -715,7 +725,7 @@ public:
     {
         for (int i = 0; i < noOfColumns; i++)
         {
-            if (columns[i] == columnName)
+            if (columnNames[i] == columnName)
             {
                 return i;
             }
@@ -736,15 +746,15 @@ public:
         int k = 0;
         for (int i = 0; i < noOfColumns; i++)
         {
-            if (columns[i] == columnName)
+            if (columnNames[i] == columnName)
             {
                 continue;
             }
-            newColumns[k++] = columns[i];
+            newColumns[k++] = columnNames[i];
         }
         for (int i = 0; i < noOfColumns - 1; i++)
         {
-            columns[i] = newColumns[i];
+            columnNames[i] = newColumns[i];
         }
         this->setNoOfColumns(noOfColumns - 1);
         delete[] newColumns;
@@ -853,5 +863,49 @@ public:
         delete[] indexNames;
         indexNames = newIndexNames;
         noOfIndexes++;
+    }
+
+    void setColumnNames(const std::string* columnNames, int noOfColumns)
+    {
+        if (columnNames == nullptr)
+        {
+            return;
+        }
+
+        this->noOfColumns = noOfColumns;
+        delete[] this->columnNames;
+        this->columnNames = new std::string[noOfColumns];
+
+        for (int i = 0; i < noOfColumns; i++)
+        {
+            this->columnNames[i] = columnNames[i];
+        }
+    }
+
+    void setColumnTypes(const std::string* columnTypes, int noOfColumns)
+    {
+        if (columnTypes == nullptr)
+        {
+            return;
+        }
+
+        if (this->columnTypes == columnTypes)
+        {
+            return;
+        }
+
+        delete[] this->columnTypes;
+        this->noOfColumns = noOfColumns;
+        this->columnTypes = new std::string[noOfColumns];
+
+        for (int i = 0; i < noOfColumns; i++)
+        {
+            this->columnTypes[i] = columnTypes[i];
+        }
+    }
+
+    std::string* getColumnTypes()
+    {
+        return columnTypes;
     }
 };
