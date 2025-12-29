@@ -1,16 +1,19 @@
 #include "Application.h"
 #include "globals.cpp"
+#include "Menu.h"
 
 int main(const int argc, char** argv)
 {
-    const auto application = new Application;
     if (argc == 1)
     {
-        application->parseCommands();
-        delete application;
+        const auto menu = new Menu();
+        menu->display_welcome_menu();
+        delete menu;
         return 0;
     }
-    application->parseCommandsFromFiles(argc, argv);
+
+    const auto application = new Application;
+    application->parse_commands_from_files(argc, argv);
     delete application;
     return 0;
 }

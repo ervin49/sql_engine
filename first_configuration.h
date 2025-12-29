@@ -142,7 +142,7 @@ public:
         int noOfRows, noOfColumns, noOfIndexes;
         std::string *columns, *indexNames, *columnTypes;
         std::string** rows;
-        int* maxColumnLengths;
+        unsigned int* maxColumnLengths;
 
         //retrieve variables
         file.read(reinterpret_cast<char*>(&noOfColumns), sizeof(int));
@@ -158,7 +158,7 @@ public:
         //allocate memory
         columns = new std::string[noOfColumns];
         columnTypes = new std::string[noOfColumns];
-        maxColumnLengths = new int[noOfColumns];
+        maxColumnLengths = new unsigned int[noOfColumns];
         rows = new std::string*[noOfRows];
         for (int i = 0; i < noOfRows; i++)
         {

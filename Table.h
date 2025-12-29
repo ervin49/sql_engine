@@ -17,7 +17,7 @@ private:
     std::string** rows;
     std::string* columnTypes;
     std::string* indexNames;
-    int* maxColumnLengths;
+    unsigned int* maxColumnLengths;
 
 public:
     Table(int noOfColumns, const std::string& tableName, const std::string* columnTypes)
@@ -37,7 +37,7 @@ public:
         noOfIndexes = 0;
         columnNames = new std::string[this->noOfColumns];
         this->columnTypes = new std::string[this->noOfColumns];
-        this->maxColumnLengths = new int[this->noOfColumns];
+        this->maxColumnLengths = new unsigned int[this->noOfColumns];
         for (int i = 0; i < noOfColumns; i++)
         {
             this->columnTypes[i] = columnTypes[i];
@@ -52,7 +52,7 @@ public:
     {
         noOfColumns = other.noOfColumns;
         columnNames = new std::string[noOfColumns];
-        maxColumnLengths = new int[noOfColumns];
+        maxColumnLengths = new unsigned int[noOfColumns];
         this->columnTypes = new std::string[noOfColumns];
         tableName = other.tableName;
         noOfRows = other.noOfRows;
@@ -115,7 +115,7 @@ public:
         noOfIndexes = 0;
         columnNames = new std::string[this->noOfColumns];
         columnTypes = new std::string[this->noOfColumns];
-        maxColumnLengths = new int[this->noOfColumns];
+        maxColumnLengths = new unsigned int[this->noOfColumns];
         rows = nullptr;
         indexNames = nullptr;
     }
@@ -206,7 +206,7 @@ public:
                 columnTypes[i] = other.columnTypes[i];
             }
 
-            this->maxColumnLengths = new int[noOfColumns];
+            this->maxColumnLengths = new unsigned int[noOfColumns];
             for (int i = 0; i < noOfColumns; i++)
             {
                 maxColumnLengths[i] = other.maxColumnLengths[i];
@@ -939,7 +939,7 @@ public:
         return columnTypes;
     }
 
-    void setMaxColumnLengths(int* maxColumnLengths, int noOfColumns)
+    void setMaxColumnLengths(unsigned int* maxColumnLengths, int noOfColumns)
     {
         if (maxColumnLengths == nullptr)
         {
@@ -953,7 +953,7 @@ public:
 
         delete[] this->maxColumnLengths;
         this->noOfColumns = noOfColumns;
-        this->maxColumnLengths = new int[noOfColumns];
+        this->maxColumnLengths = new unsigned int[noOfColumns];
 
         for (int i = 0; i < noOfColumns; i++)
         {

@@ -431,7 +431,7 @@ public:
         auto* table = new Table(noOfColumns, tableName);
         auto* columnNames = new std::string[noOfColumns];
         auto* columnTypes = new std::string[noOfColumns];
-        auto* maxColumnLengths = new int[noOfColumns];
+        auto* maxColumnLengths = new unsigned int[noOfColumns];
         for (int j = 0; j < noOfColumns; j++)
         {
             const auto fields = parser->parse_column(columns[j], noOfFields);
@@ -1133,7 +1133,7 @@ public:
         delete[] selectedColumns;
     }
 
-    void parseCommandsFromFiles(int argc, char** argv)
+    void parse_commands_from_files(int argc, char** argv)
     {
         if (argc > 6)
         {
@@ -1212,7 +1212,7 @@ public:
         }
     }
 
-    void parseCommands()
+    void parse_commands()
     {
         first_configuration config;
         config.load_tables();
