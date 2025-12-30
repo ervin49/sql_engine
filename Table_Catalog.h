@@ -242,6 +242,7 @@ public:
 
         delete[] this->tables;
         this->tables = new Table[noOfTables];
+        this->noOfTables = noOfTables;
         for (int i = 0; i < noOfTables; i++)
         {
             this->tables[i] = newTables[i];
