@@ -200,7 +200,6 @@ public:
 			indexes[i].setColumnName(columnsOfIndexes[i]);
 		}
 		table->setRows(rows, noOfRows, noOfColumns);
-		debug(noOfIndexes);
 		table->setIndexNames(indexNames, noOfIndexes);
 		table->setColumnTypes(columnTypes, noOfColumns);
 		indexCatalog->setIndexes(indexes, noOfIndexes);
@@ -216,33 +215,13 @@ public:
 
 	void load_index_catalog()
 	{
-		std::string target_path = "./index_catalog/";
-		DIR* dir = opendir(target_path.data());
-		if (dir == nullptr)
+		std::string fileName = "./index_catalog/index_catalog.bin";
+		std::ifstream f(fileName, std::ios::binary);
+		if (f.is_open() == false)
 		{
 			return;
 		}
-		dirent* file;
-		int noOfIndexCatalogs = 0;
-		while ((file = readdir(dir)) != nullptr)
-		{
-			noOfIndexCatalogs++;
-		}
-		if (noOfIndexCatalogs != 1)
-		{
-			return;
-		}
-		closedir(dir);
-		dir = opendir(target_path.data());
-		file = readdir(dir);
-		std::string fileName = file->d_name;
-		if (fileName.substr(fileName.length() - 4, 4) != ".bin")
-		{
-			statusManager->print(StatusManager::Error, "File \"" + fileName + "\" does not have extension .bin!");
-		}
-
-		std::ifstream f("./index_catalog/" + fileName);
-		int noOfIndexes;
+		int noOfIndexes = 0;
 		f.read(reinterpret_cast<char*>(&noOfIndexes), sizeof(int));
 
 		auto indexes = new Index[noOfIndexes];
@@ -269,5 +248,6 @@ public:
 		}
 
 		indexCatalog->setIndexes(indexes, noOfIndexes);
+		delete[] indexes;
 	}
 };

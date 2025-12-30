@@ -1,1 +1,1 @@
-drop table produse
+drop index ceva3

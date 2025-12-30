@@ -704,7 +704,8 @@ public:
 			Index* index = new Index(indexName, tableName, columnName);
 			indexCatalog->add_index(*index);
 			table->add_index(indexName);
-			write_table_to_file(*table); // inca nu merge
+			write_table_to_file(*table);
+			indexCatalog->write_index_catalog_to_file();
 			statusManager->print(StatusManager::Success, "Index \"" + indexName + "\" created successfully!");
 			delete index;
 		}
@@ -735,15 +736,25 @@ public:
 
 	void drop_index() const
 	{
-		std::string indexName = "", aux = words[2];
+		std::string indexName, aux = words[2];
 		for (int i = 0; i < words[2].length(); i++)
 		{
 			indexName += tolower(words[2][i]);
 		}
 
+		auto index = indexCatalog->getIndex(indexName);
+		if (index == nullptr)
+		{
+			statusManager->print(StatusManager::Error, "Index \"" + indexName + "\" does not exist!");
+			return;
+		}
+		const std::string tableNameOfIndex = indexCatalog->getIndex(indexName)->getTableName();
 		if (indexCatalog->drop_index(indexName) == 0)
 		{
+			auto table = tableCatalog->getTable(tableNameOfIndex);
+			table->remove_index(indexName);
 			statusManager->print(StatusManager::Success, "Index \"" + aux + "\" dropped successfully!");
+			indexCatalog->write_index_catalog_to_file();
 		}
 	}
 
@@ -1195,10 +1206,9 @@ public:
 				}
 
 				setQuery(words, noOfWords, parser->getString());
-				if (noOfWords == 1 && words[0] == "exit")
+				if (noOfWords == 1 && (words[0] == "exit" || words[0] == "quit"))
 				{
 					exit(0);
-					break;
 				}
 				parse_command();
 				delete[] numberOfParentheses;
@@ -1254,7 +1264,7 @@ public:
 			}
 
 			setQuery(words, noOfWords, parser->getString());
-			if (noOfWords == 1 && words[0] == "exit")
+			if (noOfWords == 1 && (words[0] == "exit" || words[0] == "quit"))
 			{
 				exit(0);
 			}

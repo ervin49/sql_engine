@@ -3,6 +3,7 @@
 #include <string>
 
 #include "Index.h"
+#include "globals.h"
 
 class Index_Catalog
 {
@@ -161,17 +162,17 @@ public:
 					std::cout << '\"' << p->getIndexName() << "\".";
 				}
 			}
-			std::cout << std::endl;
+			std::cout << std::endl << std::endl;
 			return;
 		}
-		std::cout << "Table \"" << tableName << "\" has indexes: ";
+		std::cout << "Table \"" << tableName << "\" has " << noOfIndexesOfTable << " indexes: ";
 		int curr = 0;
 		Index* p;
 		for (p = &indexes[0]; p < &indexes[noOfIndexes] && curr < noOfIndexesOfTable - 1; p++)
 		{
 			if (p->getTableName() == tableName)
 			{
-				std::cout << '\"' << p->getIndexName() << "\", ";
+				std::cout << '\"' << p->getIndexName() << "\" on column \"" << p->getColumnName() << "\", ";
 				curr++;
 			}
 		}
@@ -179,10 +180,10 @@ public:
 		{
 			if (p->getTableName() == tableName)
 			{
-				std::cout << '\"' << p->getIndexName() << "\".";
+				std::cout << '\"' << p->getIndexName() << "\" on column \"" << p->getColumnName() << "\".";
 			}
 		}
-		std::cout << std::endl;
+		std::cout << std::endl << std::endl;
 	}
 
 	int getNoOfIndexesOfTableByName(const std::string& tableName) const
@@ -250,6 +251,10 @@ public:
 	{
 		for (int i = 0; i < noOfIndexes; i++)
 		{
+			debug(indexes[i].getTableName());
+			debug(tableName);
+			debug(indexes[i].getColumnName());
+			debug(columnName);
 			if (indexes[i].getTableName() == tableName && indexes[i].getColumnName() == columnName)
 			{
 				return true;

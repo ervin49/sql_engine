@@ -8,6 +8,11 @@ class Menu
 {
 private:
 	Application* application;
+	enum menu_options
+	{
+		table_options,
+		index_options
+	};
 
 public:
 	Menu() { application = new Application(); }
@@ -16,8 +21,13 @@ public:
 	void display_welcome_menu()
 	{
 		clear_screen();
-		first_configuration config;
-		config.load_tables();
+		bool first_enter = true;
+		if (first_enter == true)
+		{
+			const first_configuration config;
+			config.load_tables();
+			first_enter = false;
+		}
 		std::cout << std::endl;
 		std::cout << "Welcome to sql engine! Please choose what you would like to do." << std::endl;
 		std::cout << "(1) Run commands using the interactive menu." << std::endl;
@@ -59,11 +69,11 @@ public:
 	{
 		std::cout << std::endl;
 		std::cout << "Welcome to the sql engine interactive menu! What would you like to work with?" << std::endl;
-		std::cout << "(t) A table." << std::endl;
-		std::cout << "(i) An index." << std::endl;
+		std::cout << "(1) A table." << std::endl;
+		std::cout << "(2) An index." << std::endl;
 		std::cout << "(r) Return to the previous menu." << std::endl;
 		std::cout << "(q) Quit program." << std::endl;
-		std::cout << "Please choose an option: [tirq] ";
+		std::cout << "Please choose an option: [12rq] ";
 
 		char c;
 
@@ -73,13 +83,13 @@ public:
 			c = tolower(c);
 			switch (c)
 			{
-			case 't':
+			case '1':
 				clear_screen();
-				table_options();
+				show_table_options();
 				break;
-			case 'i':
+			case '2':
 				clear_screen();
-				index_options();
+				show_index_options();
 				break;
 			case 'r':
 				clear_screen();
@@ -101,12 +111,19 @@ public:
 		std::cout << "Please enter the name of the table on which you want to create the index: (Available options: ";
 
 		int noOfTables = tableCatalog->getNoOfTables();
-		Table* tables = tableCatalog->getTables();
-		for (int i = 0; i < noOfTables - 1; i++)
+		if (noOfTables > 0)
 		{
-			std::cout << '\"' + tables[i].getTableName() + "\", ";
+			Table* tables = tableCatalog->getTables();
+			for (int i = 0; i < noOfTables - 1; i++)
+			{
+				std::cout << '\"' + tables[i].getTableName() + "\", ";
+			}
+			std::cout << '\"' << tables[noOfTables - 1].getTableName() << "\") ";
 		}
-		std::cout << '\"' << tables[noOfTables - 1].getTableName() << "\") ";
+		else
+		{
+			std::cout << "none.";
+		}
 
 		while (true)
 		{
@@ -151,7 +168,7 @@ public:
 									 "Table \"" + tableName + "\" does not have column \"" + columnName + "\"!");
 				std::cout << "Please enter the name of the column you want to index: ";
 			}
-			else
+			else if (indexCatalog->has_index(tableName, columnName) == true)
 			{
 				statusManager->print(StatusManager::Error,
 									 "Table \"" + tableName + "\" already has an index on column \"" + columnName +
@@ -160,17 +177,14 @@ public:
 			}
 		}
 
-		Index* index = new Index(indexName, tableName, columnName);
+		auto index = new Index(indexName, tableName, columnName);
 		indexCatalog->add_index(*index);
 		table->add_index(indexName);
 		application->write_table_to_file(*table);
 		indexCatalog->write_index_catalog_to_file();
 		statusManager->print(StatusManager::Success, "Index \"" + indexName + "\" created successfully!");
 		std::cout << std::endl;
-		std::cout << "What would you like to do now?" << std::endl;
-		std::cout << "(r) Return to the previous menu." << std::endl;
-		std::cout << "(q) Quit the program." << std::endl;
-		std::cout << "Please choose an option: [rq] ";
+		show_menu_loop(index_options);
 
 		char c;
 		while (true)
@@ -181,7 +195,7 @@ public:
 			{
 			case 'r':
 				clear_screen();
-				index_options();
+				show_index_options();
 				break;
 			case 'q':
 				exit(0);
@@ -197,14 +211,23 @@ public:
 	void display_indexes()
 	{
 		std::cout << std::endl;
-		std::cout << "Please enter the name of the table of which you wish to display indexes: (Available options: ";
 		int noOfTables = tableCatalog->getNoOfTables();
-		Table* tables = tableCatalog->getTables();
-		for (int i = 0; i < noOfTables - 1; i++)
+		if (noOfTables > 0)
 		{
-			std::cout << '\"' + tables[i].getTableName() + "\", ";
+			std::cout << "Please enter the name of the table of which you wish to display indexes: " << std::endl
+					  << "(Available options: ";
+			Table* tables = tableCatalog->getTables();
+			for (int i = 0; i < noOfTables - 1; i++)
+			{
+				std::cout << '\"' + tables[i].getTableName() + "\", ";
+			}
+			std::cout << '\"' << tables[noOfTables - 1].getTableName() << "\") ";
 		}
-		std::cout << '\"' << tables[noOfTables - 1].getTableName() << "\") ";
+		else
+		{
+			std::cout << "You have to create a table first!" << std::endl << std::endl;
+			show_menu_loop(index_options);
+		}
 		std::string tableName;
 		while (true)
 		{
@@ -219,11 +242,18 @@ public:
 		if (indexCatalog->getNoOfIndexesOfTableByName(tableName) == 0)
 		{
 			std::cout << "Table \"" << tableName << "\" does not have any index!" << std::endl << std::endl;
+			show_menu_loop(index_options);
 		}
 		else
 		{
 			indexCatalog->print_indexes_of_a_table_by_name(tableName);
+			show_menu_loop(index_options);
 		}
+	}
+
+	void show_menu_loop(menu_options option)
+	{
+
 		std::cout << "What would you like to do now?" << std::endl;
 		std::cout << "(r) Return to the previous menu." << std::endl;
 		std::cout << "(q) Quit the program." << std::endl;
@@ -237,7 +267,17 @@ public:
 			{
 			case 'r':
 				clear_screen();
-				index_options();
+				switch (option)
+				{
+				case index_options:
+					show_index_options();
+					break;
+				case table_options:
+					show_table_options();
+					break;
+				default:
+					break;
+				}
 				break;
 			case 'q':
 				exit(0);
@@ -248,7 +288,7 @@ public:
 		}
 	}
 
-	void index_options()
+	void show_index_options()
 	{
 		std::cout << std::endl;
 		std::cout << "What would you like to do?" << std::endl;
@@ -299,7 +339,7 @@ public:
 
 	void drop_table() {}
 
-	void table_options()
+	void show_table_options()
 	{
 		std::cout << std::endl;
 		std::cout << "What would you like to do?" << std::endl;
@@ -429,29 +469,7 @@ public:
 		delete table;
 
 		statusManager->print(StatusManager::Success, "Table \"" + tableName + "\" created succesfully!");
-		std::cout << "What would you like to do now?" << std::endl;
-		std::cout << "(r) Return to the previous menu." << std::endl;
-		std::cout << "(q) Quit the program." << std::endl;
-		std::cout << "Please choose an option: [rq] ";
-
-		char c;
-		while (true)
-		{
-			std::cin >> c;
-			c = tolower(c);
-			switch (c)
-			{
-			case 'r':
-				clear_screen();
-				table_options();
-				break;
-			case 'q':
-				exit(0);
-			default:
-				statusManager->print(StatusManager::Error, "You need to enter a valid option!");
-				std::cout << "Please choose an option: [rq] ";
-			}
-		}
+		show_menu_loop(table_options);
 	}
 
 	void display_help()
@@ -495,27 +513,6 @@ public:
 		clear_screen();
 		tableCatalog->getTable(tableName)->print_table(std::cout);
 		application->write_select_to_file(*tableCatalog->getTable(tableName));
-		std::cout << "What would you like to do now?" << std::endl;
-		std::cout << "(r) Return to the previous menu." << std::endl;
-		std::cout << "(q) Quit the program." << std::endl;
-		std::cout << "Please choose an option: [rq] ";
-		char c;
-		while (true)
-		{
-			std::cin >> c;
-			c = tolower(c);
-			switch (c)
-			{
-			case 'r':
-				clear_screen();
-				table_options();
-				break;
-			case 'q':
-				exit(0);
-			default:
-				statusManager->print(StatusManager::Error, "You need to enter a valid option!");
-				std::cout << "Please choose an option: [rq] ";
-			}
-		}
+		show_menu_loop(table_options);
 	}
 };

@@ -958,4 +958,21 @@ public:
 			index->print_index();
 		}
 	}
+	void remove_index(const std::string& indexName)
+	{
+		auto newIndexNames = new std::string[noOfIndexes - 1];
+		int k = 0;
+		for (int i = 0; i < noOfIndexes; i++)
+		{
+			if (indexNames[i] == indexName)
+			{
+				continue;
+			}
+			newIndexNames[k++] = indexNames[i];
+		}
+
+		delete[] indexNames;
+		indexNames = newIndexNames;
+		this->noOfIndexes--;
+	}
 };
