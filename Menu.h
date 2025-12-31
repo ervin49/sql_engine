@@ -14,6 +14,54 @@ private:
 		index_options
 	};
 
+    void print_syntax_help()
+    {
+       std::cout << "--- SQL SYNTAX CHEATSHEET ---" << std::endl;
+       std::cout << "1. CREATE TABLE:" << std::endl;
+       std::cout << "   Format: CREATE TABLE name ((col1, type, size, default), ...)" << std::endl;
+       std::cout << "   Ex:     CREATE TABLE students ((name, text, 20, -), (age, integer, 3, 0))" << std::endl << std::endl;
+
+       std::cout << "2. INSERT:" << std::endl;
+       std::cout << "   Format: INSERT INTO table VALUES (val1, val2, ...)" << std::endl;
+       std::cout << "   Ex:     INSERT INTO students VALUES (\"Alex\", 21)" << std::endl;
+
+       std::cout << "3. SELECT:" << std::endl;
+       std::cout << "   Format: SELECT ALL FROM table" << std::endl;
+       std::cout << "   Ex:     SELECT name FROM students WHERE age = 21" << std::endl;
+
+       std::cout << "4. INDEX:" << std::endl;
+       std::cout << "   Ex:     CREATE INDEX idx_name ON table_name (column_name)" << std::endl;
+       std::cout << "-----------------------------" << std::endl;
+       std::cout << "Press any key (and Enter) to go back..." << std::endl;
+       char dummy; std::cin >> dummy; // Asteapta userul
+    }
+
+    void print_datatypes_help()
+    {
+       std::cout << "--- SUPPORTED DATA TYPES ---" << std::endl;
+       std::cout << "* integer / int   : Whole numbers (e.g., 10, -5)" << std::endl;
+       std::cout << "* numeric / float : Decimal numbers (e.g., 10.5)" << std::endl;
+       std::cout << "* text / varchar  : Strings (e.g., \"Hello World\")" << std::endl;
+       std::cout << std::endl;
+       std::cout << "(!) Note: Text columns require a maximum size definition." << std::endl;
+       std::cout << "----------------------------" << std::endl;
+       std::cout << "Press any key (and Enter) to go back..." << std::endl;
+       char dummy; std::cin >> dummy;
+    }
+
+    void print_general_help()
+    {
+       std::cout << "--- GENERAL INFO ---" << std::endl;
+       std::cout << "Storage:" << std::endl;
+       std::cout << "  - Tables -> /tables folder (binary files)" << std::endl;
+       std::cout << "  - Indexes -> /index_catalog folder" << std::endl;
+       std::cout << "Navigation:" << std::endl;
+       std::cout << "  - Use 'q' to Quit, 'r' to Return in menus." << std::endl;
+       std::cout << "--------------------" << std::endl;
+       std::cout << "Press any key (and Enter) to go back..." << std::endl;
+       char dummy; std::cin >> dummy;
+    }
+
 public:
 	Menu() { application = new Application(); }
 
@@ -474,10 +522,44 @@ public:
 
 	void display_help()
 	{
-		std::cout << std::endl;
-		std::cout << "What do you need help with?" << std::endl;
-		// de scris
-	}
+		while (true)
+			{
+				clear_screen();
+				std::cout << std::endl;
+				std::cout << "================ HELP CENTER ================" << std::endl;
+				std::cout << "(1) Syntax Guide (Commands & Examples)" << std::endl;
+				std::cout << "(2) Data Types Reference" << std::endl;
+				std::cout << "(3) General Information" << std::endl;
+				std::cout << "(r) Return to Main Menu" << std::endl;
+				std::cout << "=============================================" << std::endl;
+				std::cout << "Please choose an option: [123r] ";
+
+				char c;
+				std::cin >> c;
+				c = tolower(c);
+
+				clear_screen();
+
+				switch (c)
+				{
+				case '1':
+					print_syntax_help();
+					break;
+				case '2':
+					print_datatypes_help();
+					break;
+				case '3':
+					print_general_help();
+					break;
+				case 'r':
+					display_welcome_menu();
+					return;
+				default:
+					statusManager->print(StatusManager::Error, "Invalid option!");
+					break;
+				}
+			}
+		}
 
 	void clear_screen()
 	{
