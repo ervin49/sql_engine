@@ -989,7 +989,7 @@ public:
 
 		if (noOfWords > 8)
 		{
-			statusManager->print(StatusManager::Error, "Invalid number of tokens");
+			statusManager->print(StatusManager::Error, "Syntax error!");
 			return;
 		}
 
@@ -1026,7 +1026,7 @@ public:
 			}
 		}
 
-		auto originalTable = tableCatalog->getTable(tableName);
+		const auto originalTable = tableCatalog->getTable(tableName);
 		for (int i = 0; i < noOfSelectedColumns; i++)
 		{
 			if (originalTable->column_exists(selectedColumns[i]) == false)
@@ -1054,7 +1054,7 @@ public:
 			tableWithSelectedColumnsOnly->setColumn(i, selectedColumns[i]);
 		}
 
-		// set the row values, but only on those columns that we need
+		// set the row values, only on the columns that we need
 		int k = 0;
 		while (k < noOfSelectedColumns)
 		{
@@ -1218,6 +1218,7 @@ public:
 
 	void parse_commands()
 	{
+		std::cout << "Note: You can exit this program anytime by entering \"exit\".";
 		while (true)
 		{
 			int noOfWords;

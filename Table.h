@@ -19,12 +19,12 @@ private:
 	unsigned int* maxColumnLengths;
 
 public:
-	Table(int noOfColumns, const std::string& tableName, const std::string* columnTypes)
+	Table(const int noOfColumns, const std::string& tableName, const std::string* columnTypes)
 	{
 		for (int i = 0; i < noOfColumns; i++)
 		{
 			const std::string type = columnTypes[i];
-			if (type != "int" || type != "numeric" || type != "integer" || type != "float" || type != "text")
+			if (type != "int" | type != "numeric" || type != "integer" || type != "float" || type != "text")
 			{
 				throw std::runtime_error("Incorrect column type!");
 			}
@@ -166,12 +166,9 @@ public:
 		{
 			if (columnNames != nullptr)
 				delete[] columnNames;
-			if (rows != nullptr)
-			{
-				for (int i = 0; i < noOfRows; i++)
-					delete[] rows[i];
-				delete[] rows;
-			}
+			for (int i = 0; i < noOfRows; i++)
+				delete[] rows[i];
+			delete[] rows;
 
 			this->tableName = other.tableName;
 			this->noOfColumns = other.noOfColumns;
@@ -263,12 +260,12 @@ public:
 			return true;
 		}
 
-		if ((columnType == "int" || columnType == "integer" || columnType == "numeric") && is_integer(value))
+		if ((columnType == "int" || columnType == "integer") && is_integer(value))
 		{
 			return true;
 		}
 
-		if (columnType == "float" && is_float(value))
+		if ((columnType == "float" || columnType == "numeric") && is_float(value))
 		{
 			return true;
 		}

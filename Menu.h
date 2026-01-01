@@ -8,59 +8,70 @@ class Menu
 {
 private:
 	Application* application;
+	bool first_enter = true;
 	enum menu_options
 	{
 		table_options,
 		index_options
 	};
 
-    void print_syntax_help()
-    {
-       std::cout << "--- SQL SYNTAX CHEATSHEET ---" << std::endl;
-       std::cout << "1. CREATE TABLE:" << std::endl;
-       std::cout << "   Format: CREATE TABLE name ((col1, type, size, default), ...)" << std::endl;
-       std::cout << "   Ex:     CREATE TABLE students ((name, text, 20, -), (age, integer, 3, 0))" << std::endl << std::endl;
+	void print_syntax_help()
+	{
+		std::cout << std::endl;
+		std::cout << "================ SQL SYNTAX CHEATSHEET ================" << std::endl;
+		std::cout << "1. CREATE TABLE:" << std::endl;
+		std::cout << "   Format: CREATE TABLE table_name [IF NOT EXISTS] ((col1, type, size, default_value), ...)"
+				  << std::endl;
+		std::cout << "   E.g.:     CREATE TABLE students ((name, text, 20, -), (age, integer, 3, 0))" << std::endl
+				  << std::endl;
 
-       std::cout << "2. INSERT:" << std::endl;
-       std::cout << "   Format: INSERT INTO table VALUES (val1, val2, ...)" << std::endl;
-       std::cout << "   Ex:     INSERT INTO students VALUES (\"Alex\", 21)" << std::endl;
+		std::cout << "2. INSERT:" << std::endl;
+		std::cout << "   Format: INSERT INTO table_name VALUES (val1, val2, ...)" << std::endl;
+		std::cout << "   E.g.:     INSERT INTO students VALUES (\"Alex\", 21)" << std::endl;
 
-       std::cout << "3. SELECT:" << std::endl;
-       std::cout << "   Format: SELECT ALL FROM table" << std::endl;
-       std::cout << "   Ex:     SELECT name FROM students WHERE age = 21" << std::endl;
+		std::cout << "3. SELECT:" << std::endl;
+		std::cout << "   Format: SELECT (col1, col2, ...) | ALL FROM table_name [WHERE column_name = value]"
+				  << std::endl;
+		std::cout << "   E.g.:     SELECT name FROM students WHERE age = 21" << std::endl;
 
-       std::cout << "4. INDEX:" << std::endl;
-       std::cout << "   Ex:     CREATE INDEX idx_name ON table_name (column_name)" << std::endl;
-       std::cout << "-----------------------------" << std::endl;
-       std::cout << "Press any key (and Enter) to go back..." << std::endl;
-       char dummy; std::cin >> dummy; // Asteapta userul
-    }
+		std::cout << "4. INDEX:" << std::endl;
+		std::cout << " CREATE INDEX index_name ON table_name (column_name)" << std::endl;
+		std::cout << "   E.g.:     CREATE INDEX name_index ON students (name)" << std::endl;
+		std::cout << "-----------------------------" << std::endl;
+		std::cout << "Press any key (and Enter) to go back..." << std::endl;
+		char dummy;
+		std::cin >> dummy; // Asteapta userul
+	}
 
-    void print_datatypes_help()
-    {
-       std::cout << "--- SUPPORTED DATA TYPES ---" << std::endl;
-       std::cout << "* integer / int   : Whole numbers (e.g., 10, -5)" << std::endl;
-       std::cout << "* numeric / float : Decimal numbers (e.g., 10.5)" << std::endl;
-       std::cout << "* text / varchar  : Strings (e.g., \"Hello World\")" << std::endl;
-       std::cout << std::endl;
-       std::cout << "(!) Note: Text columns require a maximum size definition." << std::endl;
-       std::cout << "----------------------------" << std::endl;
-       std::cout << "Press any key (and Enter) to go back..." << std::endl;
-       char dummy; std::cin >> dummy;
-    }
+	void print_datatypes_help()
+	{
+		std::cout << std::endl;
+		std::cout << "================ SUPPORTED DATA TYPES ================" << std::endl;
+		std::cout << "* integer / int   : Whole numbers (e.g., 10, -5)" << std::endl;
+		std::cout << "* numeric / float : Decimal numbers (e.g., 10.5)" << std::endl;
+		std::cout << "* text / varchar  : Strings (e.g., \'Hello World\')" << std::endl;
+		std::cout << std::endl;
+		std::cout << "(!) Note: Text columns require a maximum size definition." << std::endl;
+		std::cout << "----------------------------" << std::endl;
+		std::cout << "Press any key (and Enter) to go back..." << std::endl;
+		char dummy;
+		std::cin >> dummy;
+	}
 
-    void print_general_help()
-    {
-       std::cout << "--- GENERAL INFO ---" << std::endl;
-       std::cout << "Storage:" << std::endl;
-       std::cout << "  - Tables -> /tables folder (binary files)" << std::endl;
-       std::cout << "  - Indexes -> /index_catalog folder" << std::endl;
-       std::cout << "Navigation:" << std::endl;
-       std::cout << "  - Use 'q' to Quit, 'r' to Return in menus." << std::endl;
-       std::cout << "--------------------" << std::endl;
-       std::cout << "Press any key (and Enter) to go back..." << std::endl;
-       char dummy; std::cin >> dummy;
-    }
+	void print_general_help()
+	{
+		std::cout << std::endl;
+		std::cout << "================ GENERAL INFO ================" << std::endl;
+		std::cout << "Storage:" << std::endl;
+		std::cout << "  - Tables -> /tables folder (binary files)" << std::endl;
+		std::cout << "  - Indexes -> /index_catalog folder (binary files)" << std::endl;
+		std::cout << "Navigation:" << std::endl;
+		std::cout << "  - Use 'q' to Quit, 'r' to Return in menus." << std::endl;
+		std::cout << "--------------------" << std::endl;
+		std::cout << "Press any key (and Enter) to go back..." << std::endl;
+		char dummy;
+		std::cin >> dummy;
+	}
 
 public:
 	Menu() { application = new Application(); }
@@ -69,7 +80,6 @@ public:
 	void display_welcome_menu()
 	{
 		clear_screen();
-		bool first_enter = true;
 		if (first_enter == true)
 		{
 			const first_configuration config;
@@ -379,7 +389,271 @@ public:
 		}
 	}
 
-	void select_from() {}
+	void select_from()
+	{
+		std::cout << std::endl;
+		std::string tableName;
+		std::cout << "Please enter the name of the table you would like to select from: (Available options: ";
+		int noOfTables = tableCatalog->getNoOfTables();
+		Table* tables = tableCatalog->getTables();
+		for (int i = 0; i < noOfTables - 1; i++)
+		{
+			std::cout << '\"' + tables[i].getTableName() + "\", ";
+		}
+		std::cout << '\"' << tables[noOfTables - 1].getTableName() << "\") ";
+		while (true)
+		{
+			std::cin >> tableName;
+			if (tableCatalog->table_exists(tableName) == true)
+			{
+				break;
+			}
+			statusManager->print(StatusManager::Error, "Table \"" + tableName + "\" does not exist!");
+			std::cout << "Please enter the name of the table you would like to select from: ";
+		}
+		auto originalTable = tableCatalog->getTable(tableName);
+		std::cout << "Please enter the columns you would like to select, separated by spaces, or \"ALL\" to select all "
+					 "columns: (Available options: ";
+		int totalNoOfColumns = originalTable->getNoOfColumns();
+		auto availableColumns = originalTable->getColumns();
+		for (int i = 0; i < totalNoOfColumns - 1; i++)
+		{
+			std::cout << '\"' << availableColumns[i] << "\", ";
+		}
+		std::cout << '\"' << availableColumns[totalNoOfColumns - 1] << "\")" << std::endl;
+		std::cout << "[E.g.: col1 col2 col3 ...] ";
+		auto selectedColumns = new std::string[50];
+		std::string columnName;
+		int noOfSelectedColumns;
+		bool checkForAll = false;
+		while (true)
+		{
+			delete[] selectedColumns;
+			selectedColumns = new std::string[50];
+			noOfSelectedColumns = 0;
+			while (true)
+			{
+				std::cin >> columnName;
+				selectedColumns[noOfSelectedColumns++] = columnName;
+				char nextChar = std::cin.get();
+				if (nextChar == '\n')
+				{
+					break;
+				}
+			}
+			if ((selectedColumns[0] == "all" || selectedColumns[0] == "ALL") && noOfSelectedColumns == 1)
+			{
+				checkForAll = true;
+				break;
+			}
+
+			bool has_error = false;
+			for (int i = 0; i < noOfSelectedColumns; i++)
+			{
+				if (originalTable->column_exists(selectedColumns[i]) == false)
+				{
+					std::cout << "Column \"" << selectedColumns[i]
+							  << "\" does not exist in table \"" + tableName + "\"!" << std::endl;
+					has_error = true;
+				}
+			}
+			if (has_error == false)
+			{
+				break;
+			}
+			std::cout << "Please enter the columns you would like to select, separated by spaces: ";
+		}
+
+		std::cout << std::endl;
+		std::cout << "Would you like to search based on the value of a column?" << std::endl;
+		std::cout << "(y) Yes" << std::endl;
+		std::cout << "(n) No" << std::endl;
+		std::cout << "Please choose an option: [yn] ";
+
+		char c;
+		bool search_with_column_name;
+		std::string columnNameSearchedFor, value;
+		while (true)
+		{
+			std::cin >> c;
+			c = tolower(c);
+			switch (c)
+			{
+			case 'y':
+				std::cout << std::endl;
+				std::cout << "Please enter the column name and the value you are searching for, separated by spaces: "
+						  << std::endl;
+				std::cout << "[E.g.: first_name Andrei] ";
+				while (true)
+				{
+					std::cin >> columnNameSearchedFor >> value;
+					if (originalTable->column_exists(columnNameSearchedFor) == true)
+					{
+						break;
+					}
+					statusManager->print(StatusManager::Error,
+										 "Column \"" + columnNameSearchedFor + "\" does not exist!");
+					std::cout
+						<< "Please enter the column name and the value you are searching for, separated by spaces: ";
+				}
+				search_with_column_name = true;
+				break;
+			case 'n':
+				search_with_column_name = false;
+				break;
+			default:
+				statusManager->print(StatusManager::Error, "You need to enter a valid option!");
+				std::cout << "Please choose an option: [yn] ";
+				continue;
+			}
+			break;
+		}
+		if (checkForAll == false)
+		{
+			auto* tableWithSelectedColumnsOnly = new Table(noOfSelectedColumns, "");
+
+			tableWithSelectedColumnsOnly->setNoOfRows(originalTable->getNoOfRows());
+			const auto* columnsOfOriginalTable = originalTable->getColumns();
+			const int noOfRows = originalTable->getNoOfRows();
+			std::string** rowsOfOriginalTable = originalTable->getRows();
+			std::string** rowsOfNewTable = tableWithSelectedColumnsOnly->getRows();
+			const int noOfColumnsOfOriginalTable = originalTable->getNoOfColumns();
+			// set the column names
+			for (int i = 0; i < noOfSelectedColumns; i++)
+			{
+				tableWithSelectedColumnsOnly->setColumn(i, selectedColumns[i]);
+			}
+
+			// set the row values, only on the columns that we need
+			int k = 0;
+			while (k < noOfSelectedColumns)
+			{
+				for (int i = 0; i < noOfColumnsOfOriginalTable && k < noOfSelectedColumns; i++)
+				{
+					if (columnsOfOriginalTable[i] == selectedColumns[k])
+					{
+						for (int j = 0; j < noOfRows; j++)
+						{
+							rowsOfNewTable[j][k] = rowsOfOriginalTable[j][i];
+						}
+						k++;
+					}
+				}
+			}
+			tableWithSelectedColumnsOnly->setRows(rowsOfNewTable, noOfRows, noOfSelectedColumns);
+
+			if (search_with_column_name == true)
+			{
+				const auto tableWithSelectedRows = new Table(noOfSelectedColumns, "");
+				const int index = tableWithSelectedRows->return_index_of_column_by_name(columnName);
+				bool found = false;
+				for (int i = 0; i < noOfRows; i++)
+				{
+					for (int j = 0; j < noOfSelectedColumns; j++)
+					{
+						if (rowsOfNewTable[i][j] == value && j == index)
+						{
+							found = true;
+							tableWithSelectedRows->add_row(rowsOfNewTable[i]);
+						}
+					}
+				}
+				if (!found)
+				{
+					clear_screen();
+					statusManager->print(StatusManager::Error,
+										 "No matching values for: \"" + value + "\" in column: \"" + columnName +
+											 "\"!");
+					std::cout << std::endl;
+					show_menu_loop(table_options);
+				}
+				application->write_select_to_file(*tableWithSelectedColumnsOnly);
+				tableWithSelectedColumnsOnly->print_table(std::cout);
+				std::cout << std::endl;
+
+				delete tableWithSelectedColumnsOnly;
+				for (int i = 0; i < noOfRows; i++)
+				{
+					delete rowsOfOriginalTable[i];
+					delete rowsOfNewTable[i];
+				}
+				delete[] columnsOfOriginalTable;
+				delete[] rowsOfNewTable;
+				delete[] rowsOfOriginalTable;
+			}
+			else
+			{
+				clear_screen();
+				application->write_select_to_file(*tableWithSelectedColumnsOnly);
+				tableWithSelectedColumnsOnly->print_table(std::cout);
+				std::cout << std::endl;
+
+				delete tableWithSelectedColumnsOnly;
+				for (int i = 0; i < noOfRows; i++)
+				{
+					delete rowsOfOriginalTable[i];
+					delete rowsOfNewTable[i];
+				}
+				delete[] columnsOfOriginalTable;
+				delete[] rowsOfNewTable;
+				delete[] rowsOfOriginalTable;
+			}
+		}
+		else
+		{
+			if (search_with_column_name == true)
+			{
+				bool found = false;
+				int index = originalTable->return_index_of_column_by_name(columnNameSearchedFor);
+				const int noOfRows = originalTable->getNoOfRows();
+				const int noOfColumns = originalTable->getNoOfColumns();
+				std::string** rowsOfOriginalTable = originalTable->getRows();
+				auto* tableWithSelectedRows = new Table(noOfColumns, "");
+
+				std::string* selectedColumns = originalTable->getColumns();
+				for (int i = 0; i < noOfColumns; i++)
+				{
+					tableWithSelectedRows->setColumn(i, selectedColumns[i]);
+				}
+
+				for (int i = 0; i < noOfRows; i++)
+				{
+					for (int j = 0; j < noOfColumns; j++)
+					{
+						if (rowsOfOriginalTable[i][j] == value && j == index)
+						{
+							// it matches what we are searching for
+							found = true;
+							tableWithSelectedRows->add_row(rowsOfOriginalTable[i]);
+						}
+					}
+				}
+
+				if (!found)
+				{
+					statusManager->print(StatusManager::Error,
+										 "No matching values for: \"" + value + "\" in column: \"" +
+											 columnNameSearchedFor + "\"!");
+					std::cout << std::endl;
+				}
+				else
+				{
+					clear_screen();
+					tableWithSelectedRows->print_table(std::cout);
+					std::cout << std::endl;
+					application->write_select_to_file(*tableWithSelectedRows);
+				}
+			}
+			else
+			{
+				clear_screen();
+				tableCatalog->getTable(tableName)->print_table(std::cout);
+				std::cout << std::endl;
+				application->write_select_to_file(*tableCatalog->getTable(tableName));
+			}
+		}
+		show_menu_loop(table_options);
+	}
 
 	void update_table() {}
 
@@ -409,21 +683,27 @@ public:
 			switch (c)
 			{
 			case '1':
+				clear_screen();
 				create_table();
 				break;
 			case '2':
+				clear_screen();
 				display_table();
 				break;
 			case '3':
+				clear_screen();
 				select_from();
 				break;
 			case '4':
+				clear_screen();
 				update_table();
 				break;
 			case '5':
+				clear_screen();
 				delete_from();
 				break;
 			case '6':
+				clear_screen();
 				drop_table();
 				break;
 			case 'r':
@@ -523,43 +803,46 @@ public:
 	void display_help()
 	{
 		while (true)
+		{
+			clear_screen();
+			std::cout << std::endl;
+			std::cout << "================ HELP CENTER ================" << std::endl;
+			std::cout << "(1) Syntax Guide (Commands & Examples)" << std::endl;
+			std::cout << "(2) Data Types Reference" << std::endl;
+			std::cout << "(3) General Information" << std::endl;
+			std::cout << "(r) Return to Main Menu" << std::endl;
+			std::cout << "(q) Quit program" << std::endl;
+			std::cout << "=============================================" << std::endl;
+			std::cout << "Please choose an option: [123rq] ";
+
+			char c;
+			std::cin >> c;
+			c = tolower(c);
+
+			clear_screen();
+
+			switch (c)
 			{
-				clear_screen();
-				std::cout << std::endl;
-				std::cout << "================ HELP CENTER ================" << std::endl;
-				std::cout << "(1) Syntax Guide (Commands & Examples)" << std::endl;
-				std::cout << "(2) Data Types Reference" << std::endl;
-				std::cout << "(3) General Information" << std::endl;
-				std::cout << "(r) Return to Main Menu" << std::endl;
-				std::cout << "=============================================" << std::endl;
-				std::cout << "Please choose an option: [123r] ";
-
-				char c;
-				std::cin >> c;
-				c = tolower(c);
-
-				clear_screen();
-
-				switch (c)
-				{
-				case '1':
-					print_syntax_help();
-					break;
-				case '2':
-					print_datatypes_help();
-					break;
-				case '3':
-					print_general_help();
-					break;
-				case 'r':
-					display_welcome_menu();
-					return;
-				default:
-					statusManager->print(StatusManager::Error, "Invalid option!");
-					break;
-				}
+			case '1':
+				print_syntax_help();
+				break;
+			case '2':
+				print_datatypes_help();
+				break;
+			case '3':
+				print_general_help();
+				break;
+			case 'r':
+				display_welcome_menu();
+				return;
+			case 'q':
+				exit(0);
+			default:
+				statusManager->print(StatusManager::Error, "Invalid option!");
+				break;
 			}
 		}
+	}
 
 	void clear_screen()
 	{
@@ -594,6 +877,7 @@ public:
 		}
 		clear_screen();
 		tableCatalog->getTable(tableName)->print_table(std::cout);
+		std::cout << std::endl;
 		application->write_select_to_file(*tableCatalog->getTable(tableName));
 		show_menu_loop(table_options);
 	}
