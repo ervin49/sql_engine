@@ -105,20 +105,37 @@ public:
 				delete tempTable;
 			}
 		}
+		print_retrieved_table_message(noOfTables, tableNames);
+	}
+
+	void print_retrieved_table_message(const int noOfTables, const std::string* tableNames) const
+	{
 
 		if (noOfTables == 1)
 		{
-			std::cout << "Retrieved table \"" << tableNames[0] << "\" succesfully." << std::endl;
+			const std::string s = "Success: Retrieved table \"" + tableNames[0] + "\" successfully.";
+			std::cout << s << std::endl;
+			for (int i = 0; i < s.length(); i++)
+			{
+				std::cout << '-';
+			}
+			std::cout << std::endl;
 			return;
 		}
 
-		std::cout << "Retrieved tables ";
+		std::string s = "Success: Retrieved tables ";
 		for (int i = 0; i < noOfTables - 1; i++)
 		{
-			std::cout << '"' << tableNames[i] << "\", ";
+			s += '"' + tableNames[i] + "\", ";
 		}
 
-		std::cout << '"' << tableNames[noOfTables - 1] << "\" " << "successfully." << std::endl;
+		s += '"' + tableNames[noOfTables - 1] + "\" " + "successfully.";
+		std::cout << s << std::endl;
+		for (int i = 0; i < s.length(); i++)
+		{
+			std::cout << '-';
+		}
+		std::cout << std::endl;
 	}
 
 	Table* read_table_from_file(const std::string& fileLocation) const

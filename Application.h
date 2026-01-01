@@ -1218,7 +1218,8 @@ public:
 
 	void parse_commands()
 	{
-		std::cout << "Note: You can exit this program anytime by entering \"exit\".";
+		std::cout << "Note: You can exit this program anytime by typing \"exit\" or \"quit\"." << std::endl
+				  << std::endl;
 		while (true)
 		{
 			int noOfWords;

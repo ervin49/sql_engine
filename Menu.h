@@ -1,5 +1,7 @@
 #pragma once
 #include <iostream>
+#include <limits>
+
 #include "globals.h"
 
 #include "StatusManager.h"
@@ -18,7 +20,8 @@ private:
 	void print_syntax_help()
 	{
 		std::cout << std::endl;
-		std::cout << "================ SQL SYNTAX CHEATSHEET ================" << std::endl;
+		std::cout << "SQL SYNTAX CHEATSHEET" << std::endl << std::endl << std::endl;
+		std::cout << "Note: Values put between [] are not mandatory for the command to work." << std::endl << std::endl;
 		std::cout << "1. CREATE TABLE:" << std::endl;
 		std::cout << "   Format: CREATE TABLE table_name [IF NOT EXISTS] ((col1, type, size, default_value), ...)"
 				  << std::endl;
@@ -27,19 +30,19 @@ private:
 
 		std::cout << "2. INSERT:" << std::endl;
 		std::cout << "   Format: INSERT INTO table_name VALUES (val1, val2, ...)" << std::endl;
-		std::cout << "   E.g.:     INSERT INTO students VALUES (\"Alex\", 21)" << std::endl;
+		std::cout << "   E.g.:     INSERT INTO students VALUES (\"Alex\", 21)" << std::endl << std::endl;
 
 		std::cout << "3. SELECT:" << std::endl;
 		std::cout << "   Format: SELECT (col1, col2, ...) | ALL FROM table_name [WHERE column_name = value]"
 				  << std::endl;
-		std::cout << "   E.g.:     SELECT name FROM students WHERE age = 21" << std::endl;
+		std::cout << "   E.g.:     SELECT name FROM students WHERE age = 21" << std::endl << std::endl;
 
 		std::cout << "4. INDEX:" << std::endl;
-		std::cout << " CREATE INDEX index_name ON table_name (column_name)" << std::endl;
-		std::cout << "   E.g.:     CREATE INDEX name_index ON students (name)" << std::endl;
+		std::cout << "   CREATE INDEX index_name ON table_name (column_name)" << std::endl;
+		std::cout << "   E.g.:     CREATE INDEX name_index ON students (name)" << std::endl << std::endl;
 		std::cout << "-----------------------------" << std::endl;
 		std::cout << "Press any key (and Enter) to go back..." << std::endl;
-		char dummy;
+		std::string dummy;
 		std::cin >> dummy; // Asteapta userul
 	}
 
@@ -54,7 +57,7 @@ private:
 		std::cout << "(!) Note: Text columns require a maximum size definition." << std::endl;
 		std::cout << "----------------------------" << std::endl;
 		std::cout << "Press any key (and Enter) to go back..." << std::endl;
-		char dummy;
+		std::string dummy;
 		std::cin >> dummy;
 	}
 
@@ -69,7 +72,7 @@ private:
 		std::cout << "  - Use 'q' to Quit, 'r' to Return in menus." << std::endl;
 		std::cout << "--------------------" << std::endl;
 		std::cout << "Press any key (and Enter) to go back..." << std::endl;
-		char dummy;
+		std::string dummy;
 		std::cin >> dummy;
 	}
 
@@ -87,11 +90,12 @@ public:
 			first_enter = false;
 		}
 		std::cout << std::endl;
-		std::cout << "Welcome to sql engine! Please choose what you would like to do." << std::endl;
-		std::cout << "(1) Run commands using the interactive menu." << std::endl;
-		std::cout << "(2) Run commands using plain old sql queries." << std::endl;
-		std::cout << "(h) Display help menu." << std::endl;
-		std::cout << "(q) Quit program." << std::endl;
+		std::cout << "Welcome to Sql Engine! Please choose what you would like to do." << std::endl;
+		std::cout << std::endl << std::endl;
+		std::cout << "(1) Run commands using the interactive menu." << std::endl << std::endl;
+		std::cout << "(2) Run commands using plain old sql queries." << std::endl << std::endl;
+		std::cout << "(h) Display help menu." << std::endl << std::endl;
+		std::cout << "(q) Quit program." << std::endl << std::endl;
 		std::cout << "Please choose an option: [12hq] ";
 
 		char c;
@@ -126,11 +130,13 @@ public:
 	void run_interactive_menu()
 	{
 		std::cout << std::endl;
-		std::cout << "Welcome to the sql engine interactive menu! What would you like to work with?" << std::endl;
-		std::cout << "(1) A table." << std::endl;
-		std::cout << "(2) An index." << std::endl;
+		std::cout << "Welcome to the Sql Engine interactive menu! What would you like to work with?" << std::endl
+				  << std::endl
+				  << std::endl;
+		std::cout << "(1) A table." << std::endl << std::endl;
+		std::cout << "(2) An index." << std::endl << std::endl;
 		std::cout << "(r) Return to the previous menu." << std::endl;
-		std::cout << "(q) Quit program." << std::endl;
+		std::cout << "(q) Quit program." << std::endl << std::endl;
 		std::cout << "Please choose an option: [12rq] ";
 
 		char c;
@@ -349,12 +355,12 @@ public:
 	void show_index_options()
 	{
 		std::cout << std::endl;
-		std::cout << "What would you like to do?" << std::endl;
-		std::cout << "(1) Create an index." << std::endl;
-		std::cout << "(2) Display all indexes of a table." << std::endl;
-		std::cout << "(3) Drop an index." << std::endl;
+		std::cout << "What would you like to do?" << std::endl << std::endl << std::endl;
+		std::cout << "(1) Create an index." << std::endl << std::endl;
+		std::cout << "(2) Display all indexes of a table." << std::endl << std::endl;
+		std::cout << "(3) Drop an index." << std::endl << std::endl;
 		std::cout << "(r) Return to the previous menu." << std::endl;
-		std::cout << "(q) Quit program." << std::endl;
+		std::cout << "(q) Quit program." << std::endl << std::endl;
 		std::cout << "Please choose an option: [123rq] ";
 
 		char c;
@@ -664,15 +670,15 @@ public:
 	void show_table_options()
 	{
 		std::cout << std::endl;
-		std::cout << "What would you like to do?" << std::endl;
-		std::cout << "(1) Create a table." << std::endl;
-		std::cout << "(2) Display a table." << std::endl;
-		std::cout << "(3) Select from a table." << std::endl;
-		std::cout << "(4) Update a table." << std::endl;
-		std::cout << "(5) Delete from a table." << std::endl;
-		std::cout << "(6) Drop a table." << std::endl;
+		std::cout << "What would you like to do?" << std::endl << std::endl << std::endl;
+		std::cout << "(1) Create a table." << std::endl << std::endl;
+		std::cout << "(2) Display a table." << std::endl << std::endl;
+		std::cout << "(3) Select from a table." << std::endl << std::endl;
+		std::cout << "(4) Update a table." << std::endl << std::endl;
+		std::cout << "(5) Delete from a table." << std::endl << std::endl;
+		std::cout << "(6) Drop a table." << std::endl << std::endl;
 		std::cout << "(r) Return to the previous menu." << std::endl;
-		std::cout << "(q) Quit program." << std::endl;
+		std::cout << "(q) Quit program." << std::endl << std::endl;
 		std::cout << "Please choose an option: [1-6rq] ";
 
 		char c;
@@ -738,13 +744,27 @@ public:
 		std::cout << "Please enter the number of columns you wish the table to have: ";
 		while (true)
 		{
-			std::cin >> noOfColumns;
-			if (noOfColumns > 0)
+			if (!(std::cin >> noOfColumns))
 			{
-				break;
+				std::cin.clear();
+				std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+				std::cout << std::endl;
+				statusManager->print(StatusManager::Error, "You have to enter an integer!");
+				std::cout << "Please enter the number of columns you wish the table to have: ";
 			}
-			statusManager->print(StatusManager::Error, "Number of columns has to be at least 1!");
-			std::cout << "Please enter the number of columns you wish the table to have: ";
+			else
+			{
+				if (noOfColumns < 1)
+				{
+					std::cout << std::endl;
+					statusManager->print(StatusManager::Error, "Number of columns has to be at least 1!");
+					std::cout << "Please enter the number of columns you wish the table to have: ";
+				}
+				else
+				{
+					break;
+				}
+			}
 		}
 		std::cout << "Please enter attribute details separated by spaces(Name, Type, Length, Default): " << std::endl;
 		std::cout << "[E.g.: id INTEGER 30 0]" << std::endl;
@@ -796,41 +816,42 @@ public:
 		application->write_table_to_file(*table);
 		delete table;
 
-		statusManager->print(StatusManager::Success, "Table \"" + tableName + "\" created succesfully!");
+		statusManager->print(StatusManager::Success, "Table \"" + tableName + "\" created successfully!");
 		show_menu_loop(table_options);
 	}
 
 	void display_help()
 	{
+		clear_screen();
+		std::cout << std::endl;
+		std::cout << "Help Center" << std::endl << std::endl << std::endl;
+		std::cout << "(1) Syntax Guide (Commands & Examples)" << std::endl << std::endl;
+		std::cout << "(2) Data Types Reference" << std::endl << std::endl;
+		std::cout << "(3) General Information" << std::endl << std::endl;
+		std::cout << "(r) Return to Main Menu" << std::endl;
+		std::cout << "(q) Quit program" << std::endl << std::endl;
+		std::cout << "Please choose an option: [123rq] ";
 		while (true)
 		{
-			clear_screen();
-			std::cout << std::endl;
-			std::cout << "================ HELP CENTER ================" << std::endl;
-			std::cout << "(1) Syntax Guide (Commands & Examples)" << std::endl;
-			std::cout << "(2) Data Types Reference" << std::endl;
-			std::cout << "(3) General Information" << std::endl;
-			std::cout << "(r) Return to Main Menu" << std::endl;
-			std::cout << "(q) Quit program" << std::endl;
-			std::cout << "=============================================" << std::endl;
-			std::cout << "Please choose an option: [123rq] ";
-
 			char c;
 			std::cin >> c;
 			c = tolower(c);
-
-			clear_screen();
-
 			switch (c)
 			{
 			case '1':
+				clear_screen();
 				print_syntax_help();
+				display_help();
 				break;
 			case '2':
+				clear_screen();
 				print_datatypes_help();
+				display_help();
 				break;
 			case '3':
+				clear_screen();
 				print_general_help();
+				display_help();
 				break;
 			case 'r':
 				display_welcome_menu();
@@ -838,11 +859,13 @@ public:
 			case 'q':
 				exit(0);
 			default:
+				std::cout << std::endl;
 				statusManager->print(StatusManager::Error, "Invalid option!");
-				break;
+				std::cout << "Please choose an option: [123rq] ";
 			}
 		}
 	}
+
 
 	void clear_screen()
 	{
@@ -856,7 +879,7 @@ public:
 	void display_table()
 	{
 		std::cout << std::endl;
-		std::string tableName;
+
 		std::cout << "What is the name of the table you want to display? (Available options: ";
 		int noOfTables = tableCatalog->getNoOfTables();
 		Table* tables = tableCatalog->getTables();
@@ -865,6 +888,8 @@ public:
 			std::cout << '\"' + tables[i].getTableName() + "\", ";
 		}
 		std::cout << '\"' << tables[noOfTables - 1].getTableName() << "\") ";
+
+		std::string tableName;
 		while (true)
 		{
 			std::cin >> tableName;
