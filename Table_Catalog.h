@@ -4,269 +4,251 @@
 class Table_Catalog
 {
 private:
-    Table* tables;
-    int noOfTables;
+	Table* tables;
+	int noOfTables;
 
 public:
-    Table_Catalog()
-    {
-        tables = nullptr;
-        noOfTables = 0;
-    }
+	Table_Catalog()
+	{
+		tables = nullptr;
+		noOfTables = 0;
+	}
 
-    Table_Catalog(Table* tables, int noOfTables)
-    {
-        if (noOfTables != 0 && tables != nullptr)
-        {
-            this->noOfTables = noOfTables;
-            this->tables = new Table[noOfTables];
-            for (int i = 0; i < noOfTables; i++)
-            {
-                this->tables[i] = tables[i];
-            }
-        }
-    }
+	Table_Catalog(Table* tables, int noOfTables)
+	{
+		if (noOfTables != 0 && tables != nullptr)
+		{
+			this->noOfTables = noOfTables;
+			this->tables = new Table[noOfTables];
+			for (int i = 0; i < noOfTables; i++)
+			{
+				this->tables[i] = tables[i];
+			}
+		}
+	}
 
-    Table_Catalog(const Table_Catalog& that)
-    {
-        if (that.noOfTables != 0 && that.tables != nullptr)
-        {
-            this->noOfTables = that.noOfTables;
-            this->tables = new Table[noOfTables];
-            for (int i = 0; i < noOfTables; i++)
-            {
-                this->tables[i] = that.tables[i];
-            }
-        }
-        else
-        {
-            this->noOfTables = 0;
-            this->tables = nullptr;
-        }
-    }
+	Table_Catalog(const Table_Catalog& that)
+	{
+		if (that.noOfTables != 0 && that.tables != nullptr)
+		{
+			this->noOfTables = that.noOfTables;
+			this->tables = new Table[noOfTables];
+			for (int i = 0; i < noOfTables; i++)
+			{
+				this->tables[i] = that.tables[i];
+			}
+		}
+		else
+		{
+			this->noOfTables = 0;
+			this->tables = nullptr;
+		}
+	}
 
-    ~Table_Catalog()
-    {
-        delete[] tables;
-    }
+	~Table_Catalog() { delete[] tables; }
 
-    Table_Catalog& operator=(const Table_Catalog& that)
-    {
-        if (this != &that)
-        {
-            if (this->tables != nullptr)
-            {
-                delete[] this->tables;
-                this->tables = nullptr;
-            }
-            if (that.noOfTables != 0 && that.tables != nullptr)
-            {
-                this->noOfTables = that.noOfTables;
-                this->tables = new Table[noOfTables];
-                for (int i = 0; i < noOfTables; i++)
-                {
-                    this->tables[i] = that.tables[i];
-                }
-            }
-            else
-            {
-                this->noOfTables = 0;
-            }
-        }
-        return *this;
-    }
+	Table_Catalog& operator=(const Table_Catalog& that)
+	{
+		if (this != &that)
+		{
+			if (this->tables != nullptr)
+			{
+				delete[] this->tables;
+				this->tables = nullptr;
+			}
+			if (that.noOfTables != 0 && that.tables != nullptr)
+			{
+				this->noOfTables = that.noOfTables;
+				this->tables = new Table[noOfTables];
+				for (int i = 0; i < noOfTables; i++)
+				{
+					this->tables[i] = that.tables[i];
+				}
+			}
+			else
+			{
+				this->noOfTables = 0;
+			}
+		}
+		return *this;
+	}
 
-    operator int() const
-    {
-        return this->noOfTables;
-    }
+	operator int() const { return this->noOfTables; }
 
-    bool operator==(const Table_Catalog& table_catalog) const
-    {
-        if (this->noOfTables != table_catalog.noOfTables)
-        {
-            return false;
-        }
+	bool operator==(const Table_Catalog& table_catalog) const
+	{
+		if (this->noOfTables != table_catalog.noOfTables)
+		{
+			return false;
+		}
 
-        for (int i = 0; i < noOfTables; i++)
-        {
-            if (this->tables[i] != table_catalog.tables[i])
-            {
-                return false;
-            }
-        }
-        return true;
-    }
+		for (int i = 0; i < noOfTables; i++)
+		{
+			if (this->tables[i] != table_catalog.tables[i])
+			{
+				return false;
+			}
+		}
+		return true;
+	}
 
-    Table& operator[](const int index) const
-    {
-        return tables[index];
-    }
+	Table& operator[](const int index) const { return tables[index]; }
 
-    void operator+=(Table t)
-    {
-        this->add_table(t);
-    }
+	void operator+=(Table t) { this->add_table(t); }
 
-    bool operator!() const
-    {
-        return noOfTables == 0;
-    }
+	bool operator!() const { return noOfTables == 0; }
 
-    friend std::ostream& operator<<(std::ostream& out, const Table_Catalog& table_catalog)
-    {
-        table_catalog.print_tables();
-        return out;
-    }
+	friend std::ostream& operator<<(std::ostream& out, const Table_Catalog& table_catalog)
+	{
+		table_catalog.print_tables();
+		return out;
+	}
 
 
-    int return_index_of_table(const std::string& tableName) const
-    {
-        for (int i = 0; i < noOfTables; i++)
-        {
-            if (tables[i].getTableName() == tableName)
-            {
-                return i;
-            }
-        }
-        return -1;
-    }
+	int return_index_of_table(const std::string& tableName) const
+	{
+		for (int i = 0; i < noOfTables; i++)
+		{
+			if (tables[i].getTableName() == tableName)
+			{
+				return i;
+			}
+		}
+		return -1;
+	}
 
-    int drop_table(const std::string& tableName)
-    {
-        int index = return_index_of_table(tableName);
-        if (index == -1)
-        {
-            std::cout << "Table does not exist!" << std::endl;
-            return -1;
-        }
+	int drop_table(const std::string& tableName)
+	{
+		int index = return_index_of_table(tableName);
+		if (index == -1)
+		{
+			std::cout << "Table \"" << tableName << "\" does not exist!" << std::endl;
+			return -1;
+		}
 
-        Table_Catalog* auxCatalog = new Table_Catalog;
-        for (int i = 0; i < noOfTables; i++)
-        {
-            if (i == index)
-                continue;
-            auxCatalog->add_table(tables[i]);
-        }
+		Table_Catalog* auxCatalog = new Table_Catalog;
+		for (int i = 0; i < noOfTables; i++)
+		{
+			if (i == index)
+				continue;
+			auxCatalog->add_table(tables[i]);
+		}
 
-        delete[] this->tables;
-        this->tables = auxCatalog->getTables();
-        this->setNoOfTables(noOfTables - 1);
-        delete auxCatalog;
-        return 0;
-    }
+		delete[] this->tables;
+		this->tables = auxCatalog->getTables();
+		this->setNoOfTables(noOfTables - 1);
+		delete auxCatalog;
+		return 0;
+	}
 
-    int add_table(Table newTable)
-    {
-        if (table_exists(newTable.getTableName()))
-        {
-            std::cout << "Table with this name already exists!";
-            return -1;
-        }
-        //create a new array of pointers to objects with updated size
-        Table* newTables = new Table [noOfTables + 1];
+	int add_table(Table newTable)
+	{
+		if (table_exists(newTable.getTableName()))
+		{
+			std::cout << "Table with this name already exists!";
+			return -1;
+		}
+		// create a new array of pointers to objects with updated size
+		Table* newTables = new Table[noOfTables + 1];
 
-        for (int i = 0; i < noOfTables; i++)
-        {
-            newTables[i] = tables[i];
-        }
+		for (int i = 0; i < noOfTables; i++)
+		{
+			newTables[i] = tables[i];
+		}
 
-        //add the new table at the end of the new array
-        newTables[noOfTables] = newTable;
+		// add the new table at the end of the new array
+		newTables[noOfTables] = newTable;
 
-        delete[] tables;
-        tables = newTables;
-        noOfTables++;
-        return 0;
-    }
+		delete[] tables;
+		tables = newTables;
+		noOfTables++;
+		return 0;
+	}
 
-    int getNoOfTables() const
-    {
-        return noOfTables;
-    }
+	int getNoOfTables() const { return noOfTables; }
 
-    bool table_exists(const std::string& tableName)
-    {
-        for (int i = 0; i < noOfTables; i++)
-        {
-            if (tables[i].getTableName() == tableName)
-            {
-                return true;
-            }
-        }
-        return false;
-    }
+	bool table_exists(const std::string& tableName)
+	{
+		for (int i = 0; i < noOfTables; i++)
+		{
+			if (tables[i].getTableName() == tableName)
+			{
+				return true;
+			}
+		}
+		return false;
+	}
 
-    int getNumberOfColumns(const std::string& tableName)
-    {
-        for (int i = 0; i < noOfTables; i++)
-        {
-            if (tables[i].getTableName() == tableName)
-                return tables[i].getNoOfColumns();
-        }
-        return 0;
-    }
+	int getNumberOfColumns(const std::string& tableName)
+	{
+		for (int i = 0; i < noOfTables; i++)
+		{
+			if (tables[i].getTableName() == tableName)
+				return tables[i].getNoOfColumns();
+		}
+		return 0;
+	}
 
-    Table* getTables()
-    {
-        Table* aux = new Table[noOfTables];
-        for (int i = 0; i < noOfTables; i++)
-        {
-            aux[i] = tables[i];
-        }
-        return aux;
-    }
+	Table* getTables()
+	{
+		Table* aux = new Table[noOfTables];
+		for (int i = 0; i < noOfTables; i++)
+		{
+			aux[i] = tables[i];
+		}
+		return aux;
+	}
 
-    Table* getTable(const std::string& tableName) const
-    {
-        for (int i = 0; i < noOfTables; i++)
-        {
-            if (tables[i].getTableName() == tableName)
-            {
-                return &tables[i];
-            }
-        }
-        return nullptr;
-    }
+	Table* getTable(const std::string& tableName) const
+	{
+		for (int i = 0; i < noOfTables; i++)
+		{
+			if (tables[i].getTableName() == tableName)
+			{
+				return &tables[i];
+			}
+		}
+		return nullptr;
+	}
 
-    void setTables(Table* newTables, int noOfTables)
-    {
-        for (int i = 0; i < noOfTables; i++)
-        {
-            if (newTables[i].getTableName().empty())
-            {
-                statusManager->print(StatusManager::Error, "Table names can't be empty!");
-                return;
-            }
-        }
+	void setTables(Table* newTables, int noOfTables)
+	{
+		for (int i = 0; i < noOfTables; i++)
+		{
+			if (newTables[i].getTableName().empty())
+			{
+				statusManager->print(StatusManager::Error, "Table names can't be empty!");
+				return;
+			}
+		}
 
-        delete[] this->tables;
-        this->tables = new Table[noOfTables];
-        this->noOfTables = noOfTables;
-        for (int i = 0; i < noOfTables; i++)
-        {
-            this->tables[i] = newTables[i];
-        }
-    }
+		delete[] this->tables;
+		this->tables = new Table[noOfTables];
+		this->noOfTables = noOfTables;
+		for (int i = 0; i < noOfTables; i++)
+		{
+			this->tables[i] = newTables[i];
+		}
+	}
 
-    void setNoOfTables(const int newNoOfTables)
-    {
-        if (newNoOfTables < 0)
-        {
-            statusManager->print(StatusManager::Error, "Number of tables has to be at least 0!");
-            return;
-        }
-        this->noOfTables = newNoOfTables;
-    }
+	void setNoOfTables(const int newNoOfTables)
+	{
+		if (newNoOfTables < 0)
+		{
+			statusManager->print(StatusManager::Error, "Number of tables has to be at least 0!");
+			return;
+		}
+		this->noOfTables = newNoOfTables;
+	}
 
-    //print all the tables
-    void print_tables() const
-    {
-        std::cout << std::endl;
-        for (Table* p = &tables[0]; p < &tables[noOfTables]; p++)
-        {
-            p->print_table(std::cout);
-            std::cout << std::endl << std::endl;
-        }
-    }
+	// print all the tables
+	void print_tables() const
+	{
+		std::cout << std::endl;
+		for (Table* p = &tables[0]; p < &tables[noOfTables]; p++)
+		{
+			p->print_table(std::cout);
+			std::cout << std::endl << std::endl;
+		}
+	}
 };

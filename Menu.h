@@ -168,7 +168,7 @@ public:
 				exit(0);
 			default:
 				statusManager->print(StatusManager::Error, "You need to enter a valid option!");
-				std::cout << "Please choose an option: [tirq] ";
+				std::cout << "Please choose an option: [12rq] ";
 			}
 		}
 	}
@@ -254,28 +254,41 @@ public:
 		statusManager->print(StatusManager::Success, "Index \"" + indexName + "\" created successfully!");
 		std::cout << std::endl;
 		show_menu_loop(index_options);
-
-		char c;
-		while (true)
-		{
-			std::cin >> c;
-			c = tolower(c);
-			switch (c)
-			{
-			case 'r':
-				clear_screen();
-				show_index_options();
-				break;
-			case 'q':
-				exit(0);
-			default:
-				statusManager->print(StatusManager::Error, "You need to enter a valid option!");
-				std::cout << "Please choose an option: [rq] ";
-			}
-		}
 	}
 
-	void drop_index() {}
+	void drop_index()
+	{
+		std::cout << std::endl;
+		std::string indexName;
+		std::cout << "Please enter the name of the index you would like to drop: ";
+		while (true)
+		{
+			std::cin >> indexName;
+			int position = indexCatalog->return_position_of_index(indexName);
+			if (position != -1)
+			{
+				break;
+			}
+			statusManager->print(StatusManager::Error, "Index \"" + indexName + "\" does not exist!");
+			std::cout << "Please enter the name of the index you would like to drop: ";
+		}
+		if (indexCatalog->drop_index(indexName) == 0)
+		{
+			const std::string tableNameOfIndex = indexCatalog->getIndex(indexName)->getTableName();
+			const auto table = tableCatalog->getTable(tableNameOfIndex);
+			table->remove_index(indexName);
+			indexCatalog->write_index_catalog_to_file();
+
+			statusManager->print(StatusManager::Success, "Index \"" + indexName + "\" dropped successfully!");
+			std::cout << std::endl;
+			show_menu_loop(index_options);
+		}
+		else
+		{
+			std::cout << std::endl;
+			show_menu_loop(index_options);
+		}
+	}
 
 	void display_indexes()
 	{
@@ -666,11 +679,143 @@ public:
 		show_menu_loop(table_options);
 	}
 
-	void update_table() {}
+	void update_table()
+	{
+		std::cout << std::endl;
+		std::string tableName;
+		std::cout << "Please enter the name of the table you would like to update: ";
+		while (true)
+		{
+			std::cin >> tableName;
+			if (tableCatalog->table_exists(tableName) == true)
+			{
+				break;
+			}
+			statusManager->print(StatusManager::Error, "Table \"" + tableName + "\" does not exist!");
+			std::cout << "Please enter the name of the table you would like to update: ";
+		}
+		std::cout << "Please enter the column to change and the" << std::endl
+				  << " value to search for, separated by spaces: " << std::endl;
+		std::cout << "[E.g.: id 101]" << std::endl;
+		std::string whereColumn, whereValue;
+		auto table = tableCatalog->getTable(tableName);
+		while (true)
+		{
+			std::cin >> whereColumn >> whereValue;
+			if (table->column_exists(whereColumn) == true)
+			{
+				break;
+			}
+			statusManager->print(StatusManager::Error,
+								 "Column \"" + whereColumn + "\" does not exist in table \"" + tableName + "\"!");
+			std::cout << "Please enter the name of the column and the value" << std::endl
+					  << " you would like to change, separated by spaces: ";
+		}
+		std::string setColumn, setValue;
+		std::cout << "Please enter the column to update and the" << std::endl << " new value, separated by spaces: ";
+		while (true)
+		{
+			std::cin >> setColumn >> setValue;
+			if (table->column_exists(setColumn) == true)
+			{
+				break;
+			}
+			statusManager->print(StatusManager::Error,
+								 "Column \"" + setColumn + "\" does not exist in table \"" + tableName + "\"!");
+			std::cout << "Please enter the column to update and the" << std::endl
+					  << " new value, separated by spaces: ";
+		}
+		int setIndex = table->return_index_of_column_by_name(setColumn);
+		int whereIndex = table->return_index_of_column_by_name(setValue);
+		std::string** tableRows = table->getRows();
+		for (int i = 0; i < table->getNoOfRows(); i++)
+		{
+			if (tableRows[i][whereIndex] == whereValue)
+			{
+				tableRows[i][setIndex] = setValue;
+			}
+		}
+		table->setRows(tableRows, table->getNoOfRows(), table->getNoOfColumns());
+		application->write_table_to_file(*table);
+		statusManager->print(StatusManager::Success, "Updated table successfully!");
+		std::cout << std::endl;
+		show_menu_loop(table_options);
+	}
 
-	void delete_from() {}
+	void delete_from()
+	{
+		std::cout << std::endl;
+		std::string tableName;
+		std::cout << "Please enter the name of the table you would like to delete from: ";
+		while (true)
+		{
+			std::cin >> tableName;
+			if (tableCatalog->table_exists(tableName) == true)
+			{
+				break;
+			}
+			statusManager->print(StatusManager::Error, "Table \"" + tableName + "\" does not exist!");
+			std::cout << "Please enter the name of the table you would like to delete from: ";
+		}
+		std::cout << "Please enter the column of the value" << std::endl
+				  << "and the value you want to delete, separated by space:" << std::endl;
+		std::cout << "[E.g.: id 101]" << std::endl;
+		std::string whereColumn, whereValue;
+		auto table = tableCatalog->getTable(tableName);
+		while (true)
+		{
+			std::cin >> whereColumn >> whereValue;
+			if (table->column_exists(whereColumn) == true)
+			{
+				break;
+			}
+			statusManager->print(StatusManager::Error,
+								 "Column \"" + whereColumn + "\" does not exist in table \"" + tableName + "\"!");
+			std::cout << "Please enter the column of the value" << std::endl
+					  << "and the value you want to delete, separated by space:" << std::endl;
+		}
+		if (table->delete_from(whereColumn, whereValue) == 0)
+		{
+			statusManager->print(StatusManager::Success, "Row deleted successfully!");
+			application->write_table_to_file(*table);
+			std::cout << std::endl;
+			show_menu_loop(table_options);
+		}
+		else
+		{
+			std::cout << std::endl;
+			show_menu_loop(table_options);
+		}
+	}
 
-	void drop_table() {}
+	void drop_table()
+	{
+		std::cout << std::endl;
+		std::string tableName;
+		std::cout << "Please enter the name of the table you would like to drop: ";
+		while (true)
+		{
+			std::cin >> tableName;
+			if (tableCatalog->table_exists(tableName) == true)
+			{
+				break;
+			}
+			statusManager->print(StatusManager::Error, "Table \"" + tableName + "\" does not exist!");
+			std::cout << "Please enter the name of the table you would like to drop: ";
+		}
+		if (tableCatalog->drop_table(tableName) == 0)
+		{
+			remove(("./tables/" + tableName + ".bin").data());
+			statusManager->print(StatusManager::Success, "Table \"" + tableName + "\" dropped successfully!");
+			std::cout << std::endl;
+			show_menu_loop(table_options);
+		}
+		else
+		{
+			std::cout << std::endl;
+			show_menu_loop(table_options);
+		}
+	}
 
 	void show_table_options()
 	{

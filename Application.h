@@ -737,7 +737,7 @@ public:
 
 		if (tableCatalog->drop_table(tableName) == 0)
 		{
-			remove(("./tables/" + tableName + ".bin").c_str());
+			remove(("./tables/" + tableName + ".bin").data());
 			statusManager->print(StatusManager::Success, "Table \"" + aux + "\" dropped successfully!");
 		}
 	}
@@ -756,10 +756,10 @@ public:
 			statusManager->print(StatusManager::Error, "Index \"" + indexName + "\" does not exist!");
 			return;
 		}
-		const std::string tableNameOfIndex = indexCatalog->getIndex(indexName)->getTableName();
 		if (indexCatalog->drop_index(indexName) == 0)
 		{
-			auto table = tableCatalog->getTable(tableNameOfIndex);
+			const std::string tableNameOfIndex = indexCatalog->getIndex(indexName)->getTableName();
+			const auto table = tableCatalog->getTable(tableNameOfIndex);
 			table->remove_index(indexName);
 			statusManager->print(StatusManager::Success, "Index \"" + aux + "\" dropped successfully!");
 			indexCatalog->write_index_catalog_to_file();
