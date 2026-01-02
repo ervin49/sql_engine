@@ -1,6 +1,6 @@
 #include "Application.h"
 #include "Menu.h"
-#include "globals.h"
+#include "globals.cpp"
 
 int main(const int argc, char** argv)
 {
