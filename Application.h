@@ -788,107 +788,110 @@ public:
 	}
 
 	void update_table() const
-    {
-       std::string tableName = words[1];
+	{
+		std::string tableName = words[1];
 
-       if (noOfWords != 10)
-       {
-          statusManager->print(StatusManager::Error,
-                          "Invalid number of tokens, expected 9, got " + std::to_string(noOfWords) + "!");
-          return;
-       }
+		if (noOfWords != 10)
+		{
+			statusManager->print(StatusManager::Error,
+								 "Invalid number of tokens, expected 9, got " + std::to_string(noOfWords) + "!");
+			return;
+		}
 
-       if (!tableCatalog->table_exists(tableName))
-       {
-          statusManager->print(StatusManager::Error, "Table \"" + tableName + "\" does not exist!");
-          return;
-       }
-       if (words[2] != "set")
-       {
-          statusManager->print(StatusManager::Error,
-                          "Syntax Error: Expected 'SET' at position 2, but found \"" + words[2] + "\".");
-          return;
-       }
+		if (!tableCatalog->table_exists(tableName))
+		{
+			statusManager->print(StatusManager::Error, "Table \"" + tableName + "\" does not exist!");
+			return;
+		}
+		if (words[2] != "set")
+		{
+			statusManager->print(StatusManager::Error,
+								 "Syntax Error: Expected 'SET' at position 2, but found \"" + words[2] + "\".");
+			return;
+		}
 
-       auto table = tableCatalog->getTable(tableName);
-       std::string setColumnName = words[3];
+		auto table = tableCatalog->getTable(tableName);
+		std::string setColumnName = words[3];
 
-       if (!table->column_exists(setColumnName))
-       {
-          statusManager->print(StatusManager::Error,
-                          "Table \"" + tableName + "\" does not have column \"" + setColumnName + "\"!");
-          return;
-       }
-       if (words[4] != "=")
-       {
-          statusManager->print(StatusManager::Error,
-                          "Syntax Error: Expected '=' at position 4, but found \"" + words[4] + "\".");
-          return;
-       }
-       if (words[8] != "=")
-       {
-          statusManager->print(StatusManager::Error,
-                          "Syntax Error: Expected '=' at position 8, but found \"" + words[8] + "\".");
-          return;
-       }
+		if (!table->column_exists(setColumnName))
+		{
+			statusManager->print(StatusManager::Error,
+								 "Table \"" + tableName + "\" does not have column \"" + setColumnName + "\"!");
+			return;
+		}
+		if (words[4] != "=")
+		{
+			statusManager->print(StatusManager::Error,
+								 "Syntax Error: Expected '=' at position 4, but found \"" + words[4] + "\".");
+			return;
+		}
+		if (words[8] != "=")
+		{
+			statusManager->print(StatusManager::Error,
+								 "Syntax Error: Expected '=' at position 8, but found \"" + words[8] + "\".");
+			return;
+		}
 
-       std::string whereColumnName = words[7];
-       if (!table->column_exists(whereColumnName))
-       {
-          statusManager->print(StatusManager::Error,
-                          "Table \"" + tableName + "\" does not have column \"" + whereColumnName + "\"!");
-          return;
-       }
+		std::string whereColumnName = words[7];
+		if (!table->column_exists(whereColumnName))
+		{
+			statusManager->print(StatusManager::Error,
+								 "Table \"" + tableName + "\" does not have column \"" + whereColumnName + "\"!");
+			return;
+		}
 
-       int setIndex = table->return_index_of_column_by_name(setColumnName);
-       std::string setValue = words[5];
-       int whereIndex = table->return_index_of_column_by_name(whereColumnName);
-       std::string whereValue = words[9];
+		int setIndex = table->return_index_of_column_by_name(setColumnName);
+		std::string setValue = words[5];
+		int whereIndex = table->return_index_of_column_by_name(whereColumnName);
+		std::string whereValue = words[9];
 
-       std::string columnType = table->getColumnTypes()[setIndex];
+		std::string columnType = table->getColumnTypes()[setIndex];
 
-       if (columnType == "integer")
-       {
-           if (!table->is_integer(setValue))
-           {
-               statusManager->print(StatusManager::Error,
-                   "Type mismatch! Column \"" + setColumnName + "\" is INTEGER, but value \"" + setValue + "\" is not.");
-               return;
-           }
-       }
-       else if (columnType == "string" || columnType == "text" || columnType == "varchar")
-       {
-           if (table->is_integer(setValue))
-           {
-               statusManager->print(StatusManager::Error,
-                   "Type mismatch! Column \"" + setColumnName + "\" is VARCHAR, but value \"" + setValue + "\" is numeric.");
-               return;
-           }
-       }
+		if (columnType == "integer")
+		{
+			if (!table->is_integer(setValue))
+			{
+				statusManager->print(StatusManager::Error,
+									 "Type mismatch! Column \"" + setColumnName + "\" is INTEGER, but value \"" +
+										 setValue + "\" is not.");
+				return;
+			}
+		}
+		else if (columnType == "string" || columnType == "text" || columnType == "varchar")
+		{
+			if (table->is_integer(setValue))
+			{
+				statusManager->print(StatusManager::Error,
+									 "Type mismatch! Column \"" + setColumnName + "\" is VARCHAR, but value \"" +
+										 setValue + "\" is numeric.");
+				return;
+			}
+		}
 
-       std::string** tableRows = table->getRows();
-       int count = 0;
-       for (int i = 0; i < table->getNoOfRows(); i++)
-       {
-          if (tableRows[i][whereIndex] == whereValue)
-          {
-             tableRows[i][setIndex] = setValue;
-             count++;
-          }
-       }
+		std::string** tableRows = table->getRows();
+		int count = 0;
+		for (int i = 0; i < table->getNoOfRows(); i++)
+		{
+			if (tableRows[i][whereIndex] == whereValue)
+			{
+				tableRows[i][setIndex] = setValue;
+				count++;
+			}
+		}
 
-       if (count > 0)
-       {
-            table->setRows(tableRows, table->getNoOfRows(), table->getNoOfColumns());
-            write_table_to_file(*table);
-            std::cout << "Value set to: " << setValue << std::endl;
-            statusManager->print(StatusManager::Success, "Updated table successfully! (" + std::to_string(count) + " rows affected)");
-       }
-       else
-       {
-           statusManager->print(StatusManager::Error, "No rows matched the WHERE condition.");
-       }
-    }
+		if (count > 0)
+		{
+			table->setRows(tableRows, table->getNoOfRows(), table->getNoOfColumns());
+			write_table_to_file(*table);
+			std::cout << "Value set to: " << setValue << std::endl;
+			statusManager->print(StatusManager::Success,
+								 "Updated table successfully! (" + std::to_string(count) + " rows affected)");
+		}
+		else
+		{
+			statusManager->print(StatusManager::Error, "No rows matched the WHERE condition.");
+		}
+	}
 
 	void delete_from() const
 	{
@@ -1343,8 +1346,8 @@ public:
 
 	void parse_commands()
 	{
-		std::cout << "(!) Note: You can exit this program anytime by typing \"exit\" or \"quit\"." << std::endl
-				  << std::endl;
+		std::cout << "(!) Note: You can quit this program anytime by typing \"quit\" or" << std::endl
+				  << "return to the main menu by typing \"menu\"." << std::endl;
 		while (true)
 		{
 			int noOfWords;
@@ -1391,9 +1394,16 @@ public:
 			}
 
 			setQuery(words, noOfWords, parser->getString());
-			if (noOfWords == 1 && (words[0] == "exit" || words[0] == "quit"))
+			if (noOfWords == 1)
 			{
-				exit(0);
+				if (words[0] == "exit" || words[0] == "quit")
+				{
+					exit(0);
+				}
+				if (words[0] == "menu")
+				{
+					return;
+				}
 			}
 			parse_command();
 			delete[] numberOfParentheses;

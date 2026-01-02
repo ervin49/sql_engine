@@ -25,60 +25,67 @@ private:
 	}
 
 	void print_syntax_help()
-    {
-       char choice;
-       while (true)
-       {
-           clear_screen();
-           std::cout << "========= SYNTAX CHEATSHEET =========" << std::endl << std::endl;
-           std::cout << "Select a command to view details:" << std::endl;
-           std::cout << "(1) CREATE TABLE" << std::endl;
-           std::cout << "(2) INSERT INTO" << std::endl;
-           std::cout << "(3) SELECT" << std::endl;
-           std::cout << "(4) UPDATE & DELETE" << std::endl;
-           std::cout << "(5) INDEX Operations" << std::endl;
-           std::cout << "(r) Return to Help Menu" << std::endl << std::endl;
-           std::cout << "Please choose an option: [1-5r] ";
-           std::cin >> choice;
+	{
+		char choice;
+		while (true)
+		{
+			clear_screen();
+			std::cout << "========= SYNTAX CHEATSHEET =========" << std::endl << std::endl;
+			std::cout << "Select a command to view details:" << std::endl << std::endl << std::endl;
+			std::cout << "(1) CREATE TABLE" << std::endl << std::endl;
+			std::cout << "(2) INSERT INTO" << std::endl << std::endl;
+			std::cout << "(3) SELECT" << std::endl << std::endl;
+			std::cout << "(4) UPDATE & DELETE" << std::endl << std::endl;
+			std::cout << "(5) INDEX Operations" << std::endl << std::endl;
+			std::cout << "(r) Return to Help Menu" << std::endl;
+			std::cout << "(q) Quit program" << std::endl << std::endl;
+			std::cout << "Please choose an option: [1-5rq] ";
+			std::cin >> choice;
 
-           clear_screen();
+			clear_screen();
 
-           switch (tolower(choice))
-           {
-           case '1':
-               std::cout << "--- CREATE TABLE ---" << std::endl;
-               std::cout << "Format: CREATE TABLE table_name [IF NOT EXISTS] ((col_name, type, size, default), ...)" << std::endl;
-               std::cout << "Types:  integer, text, float" << std::endl;
-               std::cout << "Ex:     CREATE TABLE students ((name, text, 20, -), (age, integer, 3, 0))" << std::endl;
-               break;
-           case '2':
-               std::cout << "--- INSERT INTO ---" << std::endl;
-               std::cout << "Format: INSERT INTO table_name VALUES (val1, val2, ...)" << std::endl;
-               std::cout << "Ex:     INSERT INTO students VALUES (\"Alex\", 21)" << std::endl;
-               break;
-           case '3':
-               std::cout << "--- SELECT ---" << std::endl;
-               std::cout << "Format: SELECT (col1, col2, ...) | ALL FROM table_name [WHERE col = val]" << std::endl;
-               std::cout << "Ex:     SELECT name FROM students WHERE age = 21" << std::endl;
-               break;
-           case '4':
-               std::cout << "--- UPDATE & DELETE ---" << std::endl;
-               std::cout << "Update: UPDATE table SET col = new_val WHERE col = target_val" << std::endl;
-               std::cout << "Delete: DELETE FROM table WHERE col = target_val" << std::endl;
-               break;
-           case '5':
-               std::cout << "--- INDEX COMMANDS ---" << std::endl;
-               std::cout << "Create: CREATE INDEX index_name ON table_name (column_name)" << std::endl;
-               std::cout << "Drop:   DROP INDEX index_name" << std::endl;
-               break;
-           case 'r':
-               return;
-           default:
-               std::cout << "Invalid option." << std::endl;
-           }
-           if (tolower(choice) != 'r') press_enter_to_continue();
-       }
-    }
+			switch (tolower(choice))
+			{
+			case '1':
+				std::cout << "--- CREATE TABLE ---" << std::endl;
+				std::cout << "(!) Note: What is denoted between [] is not mandatory." << std::endl << std::endl;
+				std::cout << "Format: CREATE TABLE table_name [IF NOT EXISTS] ((col_name, type, size, default), ...)"
+						  << std::endl;
+				std::cout << "Types:  integer, text, float" << std::endl;
+				std::cout << "Ex:     CREATE TABLE students ((name, text, 20, -), (age, integer, 3, 0))" << std::endl;
+				break;
+			case '2':
+				std::cout << "--- INSERT INTO ---" << std::endl;
+				std::cout << "Format: INSERT INTO table_name VALUES (val1, val2, ...)" << std::endl;
+				std::cout << "Ex:     INSERT INTO students VALUES (\"Alex\", 21)" << std::endl;
+				break;
+			case '3':
+				std::cout << "--- SELECT ---" << std::endl;
+				std::cout << "(!) Note: What is denoted between [] is not mandatory." << std::endl << std::endl;
+				std::cout << "Format: SELECT (col1, col2, ...) | ALL FROM table_name [WHERE col = val]" << std::endl;
+				std::cout << "Ex:     SELECT name FROM students WHERE age = 21" << std::endl;
+				break;
+			case '4':
+				std::cout << "--- UPDATE & DELETE ---" << std::endl;
+				std::cout << "Update: UPDATE table SET col = new_val WHERE col = target_val" << std::endl;
+				std::cout << "Delete: DELETE FROM table WHERE col = target_val" << std::endl;
+				break;
+			case '5':
+				std::cout << "--- INDEX COMMANDS ---" << std::endl;
+				std::cout << "Create: CREATE INDEX index_name ON table_name (column_name)" << std::endl;
+				std::cout << "Drop:   DROP INDEX index_name" << std::endl;
+				break;
+			case 'r':
+				return;
+			case 'q':
+				exit(0);
+			default:
+				std::cout << "Invalid option." << std::endl;
+			}
+			if (tolower(choice) != 'r')
+				press_enter_to_continue();
+		}
+	}
 
 	void print_datatypes_help()
 	{
@@ -122,7 +129,6 @@ private:
 public:
 	Menu() { application = new Application(); }
 
-
 	void display_welcome_menu()
 	{
 		clear_screen();
@@ -156,6 +162,7 @@ public:
 			case '2':
 				clear_screen();
 				application->parse_commands();
+				display_welcome_menu();
 				break;
 			case 'h':
 				clear_screen();
