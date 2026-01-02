@@ -301,7 +301,8 @@ public:
 				}
 			}
 		}
-		else if ( firstWord == "import" ) {
+		else if (firstWord == "import")
+		{
 			if (has_invalid_word_count(1) || has_invalid_word_count(2))
 			{
 				return;
@@ -1142,80 +1143,88 @@ public:
 		delete tableWithSelectedRows;
 		delete[] selectedColumns;
 	}
-	void import_table() const{
-        std::string tableName = words[1];
-        std::string fileName = words[2];
+	void import_table() const
+	{
+		std::string tableName = words[1];
+		std::string fileName = words[2];
 
-        if (!tableCatalog->table_exists(tableName)) {
-            statusManager->print(StatusManager::Error, "Table \"" + tableName + "\" does not exists!");
-            return;
-        }
+		if (!tableCatalog->table_exists(tableName))
+		{
+			statusManager->print(StatusManager::Error, "Table \"" + tableName + "\" does not exist!");
+			return;
+		}
 
-        Table* table = tableCatalog->getTable(tableName);
+		Table* table = tableCatalog->getTable(tableName);
 
-        std::ifstream file(fileName);
-        std::string line;
+		std::ifstream file(fileName);
+		std::string line;
 
-        if (!file.is_open()) {
-            statusManager->print(StatusManager::Error, "Could not open file: \"" + fileName + "\"");
-            return;
-        }
+		if (!file.is_open())
+		{
+			statusManager->print(StatusManager::Error, "File \"" + fileName + "\" could not open!");
+			return;
+		}
 
-        int noOfColumns = table->getNoOfColumns();
-        int noOfRows = 0;
-        int importedRows = 0;
-
-
-        while (std::getline(file, line)) {
-            noOfRows++;
-            int noOfFields;
-
-            //checking the delimiter (it should be ',')
-            if (noOfColumns > 1) {
-                int noOfCommas = 0;
-                bool isText = false;
-                for (int i = 0; i<line.length(); i++) {
-                    //ignore ',' if it is in between ' '
-                    if (line[i] == '\'') {
-                        isText = !isText;
-                    }
-                    if (isText == false && line[i] == ',') {
-                        noOfCommas++;
-                    }
-                }
-                if (noOfCommas != noOfColumns - 1) {
-                    statusManager->print(StatusManager::Error, "Invalid delimiter!");
-                    continue;
-                }
-            }
-            std:: string* fields = this->parser->parse_column(line, noOfFields);
-
-            bool addRow = true;
+		int noOfColumns = table->getNoOfColumns();
+		int noOfRows = 0;
+		int importedRows = 0;
 
 
-            if (noOfColumns != noOfFields) {
-                statusManager->print(StatusManager::Error, "Invalid column number on row " + std::to_string(noOfRows-1));
-                addRow = false;
-            }
+		while (std::getline(file, line))
+		{
+			noOfRows++;
+			int noOfFields;
 
-            if (addRow) {
-                table->add_row(fields);
-                importedRows++;
+			// checking the delimiter (it should be ',')
+			if (noOfColumns > 1)
+			{
+				int noOfCommas = 0;
+				bool isText = false;
+				for (int i = 0; i < line.length(); i++)
+				{
+					// ignore ',' if it is in between ' '
+					if (line[i] == '\'')
+					{
+						isText = !isText;
+					}
+					if (isText == false && line[i] == ',')
+					{
+						noOfCommas++;
+					}
+				}
+				if (noOfCommas != noOfColumns - 1)
+				{
+					statusManager->print(StatusManager::Error, "Invalid delimiter!");
+					continue;
+				}
+			}
+			std::string* fields = this->parser->parse_column(line, noOfFields);
 
-            }
+			bool addRow = true;
 
-            delete[] fields;
 
-        }
-        file.close();
+			if (noOfColumns != noOfFields)
+			{
+				statusManager->print(StatusManager::Error,
+									 "Invalid column number on row " + std::to_string(noOfRows - 1));
+				addRow = false;
+			}
 
-        if (importedRows > 0) {
-            write_table_to_file(*table);
-            statusManager->print(StatusManager::Success, "Import completed successfully!");
-        } else {
-            statusManager->print(StatusManager::Error, "No rows were imported.");
-        }
-    }
+			if (addRow && table->add_row(fields) == 0)
+			{
+				importedRows++;
+			}
+
+			delete[] fields;
+		}
+		file.close();
+
+		if (importedRows > 0)
+		{
+			write_table_to_file(*table);
+			statusManager->print(StatusManager::Success, "Import completed successfully!");
+		}
+	}
 
 
 	void parse_commands_from_files(int argc, char** argv)
@@ -1300,7 +1309,7 @@ public:
 
 	void parse_commands()
 	{
-		std::cout << "Note: You can exit this program anytime by typing \"exit\" or \"quit\"." << std::endl
+		std::cout << "(!) Note: You can exit this program anytime by typing \"exit\" or \"quit\"." << std::endl
 				  << std::endl;
 		while (true)
 		{

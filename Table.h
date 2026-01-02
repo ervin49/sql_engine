@@ -446,14 +446,15 @@ public:
 			if (is_column_type(newRow[i], columnTypes[i]) == false)
 			{
 				statusManager->print(StatusManager::Error,
-									 "Value \"" + newRow[i] + "\" does not match column type \"" + columnTypes[i] +
-										 "\"!");
+									 "Value " + newRow[i] + " does not match column type \"" + columnTypes[i] +
+										 "\" on column \"" + columnNames[i] +
+										 "\"! (!) Note: text has to be inside \'\'");
 				return 1;
 			}
 			if (maxColumnLengths[i] < newRow[i].length())
 			{
 				statusManager->print(StatusManager::Error,
-									 "Value \"" + newRow[i] + "\" in column \"" + columnNames[i] +
+									 "Value " + newRow[i] + " in column \"" + columnNames[i] +
 										 "\" exceeds max length! (Length: " + std::to_string(newRow[i].length()) +
 										 ", Max: " + std::to_string(maxColumnLengths[i]) + ")");
 				return 1;

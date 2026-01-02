@@ -21,7 +21,8 @@ private:
 	{
 		std::cout << std::endl;
 		std::cout << "SQL SYNTAX CHEATSHEET" << std::endl << std::endl << std::endl;
-		std::cout << "Note: Values put between [] are not mandatory for the command to work." << std::endl << std::endl;
+		std::cout << "(!) Note: Values put between [] are not mandatory for the command to work." << std::endl
+				  << std::endl;
 		std::cout << "1. CREATE TABLE:" << std::endl;
 		std::cout << "   Format: CREATE TABLE table_name [IF NOT EXISTS] ((col1, type, size, default_value), ...)"
 				  << std::endl;
@@ -49,12 +50,11 @@ private:
 	void print_datatypes_help()
 	{
 		std::cout << std::endl;
-		std::cout << "================ SUPPORTED DATA TYPES ================" << std::endl;
-		std::cout << "* integer / int   : Whole numbers (e.g., 10, -5)" << std::endl;
-		std::cout << "* numeric / float : Decimal numbers (e.g., 10.5)" << std::endl;
-		std::cout << "* text / varchar  : Strings (e.g., \'Hello World\')" << std::endl;
+		std::cout << "================ SUPPORTED DATA TYPES ================" << std::endl << std::endl << std::endl;
+		std::cout << "* integer / int   : Whole numbers (e.g., 10, -5)" << std::endl << std::endl;
+		std::cout << "* numeric / float : Decimal numbers (e.g., 10.5)" << std::endl << std::endl;
+		std::cout << "* text / varchar  : Strings (e.g., \'Hello World\')" << std::endl << std::endl;
 		std::cout << std::endl;
-		std::cout << "(!) Note: Text columns require a maximum size definition." << std::endl;
 		std::cout << "----------------------------" << std::endl;
 		std::cout << "Press any key (and Enter) to go back..." << std::endl;
 		std::string dummy;
@@ -67,9 +67,14 @@ private:
 		std::cout << "================ GENERAL INFO ================" << std::endl;
 		std::cout << "Storage:" << std::endl;
 		std::cout << "  - Tables -> /tables folder (binary files)" << std::endl;
-		std::cout << "  - Indexes -> /index_catalog folder (binary files)" << std::endl;
+		std::cout << "  - Indexes -> /index_catalog folder (binary files)" << std::endl << std::endl;
 		std::cout << "Navigation:" << std::endl;
-		std::cout << "  - Use 'q' to Quit, 'r' to Return in menus." << std::endl;
+		std::cout << "  - Use 'q' to Quit, 'r' to Return in menus." << std::endl << std::endl;
+		std::cout << "Import command:" << std::endl;
+		std::cout << "  - You can use the import command to add rows to" << std::endl
+				  << "existing tables, by using .csv files which contain" << std::endl
+				  << "the entries you need, separated by commas." << std::endl
+				  << std::endl;
 		std::cout << "--------------------" << std::endl;
 		std::cout << "Press any key (and Enter) to go back..." << std::endl;
 		std::string dummy;
@@ -787,19 +792,38 @@ public:
 				continue;
 			}
 
-			bool hasIdenticalNames = false;
+			if (columnName == "text" && columnName == "varchar" && columnName == "float" && columnName == "int" &&
+				columnName == "integer" && columnName == "numeric")
+			{
+				statusManager->print(StatusManager::Error,
+									 "Keyword \"" + columnName + "\" can't be used for the column name!");
+				i--;
+				continue;
+			}
+
+			if (maxColumnLength < 1)
+			{
+				statusManager->print(StatusManager::Error, "Length of attribute has to be at least 1!");
+				i--;
+				continue;
+			}
+
+			bool hasError = false;
 			for (int j = 0; j < i; j++)
 			{
-				if (columnNames[i] == columnNames[j])
+				if (columnNames[j] == columnName)
 				{
 					statusManager->print(StatusManager::Error,
 										 "You can't enter two identical column names! Try again.");
-					i--;
-					hasIdenticalNames = true;
+					hasError = true;
+					break;
 				}
 			}
-			if (hasIdenticalNames == true)
+
+			// check here so we can continue with the outer for not the one above
+			if (hasError == true)
 			{
+				i--;
 				continue;
 			}
 
@@ -816,7 +840,9 @@ public:
 		application->write_table_to_file(*table);
 		delete table;
 
+		std::cout << std::endl;
 		statusManager->print(StatusManager::Success, "Table \"" + tableName + "\" created successfully!");
+		std::cout << std::endl;
 		show_menu_loop(table_options);
 	}
 
