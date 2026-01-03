@@ -20,8 +20,8 @@ private:
 	void press_enter_to_continue()
 	{
 		std::cout << std::endl << "Press Enter to return...";
-		std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-		std::cin.get();
+		std::string dummy;
+		std::getline(std::cin, dummy);
 	}
 
 	void print_syntax_help()
@@ -40,8 +40,18 @@ private:
 			std::cout << "(r) Return to Help Menu" << std::endl;
 			std::cout << "(q) Quit program" << std::endl << std::endl;
 			std::cout << "Please choose an option: [1-5rq] ";
-			std::cin >> choice;
+			std::string input;
+			std::getline(std::cin, input);
 
+			if (input.length() != 1)
+			{
+				std::cout << std::endl;
+				std::cout << "Invalid option! Please select a single digit or 'r'." << std::endl;
+				press_enter_to_continue();
+				continue;
+			}
+
+			char choice = tolower(input[0]);
 			clear_screen();
 
 			switch (tolower(choice))
@@ -138,21 +148,30 @@ public:
 			config.load_tables();
 			first_enter = false;
 		}
-		std::cout << std::endl;
-		std::cout << "Welcome to Sql Engine! Please choose what you would like to do." << std::endl;
-		std::cout << std::endl << std::endl;
-		std::cout << "(1) Run commands using the interactive menu." << std::endl << std::endl;
-		std::cout << "(2) Run commands using plain old sql queries." << std::endl << std::endl;
-		std::cout << "(h) Display help menu." << std::endl << std::endl;
-		std::cout << "(q) Quit program." << std::endl << std::endl;
-		std::cout << "Please choose an option: [12hq] ";
-
-		char c;
 
 		while (true)
 		{
-			std::cin >> c;
-			c = tolower(c);
+			std::cout << std::endl;
+			std::cout << "Welcome to Sql Engine! Please choose what you would like to do." << std::endl;
+			std::cout << std::endl << std::endl;
+			std::cout << "(1) Run commands using the interactive menu." << std::endl << std::endl;
+			std::cout << "(2) Run commands using plain old sql queries." << std::endl << std::endl;
+			std::cout << "(h) Display help menu." << std::endl << std::endl;
+			std::cout << "(q) Quit program." << std::endl << std::endl;
+			std::cout << "Please choose an option: [12hq] ";
+
+			std::string input;
+			std::getline(std::cin, input);
+
+			if (input.length() != 1)
+			{
+				std::cout << std::endl;
+				statusManager->print(StatusManager::Error, "Invalid option! (Please enter a single character)");
+				press_enter_to_continue();
+				continue;
+			}
+
+			char c = tolower(input[0]);
 			switch (c)
 			{
 			case '1':
@@ -1038,20 +1057,30 @@ public:
 
 	void display_help()
 	{
-		clear_screen();
-		std::cout << std::endl;
-		std::cout << "Help Center" << std::endl << std::endl << std::endl;
-		std::cout << "(1) Syntax Guide (Commands & Examples)" << std::endl << std::endl;
-		std::cout << "(2) Data Types Reference" << std::endl << std::endl;
-		std::cout << "(3) General Information" << std::endl << std::endl;
-		std::cout << "(r) Return to Main Menu" << std::endl;
-		std::cout << "(q) Quit program" << std::endl << std::endl;
-		std::cout << "Please choose an option: [123rq] ";
 		while (true)
 		{
-			char c;
-			std::cin >> c;
-			c = tolower(c);
+			clear_screen();
+			std::cout << std::endl;
+			std::cout << "Help Center" << std::endl << std::endl << std::endl;
+			std::cout << "(1) Syntax Guide (Commands & Examples)" << std::endl << std::endl;
+			std::cout << "(2) Data Types Reference" << std::endl << std::endl;
+			std::cout << "(3) General Information" << std::endl << std::endl;
+			std::cout << "(r) Return to Main Menu" << std::endl;
+			std::cout << "(q) Quit program" << std::endl << std::endl;
+			std::cout << "Please choose an option: [123rq] ";
+
+			std::string input;
+			std::getline(std::cin, input);
+
+			if (input.length() != 1)
+			{
+				std::cout << std::endl;
+				statusManager->print(StatusManager::Error, "Invalid option! (Please enter a single character)");
+				press_enter_to_continue();
+				continue;
+			}
+
+			char c = tolower(input[0]);
 			switch (c)
 			{
 			case '1':
