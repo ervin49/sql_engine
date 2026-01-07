@@ -1,10 +1,13 @@
 #pragma once
 #include <iostream>
 #include <limits>
+#include <termios.h>
 
 #include "globals.h"
 
 #include "StatusManager.h"
+
+static struct termios old, current;
 
 class Menu
 {
@@ -26,9 +29,9 @@ private:
 
 	void print_syntax_help()
 	{
-		char choice;
 		while (true)
 		{
+
 			clear_screen();
 			std::cout << "========= SYNTAX CHEATSHEET =========" << std::endl << std::endl;
 			std::cout << "Select a command to view details:" << std::endl << std::endl << std::endl;
@@ -40,21 +43,14 @@ private:
 			std::cout << "(r) Return to Help Menu" << std::endl;
 			std::cout << "(q) Quit program" << std::endl << std::endl;
 			std::cout << "Please choose an option: [1-5rq] ";
-			std::string input;
-			std::getline(std::cin, input);
+			char c;
+			initTermios(0);
+			c = getchar();
+			resetTermios();
+			c = tolower(c);
 
-			if (input.length() != 1)
-			{
-				std::cout << std::endl;
-				std::cout << "Invalid option! Please select a single digit or 'r'." << std::endl;
-				press_enter_to_continue();
-				continue;
-			}
-
-			char choice = tolower(input[0]);
-			clear_screen();
-
-			switch (tolower(choice))
+				clear_screen();
+			switch (c)
 			{
 			case '1':
 				std::cout << "--- CREATE TABLE ---" << std::endl;
@@ -63,37 +59,42 @@ private:
 						  << std::endl;
 				std::cout << "Types:  integer, text, float" << std::endl;
 				std::cout << "Ex:     CREATE TABLE students ((name, text, 20, -), (age, integer, 3, 0))" << std::endl;
+		press_enter_to_continue();
 				break;
 			case '2':
 				std::cout << "--- INSERT INTO ---" << std::endl;
 				std::cout << "Format: INSERT INTO table_name VALUES (val1, val2, ...)" << std::endl;
 				std::cout << "Ex:     INSERT INTO students VALUES (\"Alex\", 21)" << std::endl;
+		press_enter_to_continue();
 				break;
 			case '3':
 				std::cout << "--- SELECT ---" << std::endl;
 				std::cout << "(!) Note: What is denoted between [] is not mandatory." << std::endl << std::endl;
 				std::cout << "Format: SELECT (col1, col2, ...) | ALL FROM table_name [WHERE col = val]" << std::endl;
 				std::cout << "Ex:     SELECT name FROM students WHERE age = 21" << std::endl;
+		press_enter_to_continue();
 				break;
 			case '4':
 				std::cout << "--- UPDATE & DELETE ---" << std::endl;
 				std::cout << "Update: UPDATE table SET col = new_val WHERE col = target_val" << std::endl;
 				std::cout << "Delete: DELETE FROM table WHERE col = target_val" << std::endl;
+		press_enter_to_continue();
 				break;
 			case '5':
 				std::cout << "--- INDEX COMMANDS ---" << std::endl;
 				std::cout << "Create: CREATE INDEX index_name ON table_name (column_name)" << std::endl;
 				std::cout << "Drop:   DROP INDEX index_name" << std::endl;
+		press_enter_to_continue();
 				break;
 			case 'r':
 				return;
 			case 'q':
+				clear_screen();
 				exit(0);
 			default:
-				std::cout << "Invalid option." << std::endl;
+				statusManager->print(StatusManager::Error, "You need to enter a valid option!");
+				std::cout << "Please choose an option: [1-5rq] ";
 			}
-			if (tolower(choice) != 'r')
-				press_enter_to_continue();
 		}
 	}
 
@@ -149,8 +150,6 @@ public:
 			first_enter = false;
 		}
 
-		while (true)
-		{
 			std::cout << std::endl;
 			std::cout << "Welcome to Sql Engine! Please choose what you would like to do." << std::endl;
 			std::cout << std::endl << std::endl;
@@ -160,18 +159,12 @@ public:
 			std::cout << "(q) Quit program." << std::endl << std::endl;
 			std::cout << "Please choose an option: [12hq] ";
 
-			std::string input;
-			std::getline(std::cin, input);
-
-			if (input.length() != 1)
-			{
-				std::cout << std::endl;
-				statusManager->print(StatusManager::Error, "Invalid option! (Please enter a single character)");
-				press_enter_to_continue();
-				continue;
-			}
-
-			char c = tolower(input[0]);
+		while (true)
+		{
+			char c;
+			initTermios(0);
+			c = getchar();
+			resetTermios();
 			switch (c)
 			{
 			case '1':
@@ -188,6 +181,7 @@ public:
 				display_help();
 				break;
 			case 'q':
+				clear_screen();
 				exit(0);
 			default:
 				statusManager->print(StatusManager::Error, "You need to enter a valid option!");
@@ -212,8 +206,9 @@ public:
 
 		while (true)
 		{
-			std::cin >> c;
-			c = tolower(c);
+			initTermios(0);
+			c = getchar();
+			resetTermios();
 			switch (c)
 			{
 			case '1':
@@ -229,6 +224,7 @@ public:
 				display_welcome_menu();
 				break;
 			case 'q':
+				clear_screen();
 				exit(0);
 			default:
 				statusManager->print(StatusManager::Error, "You need to enter a valid option!");
@@ -407,8 +403,9 @@ public:
 		char c;
 		while (true)
 		{
-			std::cin >> c;
-			c = tolower(c);
+			initTermios(0);
+			c = getchar();
+			resetTermios();
 			switch (c)
 			{
 			case 'r':
@@ -426,6 +423,7 @@ public:
 				}
 				break;
 			case 'q':
+				clear_screen();
 				exit(0);
 			default:
 				statusManager->print(StatusManager::Error, "You need to enter a valid option!");
@@ -448,8 +446,9 @@ public:
 		char c;
 		while (true)
 		{
-			std::cin >> c;
-			c = tolower(c);
+			initTermios(0);
+			c = getchar();
+			resetTermios();
 			switch (c)
 			{
 			case '1':
@@ -469,6 +468,7 @@ public:
 				run_interactive_menu();
 				break;
 			case 'q':
+				clear_screen();
 				exit(0);
 			default:
 				statusManager->print(StatusManager::Error, "You need to enter a valid option!");
@@ -563,8 +563,9 @@ public:
 		std::string columnNameSearchedFor, value;
 		while (true)
 		{
-			std::cin >> c;
-			c = tolower(c);
+			initTermios(0);
+			c = getchar();
+			resetTermios();
 			switch (c)
 			{
 			case 'y':
@@ -898,8 +899,9 @@ public:
 		char c;
 		while (true)
 		{
-			std::cin >> c;
-			c = tolower(c);
+			initTermios(0);
+			c = getchar();
+			resetTermios();
 			switch (c)
 			{
 			case '1':
@@ -931,6 +933,7 @@ public:
 				run_interactive_menu();
 				break;
 			case 'q':
+				clear_screen();
 				exit(0);
 			default:
 				statusManager->print(StatusManager::Error, "You need to enter a valid option!");
@@ -1057,8 +1060,6 @@ public:
 
 	void display_help()
 	{
-		while (true)
-		{
 			clear_screen();
 			std::cout << std::endl;
 			std::cout << "Help Center" << std::endl << std::endl << std::endl;
@@ -1068,19 +1069,14 @@ public:
 			std::cout << "(r) Return to Main Menu" << std::endl;
 			std::cout << "(q) Quit program" << std::endl << std::endl;
 			std::cout << "Please choose an option: [123rq] ";
+		while (true)
+		{
 
-			std::string input;
-			std::getline(std::cin, input);
-
-			if (input.length() != 1)
-			{
-				std::cout << std::endl;
-				statusManager->print(StatusManager::Error, "Invalid option! (Please enter a single character)");
-				press_enter_to_continue();
-				continue;
-			}
-
-			char c = tolower(input[0]);
+			char c;
+			initTermios(0);
+			c = getchar();
+			resetTermios();
+			c = tolower(c);
 			switch (c)
 			{
 			case '1':
@@ -1102,6 +1098,7 @@ public:
 				display_welcome_menu();
 				return;
 			case 'q':
+				clear_screen();
 				exit(0);
 			default:
 				std::cout << std::endl;
@@ -1150,5 +1147,21 @@ public:
 		std::cout << std::endl;
 		application->write_select_to_file(*tableCatalog->getTable(tableName));
 		show_menu_loop(table_options);
+	}
+	void initTermios(int echo)
+	{
+		tcgetattr(0, &old); /* grab old terminal i/o settings */
+		current = old; /* make new settings same as old settings */
+		current.c_lflag &= ~ICANON; /* disable buffered i/o */
+		if (echo) {
+			current.c_lflag |= ECHO; /* set echo mode */
+		} else {
+			current.c_lflag &= ~ECHO; /* set no echo mode */
+		}
+		tcsetattr(0, TCSANOW, &current); /* use these new terminal i/o settings now */
+	}
+	void resetTermios()
+	{
+		tcsetattr(0, TCSANOW, &old);
 	}
 };

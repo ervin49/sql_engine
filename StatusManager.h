@@ -50,7 +50,7 @@ public:
         if (err.empty() == false) {
             msg += err;
         }
-        std::cout << msg << std::endl;
+        std::cout <<std::endl<<std::endl<< msg << std::endl;
     }
 
     void toString(Status status) {
