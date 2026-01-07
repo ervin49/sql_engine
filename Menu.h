@@ -1,14 +1,31 @@
 #pragma once
 #include <iostream>
 #include <limits>
-#include <termios.h>
 
 #include "globals.h"
 
 #include "StatusManager.h"
 
-static struct termios old, current;
 
+#ifdef _WIN32
+#include <conio.h>
+#else
+#include <termios.h>
+#include <unistd.h>
+
+int _getch() {
+	struct termios oldattr, newattr;
+	int ch;
+	tcgetattr(STDIN_FILENO, &oldattr);
+	newattr = oldattr;
+	newattr.c_lflag &= ~(ICANON | ECHO);
+	tcsetattr(STDIN_FILENO, TCSANOW, &newattr);
+	ch = getchar();
+	tcsetattr(STDIN_FILENO, TCSANOW, &oldattr);
+	return ch;
+}
+
+#endif
 class Menu
 {
 private:
@@ -44,9 +61,7 @@ private:
 			std::cout << "(q) Quit program" << std::endl << std::endl;
 			std::cout << "Please choose an option: [1-5rq] ";
 			char c;
-			initTermios(0);
-			c = getchar();
-			resetTermios();
+			c = _getch();
 			c = tolower(c);
 
 				clear_screen();
@@ -162,9 +177,7 @@ public:
 		while (true)
 		{
 			char c;
-			initTermios(0);
-			c = getchar();
-			resetTermios();
+			c = _getch();
 			switch (c)
 			{
 			case '1':
@@ -206,9 +219,7 @@ public:
 
 		while (true)
 		{
-			initTermios(0);
-			c = getchar();
-			resetTermios();
+			c = _getch();
 			switch (c)
 			{
 			case '1':
@@ -403,9 +414,7 @@ public:
 		char c;
 		while (true)
 		{
-			initTermios(0);
-			c = getchar();
-			resetTermios();
+			c = _getch();
 			switch (c)
 			{
 			case 'r':
@@ -446,9 +455,7 @@ public:
 		char c;
 		while (true)
 		{
-			initTermios(0);
-			c = getchar();
-			resetTermios();
+			c = _getch();
 			switch (c)
 			{
 			case '1':
@@ -563,9 +570,7 @@ public:
 		std::string columnNameSearchedFor, value;
 		while (true)
 		{
-			initTermios(0);
-			c = getchar();
-			resetTermios();
+			c = _getch();
 			switch (c)
 			{
 			case 'y':
@@ -899,9 +904,7 @@ public:
 		char c;
 		while (true)
 		{
-			initTermios(0);
-			c = getchar();
-			resetTermios();
+			c = _getch();
 			switch (c)
 			{
 			case '1':
@@ -1073,9 +1076,7 @@ public:
 		{
 
 			char c;
-			initTermios(0);
-			c = getchar();
-			resetTermios();
+			c = _getch();
 			c = tolower(c);
 			switch (c)
 			{
@@ -1147,21 +1148,5 @@ public:
 		std::cout << std::endl;
 		application->write_select_to_file(*tableCatalog->getTable(tableName));
 		show_menu_loop(table_options);
-	}
-	void initTermios(int echo)
-	{
-		tcgetattr(0, &old); /* grab old terminal i/o settings */
-		current = old; /* make new settings same as old settings */
-		current.c_lflag &= ~ICANON; /* disable buffered i/o */
-		if (echo) {
-			current.c_lflag |= ECHO; /* set echo mode */
-		} else {
-			current.c_lflag &= ~ECHO; /* set no echo mode */
-		}
-		tcsetattr(0, TCSANOW, &current); /* use these new terminal i/o settings now */
-	}
-	void resetTermios()
-	{
-		tcsetattr(0, TCSANOW, &old);
 	}
 };
