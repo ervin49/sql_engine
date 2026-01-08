@@ -10,3 +10,4 @@ Table
 .clang-format
 .venv
 .idea
+select_outputs

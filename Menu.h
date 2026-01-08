@@ -60,8 +60,7 @@ private:
 			std::cout << "(r) Return to Help Menu" << std::endl;
 			std::cout << "(q) Quit program" << std::endl << std::endl;
 			std::cout << "Please choose an option: [1-5rq] ";
-			char c;
-			c = _getch();
+			char c = _getch();
 			c = tolower(c);
 
 				clear_screen();
@@ -107,8 +106,7 @@ private:
 				clear_screen();
 				exit(0);
 			default:
-				statusManager->print(StatusManager::Error, "You need to enter a valid option!");
-				std::cout << "Please choose an option: [1-5rq] ";
+				break;
 			}
 		}
 	}
@@ -176,8 +174,7 @@ public:
 
 		while (true)
 		{
-			char c;
-			c = _getch();
+			char c = _getch();
 			switch (c)
 			{
 			case '1':
@@ -197,8 +194,7 @@ public:
 				clear_screen();
 				exit(0);
 			default:
-				statusManager->print(StatusManager::Error, "You need to enter a valid option!");
-				std::cout << "Please choose an option: [12hq] ";
+				break;
 			}
 		}
 	}
@@ -215,11 +211,9 @@ public:
 		std::cout << "(q) Quit program." << std::endl << std::endl;
 		std::cout << "Please choose an option: [12rq] ";
 
-		char c;
-
 		while (true)
 		{
-			c = _getch();
+			char c = _getch();
 			switch (c)
 			{
 			case '1':
@@ -238,8 +232,7 @@ public:
 				clear_screen();
 				exit(0);
 			default:
-				statusManager->print(StatusManager::Error, "You need to enter a valid option!");
-				std::cout << "Please choose an option: [12rq] ";
+				break;
 			}
 		}
 	}
@@ -411,10 +404,9 @@ public:
 		std::cout << "(r) Return to the previous menu." << std::endl;
 		std::cout << "(q) Quit the program." << std::endl;
 		std::cout << "Please choose an option: [rq] ";
-		char c;
 		while (true)
 		{
-			c = _getch();
+			char c = _getch();
 			switch (c)
 			{
 			case 'r':
@@ -435,8 +427,7 @@ public:
 				clear_screen();
 				exit(0);
 			default:
-				statusManager->print(StatusManager::Error, "You need to enter a valid option!");
-				std::cout << "Please choose an option: [rq] ";
+				break;
 			}
 		}
 	}
@@ -452,10 +443,9 @@ public:
 		std::cout << "(q) Quit program." << std::endl << std::endl;
 		std::cout << "Please choose an option: [123rq] ";
 
-		char c;
 		while (true)
 		{
-			c = _getch();
+			char c = _getch();
 			switch (c)
 			{
 			case '1':
@@ -478,8 +468,7 @@ public:
 				clear_screen();
 				exit(0);
 			default:
-				statusManager->print(StatusManager::Error, "You need to enter a valid option!");
-				std::cout << "Please choose an option: [123rq] ";
+				break;
 			}
 		}
 	}
@@ -565,12 +554,11 @@ public:
 		std::cout << "(n) No" << std::endl;
 		std::cout << "Please choose an option: [yn] ";
 
-		char c;
 		bool search_with_column_name;
 		std::string columnNameSearchedFor, value;
 		while (true)
 		{
-			c = _getch();
+			char c = _getch();
 			switch (c)
 			{
 			case 'y':
@@ -901,10 +889,9 @@ public:
 		std::cout << "(q) Quit program." << std::endl << std::endl;
 		std::cout << "Please choose an option: [1-6rq] ";
 
-		char c;
 		while (true)
 		{
-			c = _getch();
+			char c = _getch();
 			switch (c)
 			{
 			case '1':
@@ -939,8 +926,7 @@ public:
 				clear_screen();
 				exit(0);
 			default:
-				statusManager->print(StatusManager::Error, "You need to enter a valid option!");
-				std::cout << "Please choose an option: [1-6rq] ";
+				break;
 			}
 		}
 	}
@@ -1066,17 +1052,15 @@ public:
 			clear_screen();
 			std::cout << std::endl;
 			std::cout << "Help Center" << std::endl << std::endl << std::endl;
-			std::cout << "(1) Syntax Guide (Commands & Examples)" << std::endl << std::endl;
-			std::cout << "(2) Data Types Reference" << std::endl << std::endl;
-			std::cout << "(3) General Information" << std::endl << std::endl;
-			std::cout << "(r) Return to Main Menu" << std::endl;
-			std::cout << "(q) Quit program" << std::endl << std::endl;
+			std::cout << "(1) Syntax guide (commands & examples)" << std::endl << std::endl;
+			std::cout << "(2) Data types reference" << std::endl << std::endl;
+			std::cout << "(3) General information" << std::endl << std::endl;
+			std::cout << "(r) Return to the previous menu." << std::endl;
+			std::cout << "(q) Quit program." << std::endl << std::endl;
 			std::cout << "Please choose an option: [123rq] ";
 		while (true)
 		{
-
-			char c;
-			c = _getch();
+			char c = _getch();
 			c = tolower(c);
 			switch (c)
 			{
@@ -1102,9 +1086,7 @@ public:
 				clear_screen();
 				exit(0);
 			default:
-				std::cout << std::endl;
-				statusManager->print(StatusManager::Error, "Invalid option!");
-				std::cout << "Please choose an option: [123rq] ";
+				break;
 			}
 		}
 	}
