@@ -11,22 +11,24 @@
 #include "globals.h"
 
 
-class Application
+class BaseApp
 {
 private:
 	Parser* parser = new Parser();
-	std::string* words;
-	int noOfWords = 0;
 	std::string s;
 
+protected:
+	std::string* words;
+	int noOfWords = 0;
+
 public:
-	Application()
+	BaseApp()
 	{
 		this->words = nullptr;
 		this->noOfWords = 0;
 	}
 
-	Application(const std::string* words, const int noOfWords)
+	BaseApp(const std::string* words, const int noOfWords)
 	{
 		if (noOfWords != 0 && words != nullptr)
 		{
@@ -39,14 +41,14 @@ public:
 		}
 	}
 
-	~Application()
+	virtual ~BaseApp()
 	{
 		delete[] this->words;
 		delete parser;
 	}
 
 
-	Application(const Application& a)
+	BaseApp(const BaseApp& a)
 	{
 		this->s = a.s;
 		if (a.words != nullptr && a.noOfWords != 0)
@@ -75,7 +77,7 @@ public:
 	}
 
 
-	Application& operator=(const Application& a)
+	BaseApp& operator=(const BaseApp& a)
 	{
 		if (this != &a)
 		{
@@ -128,13 +130,13 @@ public:
 	void print_application() const { std::cout << "Current running application: " << "de schimbat aici" << std::endl; }
 
 
-	friend std::ostream& operator<<(std::ostream& out, const Application& application)
+	friend std::ostream& operator<<(std::ostream& out, const BaseApp& application)
 	{
 		application.print_application();
 		return out;
 	}
 
-	bool operator==(const Application& application) const
+	bool operator==(const BaseApp& application) const
 	{
 		if (this->parser != application.parser || this->noOfWords != application.noOfWords)
 			return false;
@@ -154,11 +156,16 @@ public:
 	}
 
 
-	void setQuery(std::string* words, int noOfWords, std::string s)
+	void setQuery(std::string* words, int noOfWords, const std::string& s)
 	{
 		this->s = s;
 		this->words = words;
 		this->noOfWords = noOfWords;
+	}
+
+	virtual void create_synonym() const
+	{
+		std::cout << "asdfasdf";
 	}
 
 	void parse_command() const
@@ -201,6 +208,14 @@ public:
 				{
 					create_index_without_if_not_exists();
 				}
+			}
+			else if (secondWord == "synonym")
+			{
+				if (has_invalid_word_count(2))
+				{
+					return;
+				}
+				create_synonym();
 			}
 			else
 			{
@@ -315,7 +330,7 @@ public:
 		}
 	}
 
-	bool has_invalid_word_count(int wordCount) const
+	bool has_invalid_word_count(const int wordCount) const
 	{
 		if (this->noOfWords == wordCount)
 		{
@@ -355,7 +370,7 @@ public:
 			write_table_to_file(*table);
 			int noOfRows = table->getNoOfRows();
 			statusManager->print(StatusManager::Success,
-								 "Inserted successfully! (Total number of rows: " + std::to_string(noOfRows) + ')');
+			                     "Inserted successfully! (Total number of rows: " + std::to_string(noOfRows) + ')');
 		}
 	}
 
@@ -456,7 +471,7 @@ public:
 				statusManager->print(
 					StatusManager::Error,
 					"The value \"" + fields[2] +
-						"\" is invalid! You need to specify a positive integer for the attribute size.");
+					"\" is invalid! You need to specify a positive integer for the attribute size.");
 				delete table;
 				delete[] maxColumnLengths;
 				delete[] columnTypes;
@@ -498,15 +513,17 @@ public:
 		delete[] columns;
 	}
 
-	void write_table_to_file(Table table) const
+	void write_table_to_file(const Table& table) const
 	{
 		// open the file(or create it if it doesn't exist already)
 		std::string tableName = table.getTableName();
 		std::ofstream file("./tables/" + tableName + ".bin", std::ios::binary);
 
 		// get all the variables from the table
-		int noOfColumns = table.getNoOfColumns(), noOfRows = table.getNoOfRows(), noOfIndexes = table.getNoOfIndexes();
+		int noOfColumns = table.getNoOfColumns(), noOfRows = table.getNoOfRows(), noOfIndexes = table.getNoOfIndexes(),
+		    noOfSynonyms = table.getNoOfSynonyms();
 		std::string* columns = table.getColumns();
+		std::string* synonyms = table.getSynonyms();
 		std::string** rows = table.getRows();
 		std::string* indexNames = table.getIndexNames();
 		std::string* columnTypes = table.getColumnTypes();
@@ -516,10 +533,11 @@ public:
 		file.write(reinterpret_cast<char*>(&noOfColumns), sizeof(int));
 		file.write(reinterpret_cast<char*>(&noOfRows), sizeof(int));
 		file.write(reinterpret_cast<char*>(&noOfIndexes), sizeof(int));
+		file.write(reinterpret_cast<char*>(&noOfSynonyms), sizeof(int));
 
 		// have to write the strings lengths
 		// before the strings themselves
-		int len = tableName.size();
+		unsigned int len = tableName.size();
 		file.write(reinterpret_cast<char*>(&len), sizeof(int));
 		file.write(tableName.data(), len);
 
@@ -558,9 +576,18 @@ public:
 			file.write(reinterpret_cast<char*>(&len), sizeof(int));
 			file.write(indexNames[i].data(), len);
 
-			len = indexCatalog->getIndex(indexNames[i])->getColumnName().length();
+			std::string columnNameOfIndex = indexCatalog->getIndex(indexNames[i])->getColumnName();
+			len = columnNameOfIndex.length();
 			file.write(reinterpret_cast<char*>(&len), sizeof(int));
-			file.write(indexCatalog->getIndex(indexNames[i])->getColumnName().data(), len);
+			file.write(columnNameOfIndex.data(), len);
+		}
+
+		//write the synonyms
+		for (int i = 0; i < noOfSynonyms; i++)
+		{
+			len = synonyms[i].size();
+			file.write(reinterpret_cast<char*>(&len), sizeof(int));
+			file.write(synonyms[i].data(), len);
 		}
 	}
 
@@ -726,7 +753,7 @@ public:
 		if (noOfWords != 3)
 		{
 			statusManager->print(StatusManager::Error,
-								 "Argument count mismatch: expected 3, got " + std::to_string(noOfWords) + "!");
+			                     "Argument count mismatch: expected 3, got " + std::to_string(noOfWords) + "!");
 			return;
 		}
 
@@ -771,7 +798,7 @@ public:
 		if (noOfWords != 3)
 		{
 			statusManager->print(StatusManager::Error,
-								 "Argument count mismatch: expected 3, got " + std::to_string(noOfWords) + "!");
+			                     "Argument count mismatch: expected 3, got " + std::to_string(noOfWords) + "!");
 			return;
 		}
 
@@ -794,7 +821,7 @@ public:
 		if (noOfWords != 10)
 		{
 			statusManager->print(StatusManager::Error,
-								 "Invalid number of tokens, expected 9, got " + std::to_string(noOfWords) + "!");
+			                     "Invalid number of tokens, expected 9, got " + std::to_string(noOfWords) + "!");
 			return;
 		}
 
@@ -806,7 +833,7 @@ public:
 		if (words[2] != "set")
 		{
 			statusManager->print(StatusManager::Error,
-								 "Syntax Error: Expected 'SET' at position 2, but found \"" + words[2] + "\".");
+			                     "Syntax Error: Expected 'SET' at position 2, but found \"" + words[2] + "\".");
 			return;
 		}
 
@@ -816,19 +843,19 @@ public:
 		if (!table->column_exists(setColumnName))
 		{
 			statusManager->print(StatusManager::Error,
-								 "Table \"" + tableName + "\" does not have column \"" + setColumnName + "\"!");
+			                     "Table \"" + tableName + "\" does not have column \"" + setColumnName + "\"!");
 			return;
 		}
 		if (words[4] != "=")
 		{
 			statusManager->print(StatusManager::Error,
-								 "Syntax Error: Expected '=' at position 4, but found \"" + words[4] + "\".");
+			                     "Syntax Error: Expected '=' at position 4, but found \"" + words[4] + "\".");
 			return;
 		}
 		if (words[8] != "=")
 		{
 			statusManager->print(StatusManager::Error,
-								 "Syntax Error: Expected '=' at position 8, but found \"" + words[8] + "\".");
+			                     "Syntax Error: Expected '=' at position 8, but found \"" + words[8] + "\".");
 			return;
 		}
 
@@ -836,7 +863,7 @@ public:
 		if (!table->column_exists(whereColumnName))
 		{
 			statusManager->print(StatusManager::Error,
-								 "Table \"" + tableName + "\" does not have column \"" + whereColumnName + "\"!");
+			                     "Table \"" + tableName + "\" does not have column \"" + whereColumnName + "\"!");
 			return;
 		}
 
@@ -852,8 +879,8 @@ public:
 			if (!table->is_integer(setValue))
 			{
 				statusManager->print(StatusManager::Error,
-									 "Type mismatch! Column \"" + setColumnName + "\" is INTEGER, but value \"" +
-										 setValue + "\" is not.");
+				                     "Type mismatch! Column \"" + setColumnName + "\" is INTEGER, but value \"" +
+				                     setValue + "\" is not.");
 				return;
 			}
 		}
@@ -862,8 +889,8 @@ public:
 			if (table->is_integer(setValue))
 			{
 				statusManager->print(StatusManager::Error,
-									 "Type mismatch! Column \"" + setColumnName + "\" is VARCHAR, but value \"" +
-										 setValue + "\" is numeric.");
+				                     "Type mismatch! Column \"" + setColumnName + "\" is VARCHAR, but value \"" +
+				                     setValue + "\" is numeric.");
 				return;
 			}
 		}
@@ -885,7 +912,7 @@ public:
 			write_table_to_file(*table);
 			std::cout << "Value set to: " << setValue << std::endl;
 			statusManager->print(StatusManager::Success,
-								 "Updated table successfully! (" + std::to_string(count) + " rows affected)");
+			                     "Updated table successfully! (" + std::to_string(count) + " rows affected)");
 		}
 		else
 		{
@@ -976,13 +1003,13 @@ public:
 				if (words[4] != "where")
 				{
 					statusManager->print(StatusManager::Error,
-										 "Syntax Error: Expected keyword 'WHERE', but found \"" + words[4] +
-											 "\" instead.");
+					                     "Syntax Error: Expected keyword 'WHERE', but found \"" + words[4] +
+					                     "\" instead.");
 				}
 				else if (words[6] != "=")
 				{
 					statusManager->print(StatusManager::Error,
-										 "Syntax Error: Expected symbol '=', but found \"" + words[6] + "\" instead.");
+					                     "Syntax Error: Expected symbol '=', but found \"" + words[6] + "\" instead.");
 				}
 				auto originalTable = tableCatalog->getTable(tableName);
 				std::string columnName = words[noOfWords - 3];
@@ -1017,8 +1044,8 @@ public:
 				if (!found)
 				{
 					statusManager->print(StatusManager::Error,
-										 "No matching values for: \"" + value + "\" in column: \"" + columnName +
-											 "\"!");
+					                     "No matching values for: \"" + value + "\" in column: \"" + columnName +
+					                     "\"!");
 				}
 				else
 				{
@@ -1077,8 +1104,8 @@ public:
 			if (originalTable->column_exists(selectedColumns[i]) == false)
 			{
 				statusManager->print(StatusManager::Error,
-									 "Column \"" + selectedColumns[i] + "\" does not exist in table \"" + tableName +
-										 "\"!");
+				                     "Column \"" + selectedColumns[i] + "\" does not exist in table \"" + tableName +
+				                     "\"!");
 				return;
 			}
 		}
@@ -1130,12 +1157,12 @@ public:
 		if (words[4] != "where")
 		{
 			statusManager->print(StatusManager::Error,
-								 "Syntax Error: Expected keyword 'WHERE', but found \"" + words[4] + "\" instead.");
+			                     "Syntax Error: Expected keyword 'WHERE', but found \"" + words[4] + "\" instead.");
 		}
 		else if (words[6] != "=")
 		{
 			statusManager->print(StatusManager::Error,
-								 "Syntax Error: Expected symbol '=', but found \"" + words[6] + "\" instead.");
+			                     "Syntax Error: Expected symbol '=', but found \"" + words[6] + "\" instead.");
 		}
 
 		const std::string columnName = words[noOfWords - 3]; //
@@ -1167,7 +1194,7 @@ public:
 		if (!found)
 		{
 			statusManager->print(StatusManager::Error,
-								 "No matching values for: \"" + value + "\" in column: \"" + columnName + "\"!");
+			                     "No matching values for: \"" + value + "\" in column: \"" + columnName + "\"!");
 		}
 		else
 		{
@@ -1180,6 +1207,7 @@ public:
 		delete tableWithSelectedRows;
 		delete[] selectedColumns;
 	}
+
 	void import_table() const
 	{
 		std::string tableName = words[1];
@@ -1243,7 +1271,7 @@ public:
 			if (noOfColumns != noOfFields)
 			{
 				statusManager->print(StatusManager::Error,
-									 "Invalid column number on row " + std::to_string(noOfRows - 1));
+				                     "Invalid column number on row " + std::to_string(noOfRows - 1));
 				addRow = false;
 			}
 
@@ -1347,7 +1375,7 @@ public:
 	void parse_commands()
 	{
 		std::cout << "(!) Note: You can quit this program anytime by typing \"quit\" or" << std::endl
-				  << "return to the main menu by typing \"menu\"." << std::endl;
+			<< "return to the main menu by typing \"menu\"." << std::endl;
 		while (true)
 		{
 			int noOfWords;

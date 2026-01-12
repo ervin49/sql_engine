@@ -1,4 +1,5 @@
-#include "Application.h"
+#include "App.h"
+#include "BaseApp.h"
 #include "Menu.h"
 #include "globals.cpp"
 
@@ -12,8 +13,8 @@ int main(const int argc, char** argv)
 		return 0;
 	}
 
-	const auto application = new Application;
-	application->parse_commands_from_files(argc, argv);
-	delete application;
+	const auto app = new App;
+	app->parse_commands_from_files(argc, argv);
+	delete app;
 	return 0;
 }

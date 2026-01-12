@@ -14,7 +14,7 @@ private:
 public:
 	first_configuration() = default;
 
-	first_configuration(std::string path) { this->target_path = path; }
+	first_configuration(const std::string& path) { this->target_path = path; }
 
 	first_configuration(const first_configuration& other) { this->target_path = other.target_path; }
 
@@ -84,7 +84,7 @@ public:
 				if (fileName.substr(fileName.length() - 4, 4) != ".bin")
 				{
 					statusManager->print(StatusManager::Error,
-										 "File \"" + fileName + "\" does not have extension .bin!");
+					                     "File \"" + fileName + "\" does not have extension .bin!");
 					noOfTables--; // it's not a table
 					continue;
 				}
@@ -110,7 +110,6 @@ public:
 
 	void print_retrieved_table_message(const int noOfTables, const std::string* tableNames) const
 	{
-
 		if (noOfTables == 1)
 		{
 			const std::string s = "Success: Retrieved table \"" + tableNames[0] + "\" successfully.";
@@ -141,8 +140,8 @@ public:
 	Table* read_table_from_file(const std::string& fileLocation) const
 	{
 		std::ifstream file(fileLocation, std::ios::binary);
-		int noOfRows, noOfColumns, noOfIndexes;
-		std::string *columns, *indexNames, *columnTypes, *columnsOfIndexes;
+		int noOfRows, noOfColumns, noOfIndexes, noOfSynonyms;
+		std::string *columns, *indexNames, *columnTypes, *columnsOfIndexes, *synonyms;
 		std::string** rows;
 		unsigned int* maxColumnLengths;
 
@@ -150,6 +149,7 @@ public:
 		file.read(reinterpret_cast<char*>(&noOfColumns), sizeof(int));
 		file.read(reinterpret_cast<char*>(&noOfRows), sizeof(int));
 		file.read(reinterpret_cast<char*>(&noOfIndexes), sizeof(int));
+		file.read(reinterpret_cast<char*>(&noOfSynonyms), sizeof(int));
 
 		int tableNameLength;
 		file.read(reinterpret_cast<char*>(&tableNameLength), sizeof(int));
@@ -162,6 +162,7 @@ public:
 		columnTypes = new std::string[noOfColumns];
 		maxColumnLengths = new unsigned int[noOfColumns];
 		rows = new std::string*[noOfRows];
+		synonyms = new std::string[noOfSynonyms];
 		for (int i = 0; i < noOfRows; i++)
 		{
 			rows[i] = new std::string[noOfColumns];
@@ -170,7 +171,7 @@ public:
 		columnsOfIndexes = new std::string[noOfIndexes];
 
 		// retrieve arrays
-		int len;
+		unsigned int len;
 		for (int i = 0; i < noOfColumns; i++)
 		{
 			file.read(reinterpret_cast<char*>(&len), sizeof(int));
@@ -203,6 +204,13 @@ public:
 			file.read(&columnsOfIndexes[i][0], len);
 		}
 
+		for (int i = 0; i < noOfSynonyms; i++)
+		{
+			file.read(reinterpret_cast<char*>(&len), sizeof(int));
+			synonyms[i].resize(len);
+			file.read(&synonyms[i][0], len);
+		}
+
 		// set the values
 		auto table = new Table(noOfColumns, tableName);
 		for (int i = 0; i < noOfColumns; i++)
@@ -219,14 +227,17 @@ public:
 		table->setRows(rows, noOfRows, noOfColumns);
 		table->setIndexNames(indexNames, noOfIndexes);
 		table->setColumnTypes(columnTypes, noOfColumns);
-		indexCatalog->setIndexes(indexes, noOfIndexes);
 		table->setMaxColumnLengths(maxColumnLengths, noOfColumns);
+		table->setSynonyms(synonyms, noOfSynonyms);
+		indexCatalog->setIndexes(indexes, noOfIndexes);
+
 		delete[] indexes;
 		delete[] columns;
 		delete[] columnsOfIndexes;
 		delete[] columnTypes;
 		delete[] maxColumnLengths;
 		delete[] indexNames;
+		delete[] synonyms;
 		return table;
 	}
 

@@ -1,71 +1,90 @@
 #pragma once
 #include <iostream>
 
-class StatusManager {
+class StatusManager
+{
 private:
-    std::string msg;
+	std::string msg;
 
 public:
+	StatusManager() = default;
 
-    StatusManager() {}
-    StatusManager(std::string msg) {
-        this->msg = msg;
-    }
-    StatusManager(const StatusManager& statusManager) {
-        this->msg = statusManager.msg;
-    }
-    ~StatusManager() {}
-    StatusManager& operator=(const StatusManager& statusManager) {
-        if (this != &statusManager) {
-            this->msg = statusManager.msg;
-        }
-        return *this;
-    }
+	StatusManager(std::string msg)
+	{
+		this->msg = msg;
+	}
 
-    bool operator==(const StatusManager& other) const {
-        return this->msg == other.msg;
-    }
+	StatusManager(const StatusManager& statusManager)
+	{
+		this->msg = statusManager.msg;
+	}
 
-    friend std::ostream& operator<<(std::ostream& out, const StatusManager& sm) {
-        out << sm.msg;
-        return out;
-    }
+	~StatusManager()
+	{
+	}
 
-    operator std::string() const {
-        return this->msg;
-    }
+	StatusManager& operator=(const StatusManager& statusManager)
+	{
+		if (this != &statusManager)
+		{
+			this->msg = statusManager.msg;
+		}
+		return *this;
+	}
 
-    bool operator!() const {
-        return msg.empty();
-    }
+	bool operator==(const StatusManager& other) const
+	{
+		return this->msg == other.msg;
+	}
 
-    void operator+=(const std::string& text) {
-        this->msg += text;
-    }
+	friend std::ostream& operator<<(std::ostream& out, const StatusManager& sm)
+	{
+		out << sm.msg;
+		return out;
+	}
 
-    enum Status { Note, Success, Error };
+	operator std::string() const
+	{
+		return this->msg;
+	}
 
-    void print(const Status status, const std::string &err) {
-        toString(status);
-        if (err.empty() == false) {
-            msg += err;
-        }
-        std::cout <<std::endl<<std::endl<< msg << std::endl;
-    }
+	bool operator!() const
+	{
+		return msg.empty();
+	}
 
-    void toString(Status status) {
-        switch (status) {
-            case(Note):
-                msg = "Note: ";
-                break;
-            case(Success):
-                msg = "Success: ";
-                break;
-            case(Error):
-                msg = "Error: ";
-                break;
-            default:
-                break;
-        }
-    }
+	void operator+=(const std::string& text)
+	{
+		this->msg += text;
+	}
+
+	enum Status { Note, Success, Error };
+
+	void print(const Status status, const std::string& err)
+	{
+		toString(status);
+		if (err.empty() == false)
+		{
+			msg += err;
+		}
+		std::cout << std::endl << msg << std::endl;
+	}
+
+	void toString(Status status)
+	{
+		switch (status)
+		{
+		case(Note):
+			msg = "Note: ";
+			break;
+		case(Success):
+			msg = "Success: ";
+			break;
+		case(Error):
+			msg = "Error: ";
+			break;
+		default:
+			break;
+		}
+	}
 };

@@ -14,7 +14,7 @@ public:
 		noOfTables = 0;
 	}
 
-	Table_Catalog(Table* tables, int noOfTables)
+	Table_Catalog(const Table* tables, const int noOfTables)
 	{
 		if (noOfTables != 0 && tables != nullptr)
 		{
@@ -94,7 +94,7 @@ public:
 
 	Table& operator[](const int index) const { return tables[index]; }
 
-	void operator+=(Table t) { this->add_table(t); }
+	void operator+=(const Table& t) { this->add_table(t); }
 
 	bool operator!() const { return noOfTables == 0; }
 
@@ -141,12 +141,26 @@ public:
 		return 0;
 	}
 
-	int add_table(Table newTable)
+	int add_table(const Table& newTable)
 	{
 		if (table_exists(newTable.getTableName()))
 		{
 			std::cout << "Table with this name already exists!";
 			return -1;
+		}
+		for (int i = 0; i < noOfTables; i++)
+		{
+			if (newTable.has_synonym(tables[i].getTableName()))
+			{
+				std::cout << "Table with this name already exists!";
+				return -2;
+			}
+
+			if (tables[i].has_synonym(newTable.getTableName()))
+			{
+				std::cout << "Table with this name already exists!";
+				return -3;
+			}
 		}
 		// create a new array of pointers to objects with updated size
 		Table* newTables = new Table[noOfTables + 1];
@@ -167,8 +181,12 @@ public:
 
 	int getNoOfTables() const { return noOfTables; }
 
-	bool table_exists(const std::string& tableName)
+	bool table_exists(const std::string& tableName) const
 	{
+		if (noOfTables == 0 || tables == nullptr)
+		{
+			return false;
+		}
 		for (int i = 0; i < noOfTables; i++)
 		{
 			if (tables[i].getTableName() == tableName)
@@ -176,10 +194,14 @@ public:
 				return true;
 			}
 		}
+		if (synonym_exists(tableName))
+		{
+			return true;
+		}
 		return false;
 	}
 
-	int getNumberOfColumns(const std::string& tableName)
+	int getNumberOfColumns(const std::string& tableName) const
 	{
 		for (int i = 0; i < noOfTables; i++)
 		{
@@ -189,7 +211,7 @@ public:
 		return 0;
 	}
 
-	Table* getTables()
+	Table* getTables() const
 	{
 		Table* aux = new Table[noOfTables];
 		for (int i = 0; i < noOfTables; i++)
@@ -207,13 +229,18 @@ public:
 			{
 				return &tables[i];
 			}
+
+			if (tables[i].has_synonym(tableName))
+			{
+				return &tables[i];
+			}
 		}
 		return nullptr;
 	}
 
-	void setTables(Table* newTables, int noOfTables)
+	void setTables(const Table* newTables, int newNoOfTables)
 	{
-		for (int i = 0; i < noOfTables; i++)
+		for (int i = 0; i < newNoOfTables; i++)
 		{
 			if (newTables[i].getTableName().empty())
 			{
@@ -223,9 +250,9 @@ public:
 		}
 
 		delete[] this->tables;
-		this->tables = new Table[noOfTables];
-		this->noOfTables = noOfTables;
-		for (int i = 0; i < noOfTables; i++)
+		this->tables = new Table[newNoOfTables];
+		this->noOfTables = newNoOfTables;
+		for (int i = 0; i < newNoOfTables; i++)
 		{
 			this->tables[i] = newTables[i];
 		}
@@ -250,5 +277,23 @@ public:
 			p->print_table(std::cout);
 			std::cout << std::endl << std::endl;
 		}
+	}
+
+	bool synonym_exists(const std::string& synonym) const
+	{
+		if (noOfTables == 0 || tables == nullptr)
+		{
+			return false;
+		}
+
+		for (int i = 0; i < noOfTables; i++)
+		{
+			if (tables[i].has_synonym(synonym) == true)
+			{
+				return true;
+			}
+		}
+
+		return false;
 	}
 };

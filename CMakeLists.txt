@@ -11,7 +11,9 @@ add_executable(sql_engine
         globals.cpp
         StatusManager.h
         first_configuration.h
-        Menu.h)
+        Menu.h
+        Table.h
+        App.h)
 target_include_directories(sql_engine PRIVATE ${PROJECT_SOURCE_DIR})
 
 # Setăm output în bin/
