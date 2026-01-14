@@ -113,20 +113,25 @@ public:
 			{
 				return i;
 			}
+
+			if (tables[i].has_synonym(tableName))
+			{
+				return i;
+			}
 		}
 		return -1;
 	}
 
 	int drop_table(const std::string& tableName)
 	{
-		int index = return_index_of_table(tableName);
+		const int index = return_index_of_table(tableName);
 		if (index == -1)
 		{
-			std::cout << "Table \"" << tableName << "\" does not exist!" << std::endl;
+			std::cout << "Table '" << tableName << "' does not exist!" << std::endl;
 			return -1;
 		}
 
-		Table_Catalog* auxCatalog = new Table_Catalog;
+		auto* auxCatalog = new Table_Catalog;
 		for (int i = 0; i < noOfTables; i++)
 		{
 			if (i == index)
@@ -193,11 +198,13 @@ public:
 			{
 				return true;
 			}
+
+			if (tables[i].has_synonym(tableName) == true)
+			{
+				return true;
+			}
 		}
-		if (synonym_exists(tableName))
-		{
-			return true;
-		}
+
 		return false;
 	}
 
@@ -235,6 +242,7 @@ public:
 				return &tables[i];
 			}
 		}
+
 		return nullptr;
 	}
 
@@ -272,7 +280,7 @@ public:
 	void print_tables() const
 	{
 		std::cout << std::endl;
-		for (Table* p = &tables[0]; p < &tables[noOfTables]; p++)
+		for (const Table* p = &tables[0]; p < &tables[noOfTables]; p++)
 		{
 			p->print_table(std::cout);
 			std::cout << std::endl << std::endl;
@@ -295,5 +303,19 @@ public:
 		}
 
 		return false;
+	}
+
+	std::string getActualTableName(const std::string& option) const
+	{
+		for (int i = 0; i < noOfTables; i++)
+		{
+			const Table& currTable = tables[i];
+			if (currTable.has_synonym(option))
+			{
+				return currTable.getTableName();
+			}
+		}
+
+		return "";
 	}
 };

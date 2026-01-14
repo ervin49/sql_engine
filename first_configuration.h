@@ -84,7 +84,7 @@ public:
 				if (fileName.substr(fileName.length() - 4, 4) != ".bin")
 				{
 					statusManager->print(StatusManager::Error,
-					                     "File \"" + fileName + "\" does not have extension .bin!");
+					                     "File '" + fileName + "' does not have extension .bin!");
 					noOfTables--; // it's not a table
 					continue;
 				}
@@ -112,7 +112,7 @@ public:
 	{
 		if (noOfTables == 1)
 		{
-			const std::string s = "Success: Retrieved table \"" + tableNames[0] + "\" successfully.";
+			const std::string s = "Success: Retrieved table '" + tableNames[0] + "' successfully.";
 			std::cout << s << std::endl;
 			for (int i = 0; i < s.length(); i++)
 			{
@@ -123,12 +123,16 @@ public:
 		}
 
 		std::string s = "Success: Retrieved tables ";
-		for (int i = 0; i < noOfTables - 1; i++)
+		for (int i = 0; i < noOfTables; i++)
 		{
-			s += '"' + tableNames[i] + "\", ";
+			s += "'" + tableNames[i] + "'";
+			if (i < noOfTables - 1)
+			{
+				s += ", ";
+			}
 		}
+		s += " successfully.";
 
-		s += '"' + tableNames[noOfTables - 1] + "\" " + "successfully.";
 		std::cout << s << std::endl;
 		for (int i = 0; i < s.length(); i++)
 		{
@@ -210,6 +214,7 @@ public:
 			synonyms[i].resize(len);
 			file.read(&synonyms[i][0], len);
 		}
+		file.close();
 
 		// set the values
 		auto table = new Table(noOfColumns, tableName);
@@ -274,6 +279,7 @@ public:
 			indexes[i].setTableName(tableName);
 			indexes[i].setColumnName(columnName);
 		}
+		f.close();
 
 		indexCatalog->setIndexes(indexes, noOfIndexes);
 		delete[] indexes;

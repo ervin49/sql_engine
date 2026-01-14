@@ -447,16 +447,16 @@ public:
 			if (is_column_type(newRow[i], columnTypes[i]) == false)
 			{
 				statusManager->print(StatusManager::Error,
-				                     "Value " + newRow[i] + " does not match column type \"" + columnTypes[i] +
-				                     "\" on column \"" + columnNames[i] +
-				                     "\"! (!) Note: text has to be inside \'\'");
+				                     "Value " + newRow[i] + " does not match column type '" + columnTypes[i] +
+				                     "' on column '" + columnNames[i] +
+				                     "'! (!) Note: text has to be inside ''");
 				return 1;
 			}
 			if (maxColumnLengths[i] < newRow[i].length())
 			{
 				statusManager->print(StatusManager::Error,
-				                     "Value " + newRow[i] + " in column \"" + columnNames[i] +
-				                     "\" exceeds max length! (Length: " + std::to_string(newRow[i].length()) +
+				                     "Value " + newRow[i] + " in column '" + columnNames[i] +
+				                     "' exceeds max length! (Length: " + std::to_string(newRow[i].length()) +
 				                     ", Max: " + std::to_string(maxColumnLengths[i]) + ")");
 				return 1;
 			}
@@ -819,17 +819,27 @@ public:
 		if ((indexOfColumn = return_index_of_column_by_name(columnName)) == -1)
 		{
 			statusManager->print(StatusManager::Error,
-			                     "Table \"" + tableName + "\" does not have the column \"" + columnName + "\"!");
+			                     "Table '" + tableName + "' does not have column '" + columnName + "'!");
 			return -1;
 		}
 
+		bool deleted = false;
 		for (int i = 0; i < noOfRows; i++)
 		{
 			if (rows[i][indexOfColumn] == nameOfValue)
 			{
+				deleted = true;
 				remove_row(i);
 				i--;
 			}
+		}
+
+		if (deleted == false)
+		{
+			statusManager->print(StatusManager::Error,
+			                     "Couldn't find value '" + nameOfValue + "' in column '" + columnName +
+			                     "'! No rows deleted.");
+			return -2;
 		}
 		return 0;
 	}

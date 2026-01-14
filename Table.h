@@ -14,20 +14,12 @@ public:
 		{
 			BaseTable::operator=(other);
 
-			delete[] this->synonyms;
 			this->noOfSynonyms = other.noOfSynonyms;
 
-			if (other.noOfSynonyms > 0 && other.synonyms != nullptr)
+			this->synonyms = new std::string[noOfSynonyms];
+			for (int i = 0; i < noOfSynonyms; i++)
 			{
-				this->synonyms = new std::string[noOfSynonyms];
-				for (int i = 0; i < noOfSynonyms; i++)
-				{
-					this->synonyms[i] = other.synonyms[i];
-				}
-			}
-			else
-			{
-				this->synonyms = nullptr;
+				this->synonyms[i] = other.synonyms[i];
 			}
 		}
 		return *this;
@@ -81,6 +73,10 @@ public:
 
 	bool has_synonym(const std::string& synonym) const
 	{
+		if (tableName == synonym)
+		{
+			return true;
+		}
 		for (int i = 0; i < noOfSynonyms; i++)
 		{
 			if (synonyms[i] == synonym)

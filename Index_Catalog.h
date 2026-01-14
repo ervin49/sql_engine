@@ -5,6 +5,7 @@
 
 #include "Index.h"
 #include "globals.h"
+#include "StatusManager.h"
 
 class Index_Catalog
 {
@@ -121,7 +122,8 @@ public:
 	{
 		if (index_exists(newIndex.getIndexName()) == true)
 		{
-			std::cout << "ERROR: Index with name \"" << newIndex.getIndexName() << "\" already exists!" << std::endl;
+			statusManager->print(StatusManager::Error,
+			                     "Index with name '" + newIndex.getIndexName() + "' already exists!");
 			return -1;
 		}
 		// we create a new array of pointers to objects with updated size
@@ -155,25 +157,25 @@ public:
 		const int noOfIndexesOfTable = getNoOfIndexesOfTableByName(tableName);
 		if (noOfIndexesOfTable == 1)
 		{
-			std::cout << "Table \"" << tableName << "\" has index: ";
+			std::cout << "Table '" << tableName << "' has index: ";
 			for (Index* p = &indexes[0]; p < &indexes[noOfIndexes]; p++)
 			{
 				if (p->getTableName() == tableName)
 				{
-					std::cout << '\"' << p->getIndexName() << "\".";
+					std::cout << '\'' << p->getIndexName() << "'.";
 				}
 			}
 			std::cout << std::endl << std::endl;
 			return;
 		}
-		std::cout << "Table \"" << tableName << "\" has " << noOfIndexesOfTable << " indexes: ";
+		std::cout << "Table '" << tableName << "' has " << noOfIndexesOfTable << " indexes: ";
 		int curr = 0;
 		Index* p;
 		for (p = &indexes[0]; p < &indexes[noOfIndexes] && curr < noOfIndexesOfTable - 1; p++)
 		{
 			if (p->getTableName() == tableName)
 			{
-				std::cout << '\"' << p->getIndexName() << "\" on column \"" << p->getColumnName() << "\", ";
+				std::cout << '\'' << p->getIndexName() << "\' on column '" << p->getColumnName() << "', ";
 				curr++;
 			}
 		}
@@ -181,7 +183,7 @@ public:
 		{
 			if (p->getTableName() == tableName)
 			{
-				std::cout << '\"' << p->getIndexName() << "\" on column \"" << p->getColumnName() << "\".";
+				std::cout << '\'' << p->getIndexName() << "' on column '" << p->getColumnName() << "'.";
 			}
 		}
 		std::cout << std::endl << std::endl;
@@ -228,7 +230,7 @@ public:
 		int position = return_position_of_index(indexName);
 		if (position == -1)
 		{
-			std::cout << "ERROR: Index \"" << indexName << "\" does not exist!" << std::endl;
+			statusManager->print(StatusManager::Error, "Index '" + indexName + "' does not exist!");
 			return -1;
 		}
 		Index* indexes = new Index[noOfIndexes - 1];
@@ -252,10 +254,6 @@ public:
 	{
 		for (int i = 0; i < noOfIndexes; i++)
 		{
-			debug(indexes[i].getTableName());
-			debug(tableName);
-			debug(indexes[i].getColumnName());
-			debug(columnName);
 			if (indexes[i].getTableName() == tableName && indexes[i].getColumnName() == columnName)
 			{
 				return true;
@@ -288,7 +286,7 @@ public:
 	{
 		if (noOfIndexes < 0)
 		{
-			std::cout << "ERROR: No. of indexes has to be at least 0!" << std::endl;
+			statusManager->print(StatusManager::Error, "Number of indexes has to be at least 0!");
 			return;
 		}
 		this->noOfIndexes = noOfIndexes;
@@ -302,14 +300,15 @@ public:
 		{
 			if (indexes[i].getIndexName() == indexName)
 			{
-				std::cout << "ERROR: Index with name \"" << indexName << "\" already exists!" << std::endl;
+				statusManager->print(StatusManager::Error, "Index with name '" + indexName + "' already exists!");
 				return -1;
 			}
 
 			if (indexes[i].getColumnName() == columnName)
 			{
-				std::cout << "ERROR: Column \"" << columnName << "\" already has index \"" << indexes[i].getIndexName()
-						  << "\"!" << std::endl;
+				statusManager->print(StatusManager::Error,
+				                     "Column '" + columnName + "' already has index '" + indexes[i].getIndexName() +
+				                     "'!");
 				return -1;
 			}
 		}

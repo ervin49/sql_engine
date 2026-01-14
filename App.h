@@ -16,13 +16,13 @@ public:
 		}
 		if (words[3] != "for")
 		{
-			statusManager->print(StatusManager::Error, "Parse error near \"" + words[3] + "\"!");
+			statusManager->print(StatusManager::Error, "Parse error near '" + words[3] + "'!");
 			return;
 		}
 		const std::string tableName = words[4];
 		if (tableCatalog->table_exists(tableName) == false)
 		{
-			statusManager->print(StatusManager::Error, "Table \"" + tableName + "\" does not exist!");
+			statusManager->print(StatusManager::Error, "Table '" + tableName + "' does not exist!");
 			return;
 		}
 
@@ -32,8 +32,8 @@ public:
 		{
 			table->add_synonym(synonymName);
 			statusManager->print(StatusManager::Success,
-			                     "Synonym \"" + synonymName + "\" created successfully for table \"" + tableName +
-			                     "\"!");
+			                     "Synonym '" + synonymName + "' created successfully for table '" + tableName +
+			                     "'!");
 		}
 	}
 };

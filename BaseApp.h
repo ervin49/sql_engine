@@ -351,7 +351,7 @@ public:
 		const std::string tableName = words[2];
 		if (!tableCatalog->table_exists(tableName))
 		{
-			statusManager->print(StatusManager::Error, "Table \"" + tableName + "\" does not exist!");
+			statusManager->print(StatusManager::Error, "Table '" + tableName + "' does not exist!");
 			return;
 		}
 
@@ -470,8 +470,8 @@ public:
 			{
 				statusManager->print(
 					StatusManager::Error,
-					"The value \"" + fields[2] +
-					"\" is invalid! You need to specify a positive integer for the attribute size.");
+					"The value '" + fields[2] +
+					"' is invalid! You need to specify a positive integer for the attribute size.");
 				delete table;
 				delete[] maxColumnLengths;
 				delete[] columnTypes;
@@ -504,7 +504,7 @@ public:
 		if (tableCatalog->add_table(*table) == 0)
 		{
 			write_table_to_file(*table);
-			statusManager->print(StatusManager::Success, "Table \"" + tableName + "\" created successfully!");
+			statusManager->print(StatusManager::Success, "Table '" + tableName + "' created successfully!");
 		}
 
 		delete table;
@@ -609,7 +609,7 @@ public:
 
 		if (tableCatalog->table_exists(tableName))
 		{
-			statusManager->print(StatusManager::Error, "Table \"" + tableName + "\" already exists!");
+			statusManager->print(StatusManager::Error, "Table '" + tableName + "' already exists!");
 			return;
 		}
 
@@ -630,12 +630,12 @@ public:
 		}
 		if (words[4] != "not")
 		{
-			statusManager->print(StatusManager::Error, "Parse error near \"" + words[4] + "\"!");
+			statusManager->print(StatusManager::Error, "Parse error near '" + words[4] + "'!");
 			return;
 		}
 		if (words[5] != "exists")
 		{
-			statusManager->print(StatusManager::Error, "Parse error near \"" + words[5] + "\"!");
+			statusManager->print(StatusManager::Error, "Parse error near '" + words[5] + "'!");
 			return;
 		}
 		if (tableCatalog->table_exists(tableName))
@@ -670,17 +670,17 @@ public:
 		}
 		if (words[3] != "not")
 		{
-			statusManager->print(StatusManager::Error, "Parse error near \"" + words[3] + "\"!");
+			statusManager->print(StatusManager::Error, "Parse error near '" + words[3] + "'!");
 			return;
 		}
 		if (words[4] != "exists")
 		{
-			statusManager->print(StatusManager::Error, "Parse error near \"" + words[4] + "\"!");
+			statusManager->print(StatusManager::Error, "Parse error near '" + words[4] + "'!");
 			return;
 		}
 		if (words[6] != "on")
 		{
-			statusManager->print(StatusManager::Error, "Parse error near \"" + words[6] + "\"!");
+			statusManager->print(StatusManager::Error, "Parse error near '" + words[6] + "'!");
 			return;
 		}
 
@@ -741,7 +741,7 @@ public:
 			table->add_index(indexName);
 			write_table_to_file(*table);
 			indexCatalog->write_index_catalog_to_file();
-			statusManager->print(StatusManager::Success, "Index \"" + indexName + "\" created successfully!");
+			statusManager->print(StatusManager::Success, "Index '" + indexName + "' created successfully!");
 			delete index;
 		}
 	}
@@ -762,10 +762,14 @@ public:
 			tableName += tolower(words[2][i]);
 		}
 
+		const std::string actualTableName = tableCatalog->getActualTableName(tableName);
+		if (remove(("./tables/" + actualTableName + ".bin").data()) != 0)
+		{
+			statusManager->print(StatusManager::Error, "Could not remove file '" + actualTableName + ".bin'!");
+		}
 		if (tableCatalog->drop_table(tableName) == 0)
 		{
-			remove(("./tables/" + tableName + ".bin").data());
-			statusManager->print(StatusManager::Success, "Table \"" + aux + "\" dropped successfully!");
+			statusManager->print(StatusManager::Success, "Table '" + aux + "' dropped successfully!");
 		}
 	}
 
@@ -780,7 +784,7 @@ public:
 		auto index = indexCatalog->getIndex(indexName);
 		if (index == nullptr)
 		{
-			statusManager->print(StatusManager::Error, "Index \"" + indexName + "\" does not exist!");
+			statusManager->print(StatusManager::Error, "Index '" + indexName + "' does not exist!");
 			return;
 		}
 		if (indexCatalog->drop_index(indexName) == 0)
@@ -788,7 +792,7 @@ public:
 			const std::string tableNameOfIndex = indexCatalog->getIndex(indexName)->getTableName();
 			const auto table = tableCatalog->getTable(tableNameOfIndex);
 			table->remove_index(indexName);
-			statusManager->print(StatusManager::Success, "Index \"" + aux + "\" dropped successfully!");
+			statusManager->print(StatusManager::Success, "Index '" + aux + "' dropped successfully!");
 			indexCatalog->write_index_catalog_to_file();
 		}
 	}
@@ -810,7 +814,7 @@ public:
 		}
 		else
 		{
-			statusManager->print(StatusManager::Error, "Table \"" + tableName + "\" does not exist!");
+			statusManager->print(StatusManager::Error, "Table '" + tableName + "' does not exist!");
 		}
 	}
 
@@ -827,13 +831,13 @@ public:
 
 		if (!tableCatalog->table_exists(tableName))
 		{
-			statusManager->print(StatusManager::Error, "Table \"" + tableName + "\" does not exist!");
+			statusManager->print(StatusManager::Error, "Table '" + tableName + "' does not exist!");
 			return;
 		}
 		if (words[2] != "set")
 		{
 			statusManager->print(StatusManager::Error,
-			                     "Syntax Error: Expected 'SET' at position 2, but found \"" + words[2] + "\".");
+			                     "Syntax Error: Expected 'SET' at position 2, but found '" + words[2] + "'.");
 			return;
 		}
 
@@ -843,19 +847,19 @@ public:
 		if (!table->column_exists(setColumnName))
 		{
 			statusManager->print(StatusManager::Error,
-			                     "Table \"" + tableName + "\" does not have column \"" + setColumnName + "\"!");
+			                     "Table '" + tableName + "' does not have column '" + setColumnName + "'!");
 			return;
 		}
 		if (words[4] != "=")
 		{
 			statusManager->print(StatusManager::Error,
-			                     "Syntax Error: Expected '=' at position 4, but found \"" + words[4] + "\".");
+			                     "Syntax Error: Expected '=' at position 4, but found '" + words[4] + "'.");
 			return;
 		}
 		if (words[8] != "=")
 		{
 			statusManager->print(StatusManager::Error,
-			                     "Syntax Error: Expected '=' at position 8, but found \"" + words[8] + "\".");
+			                     "Syntax Error: Expected '=' at position 8, but found '" + words[8] + "'.");
 			return;
 		}
 
@@ -863,7 +867,7 @@ public:
 		if (!table->column_exists(whereColumnName))
 		{
 			statusManager->print(StatusManager::Error,
-			                     "Table \"" + tableName + "\" does not have column \"" + whereColumnName + "\"!");
+			                     "Table '" + tableName + "' does not have column '" + whereColumnName + "'!");
 			return;
 		}
 
@@ -879,8 +883,8 @@ public:
 			if (!table->is_integer(setValue))
 			{
 				statusManager->print(StatusManager::Error,
-				                     "Type mismatch! Column \"" + setColumnName + "\" is INTEGER, but value \"" +
-				                     setValue + "\" is not.");
+				                     "Type mismatch! Column '" + setColumnName + "' is INTEGER, but value '" +
+				                     setValue + "' is not.");
 				return;
 			}
 		}
@@ -889,8 +893,8 @@ public:
 			if (table->is_integer(setValue))
 			{
 				statusManager->print(StatusManager::Error,
-				                     "Type mismatch! Column \"" + setColumnName + "\" is VARCHAR, but value \"" +
-				                     setValue + "\" is numeric.");
+				                     "Type mismatch! Column '" + setColumnName + "' is VARCHAR, but value '" +
+				                     setValue + "' is numeric.");
 				return;
 			}
 		}
@@ -934,12 +938,12 @@ public:
 		}
 		if (words[1] != "from")
 		{
-			statusManager->print(StatusManager::Error, "Parse error near \"" + words[1] + "\"!");
+			statusManager->print(StatusManager::Error, "Parse error near '" + words[1] + "'!");
 			return;
 		} // de adaugat near si aici
 		if (words[3] != "where")
 		{
-			statusManager->print(StatusManager::Error, "Parse error near \"" + words[3] + "\"!");
+			statusManager->print(StatusManager::Error, "Parse error near '" + words[3] + "'!");
 			return;
 		}
 
@@ -948,7 +952,7 @@ public:
 		std::string value = words[6];
 		if (!tableCatalog->table_exists(tableName))
 		{
-			statusManager->print(StatusManager::Error, "Table \"" + tableName + "\" does not exist!");
+			statusManager->print(StatusManager::Error, "Table '" + tableName + "' does not exist!");
 			return;
 		}
 
@@ -980,7 +984,7 @@ public:
 
 		if (!tableCatalog->table_exists(tableName))
 		{
-			statusManager->print(StatusManager::Error, "Table \"" + tableName + "\" does not exist!");
+			statusManager->print(StatusManager::Error, "Table '" + tableName + "' does not exist!");
 			return;
 		}
 
@@ -1003,13 +1007,13 @@ public:
 				if (words[4] != "where")
 				{
 					statusManager->print(StatusManager::Error,
-					                     "Syntax Error: Expected keyword 'WHERE', but found \"" + words[4] +
-					                     "\" instead.");
+					                     "Syntax Error: Expected keyword 'WHERE', but found '" + words[4] +
+					                     "' instead.");
 				}
 				else if (words[6] != "=")
 				{
 					statusManager->print(StatusManager::Error,
-					                     "Syntax Error: Expected symbol '=', but found \"" + words[6] + "\" instead.");
+					                     "Syntax Error: Expected symbol '=', but found '" + words[6] + "' instead.");
 				}
 				auto originalTable = tableCatalog->getTable(tableName);
 				std::string columnName = words[noOfWords - 3];
@@ -1044,8 +1048,8 @@ public:
 				if (!found)
 				{
 					statusManager->print(StatusManager::Error,
-					                     "No matching values for: \"" + value + "\" in column: \"" + columnName +
-					                     "\"!");
+					                     "No matching values for: '" + value + "' in column: '" + columnName +
+					                     "'!");
 				}
 				else
 				{
@@ -1104,8 +1108,8 @@ public:
 			if (originalTable->column_exists(selectedColumns[i]) == false)
 			{
 				statusManager->print(StatusManager::Error,
-				                     "Column \"" + selectedColumns[i] + "\" does not exist in table \"" + tableName +
-				                     "\"!");
+				                     "Column '" + selectedColumns[i] + "' does not exist in table '" + tableName +
+				                     "'!");
 				return;
 			}
 		}
@@ -1157,12 +1161,12 @@ public:
 		if (words[4] != "where")
 		{
 			statusManager->print(StatusManager::Error,
-			                     "Syntax Error: Expected keyword 'WHERE', but found \"" + words[4] + "\" instead.");
+			                     "Syntax Error: Expected keyword 'WHERE', but found '" + words[4] + "' instead.");
 		}
 		else if (words[6] != "=")
 		{
 			statusManager->print(StatusManager::Error,
-			                     "Syntax Error: Expected symbol '=', but found \"" + words[6] + "\" instead.");
+			                     "Syntax Error: Expected symbol '=', but found '" + words[6] + "' instead.");
 		}
 
 		const std::string columnName = words[noOfWords - 3]; //
@@ -1194,7 +1198,7 @@ public:
 		if (!found)
 		{
 			statusManager->print(StatusManager::Error,
-			                     "No matching values for: \"" + value + "\" in column: \"" + columnName + "\"!");
+			                     "No matching values for: '" + value + "' in column: '" + columnName + "'!");
 		}
 		else
 		{
@@ -1215,7 +1219,7 @@ public:
 
 		if (!tableCatalog->table_exists(tableName))
 		{
-			statusManager->print(StatusManager::Error, "Table \"" + tableName + "\" does not exist!");
+			statusManager->print(StatusManager::Error, "Table '" + tableName + "' does not exist!");
 			return;
 		}
 
@@ -1226,7 +1230,7 @@ public:
 
 		if (!file.is_open())
 		{
-			statusManager->print(StatusManager::Error, "File \"" + fileName + "\" could not open!");
+			statusManager->print(StatusManager::Error, "File '" + fileName + "' could not open!");
 			return;
 		}
 
@@ -1374,8 +1378,8 @@ public:
 
 	void parse_commands()
 	{
-		std::cout << "(!) Note: You can quit this program anytime by typing \"quit\" or" << std::endl
-			<< "return to the main menu by typing \"menu\"." << std::endl;
+		std::cout << "(!) Note: You can quit this program anytime by typing 'quit' or" << std::endl
+			<< "return to the main menu by typing 'menu'." << std::endl;
 		while (true)
 		{
 			int noOfWords;

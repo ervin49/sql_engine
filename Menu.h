@@ -6,6 +6,15 @@
 
 #include "StatusManager.h"
 
+//indentation for status messages
+#define STATUS_OFFSET 5
+
+//this is to output bold text on the console
+#define BOLD "\033[1m"
+
+//this is to reset the bold text, otherwise
+//all following text would be bold, not just the next word
+#define RESET "\033[0m"
 
 #ifdef _WIN32
 #include <conio.h>
@@ -38,14 +47,14 @@ private:
 		index_options
 	};
 
-	void press_enter_to_continue()
+	static void press_enter_to_continue()
 	{
 		std::cout << std::endl << "Press Enter to return...";
 		std::string dummy;
 		std::getline(std::cin, dummy);
 	}
 
-	void print_syntax_help()
+	static void print_syntax_help()
 	{
 		while (true)
 		{
@@ -59,7 +68,7 @@ private:
 			std::cout << "(5) INDEX Operations" << std::endl << std::endl;
 			std::cout << "(r) Return to Help Menu" << std::endl;
 			std::cout << "(q) Quit program" << std::endl << std::endl;
-			std::cout << "Choose an option: [1-5rq] ";
+			std::cout << BOLD << "Choice: [1-5rq] " << RESET;
 			char c = _getch();
 			c = tolower(c);
 
@@ -111,7 +120,7 @@ private:
 		}
 	}
 
-	void print_datatypes_help()
+	static void print_datatypes_help()
 	{
 		clear_screen();
 		std::cout << "================ SUPPORTED DATA TYPES ================" << std::endl << std::endl;
@@ -128,7 +137,7 @@ private:
 		press_enter_to_continue();
 	}
 
-	void print_general_help()
+	static void print_general_help()
 	{
 		clear_screen();
 		std::cout << "================ SYSTEM INFORMATION ================" << std::endl << std::endl;
@@ -170,7 +179,7 @@ public:
 		std::cout << "(2) Run commands using plain old sql queries." << std::endl << std::endl;
 		std::cout << "(h) Display help menu." << std::endl << std::endl;
 		std::cout << "(q) Quit program." << std::endl << std::endl;
-		std::cout << "Choose an option: [12hq] ";
+		std::cout << BOLD << "Choice: [12hq] " << RESET;
 
 		while (true)
 		{
@@ -208,7 +217,7 @@ public:
 		std::cout << "(2) An index." << std::endl << std::endl;
 		std::cout << "(r) Return to the previous menu." << std::endl;
 		std::cout << "(q) Quit program." << std::endl << std::endl;
-		std::cout << "Choose an option: [12rq] ";
+		std::cout << BOLD << "Choice: [12rq] " << RESET;
 
 		while (true)
 		{
@@ -240,7 +249,8 @@ public:
 		std::cout << std::endl;
 		std::string option, columnName;
 		print_available_tables();
-		std::cout << "Enter table name (or 'return' / 'quit'): ";
+		std::cout << "Enter table name (or 'return' / 'quit'):" << std::endl;
+		std::cout << "> ";
 
 		while (true)
 		{
@@ -260,12 +270,42 @@ public:
 				break;
 			}
 			statusManager->print(StatusManager::Error, "Table '" + option + "' does not exist!");
-			std::cout << "Enter table name (or type 'quit'): ";
+			std::cout << "Enter table name (or 'return' / 'quit')" << std::endl;
+			std::cout << "> ";
 		}
 		Table* table = tableCatalog->getTable(option);
 
+		print_available_columns_of_table(option);
+		std::cout << "Enter column to index:" << std::endl;
+		std::cout << "> ";
+
+		while (true)
+		{
+			std::cin >> columnName;
+			if (table->column_exists(columnName) == true && indexCatalog->has_index(option, columnName) == false)
+			{
+				break;
+			}
+			if (table->column_exists(columnName) == false)
+			{
+				statusManager->print(StatusManager::Error,
+				                     "Table '" + option + "' does not have column '" + columnName + "'!");
+				std::cout << "Enter column to index:" << std::endl;
+				std::cout << "> ";
+			}
+			else if (indexCatalog->has_index(option, columnName) == true)
+			{
+				statusManager->print(StatusManager::Error,
+				                     "Table '" + option + "' already has an index on column '" + columnName +
+				                     "'!");
+				std::cout << "Enter column to index:" << std::endl;
+				std::cout << "> ";
+			}
+		}
+
 		std::string indexName;
-		std::cout << "Enter index name: ";
+		std::cout << "Enter index name:" << std::endl;
+		std::cout << "> ";
 		while (true)
 		{
 			std::cin >> indexName;
@@ -274,83 +314,59 @@ public:
 				break;
 			}
 			statusManager->print(StatusManager::Error, "Index '" + indexName + "' already exists!");
-			std::cout << "Enter index name: ";
+			std::cout << "Enter index name:" << std::endl;
+			std::cout << "> ";
 		}
-		std::cout << "Enter column to index: (Available options: ";
-
-		std::string* columns = table->getColumns();
-		int noOfColumns = table->getNoOfColumns();
-		for (int i = 0; i < noOfColumns - 1; i++)
-		{
-			std::cout << '\"' << columns[i] << "\", ";
-		}
-		std::cout << '\"' << columns[noOfColumns - 1] << "\") ";
-		while (true)
-		{
-			std::cin >> columnName;
-			if (columnName == "quit")
-			{
-				exit(0);
-			}
-			if (table->column_exists(columnName) == true && indexCatalog->has_index(indexName, columnName) == false)
-			{
-				break;
-			}
-			if (table->column_exists(columnName) == false)
-			{
-				statusManager->print(StatusManager::Error,
-				                     "Table '" + option + "' does not have column '" + columnName + "'!");
-				std::cout << "Enter column to index (or type 'quit'): ";
-			}
-			else if (indexCatalog->has_index(option, columnName) == true)
-			{
-				statusManager->print(StatusManager::Error,
-				                     "Table '" + option + "' already has an index on column '" + columnName +
-				                     "'!");
-				std::cout << "Enter column to index (or type 'quit'): ";
-			}
-		}
-
 		auto index = new Index(indexName, option, columnName);
 		indexCatalog->add_index(*index);
 		table->add_index(indexName);
 		app->write_table_to_file(*table);
 		indexCatalog->write_index_catalog_to_file();
 		statusManager->print(StatusManager::Success, "Index '" + indexName + "' created successfully!");
-		std::cout << std::endl;
 		show_menu_loop(index_options);
 	}
 
 	void drop_index()
 	{
 		std::cout << std::endl;
-		std::string indexName;
-		std::cout << "Enter index name to drop (or type 'quit'): ";
+		std::cout << "Enter index name to drop (or 'return' / 'quit'):" << std::endl;
+		std::cout << "> ";
+
+		std::string option;
 		while (true)
 		{
-			std::cin >> indexName;
-			int position = indexCatalog->return_position_of_index(indexName);
+			std::cin >> option;
+			if (option == "return")
+			{
+				clear_screen();
+				return;
+			}
+			if (option == "quit")
+			{
+				exit(0);
+			}
+
+			int position = indexCatalog->return_position_of_index(option);
 			if (position != -1)
 			{
 				break;
 			}
-			statusManager->print(StatusManager::Error, "Index '" + indexName + "' does not exist!");
-			std::cout << "Enter index name to drop (or type 'quit'): ";
+			statusManager->print(StatusManager::Error, "Index '" + option + "' does not exist!");
+			std::cout << "Enter index name to drop (or 'return' / 'quit'):" << std::endl;
+			std::cout << "> ";
 		}
-		if (indexCatalog->drop_index(indexName) == 0)
+		if (indexCatalog->drop_index(option) == 0)
 		{
-			const std::string tableNameOfIndex = indexCatalog->getIndex(indexName)->getTableName();
+			const std::string tableNameOfIndex = indexCatalog->getIndex(option)->getTableName();
 			const auto table = tableCatalog->getTable(tableNameOfIndex);
-			table->remove_index(indexName);
+			table->remove_index(option);
 			indexCatalog->write_index_catalog_to_file();
 
-			statusManager->print(StatusManager::Success, "Index '" + indexName + "' dropped successfully!");
-			std::cout << std::endl;
+			statusManager->print(StatusManager::Success, "Index '" + option + "' dropped successfully!");
 			show_menu_loop(index_options);
 		}
 		else
 		{
-			std::cout << std::endl;
 			show_menu_loop(index_options);
 		}
 	}
@@ -358,7 +374,7 @@ public:
 	void display_indexes()
 	{
 		std::cout << std::endl;
-		int noOfTables = tableCatalog->getNoOfTables();
+		const int noOfTables = tableCatalog->getNoOfTables();
 		if (noOfTables == 0)
 		{
 			std::cout << "You have to create a table first!" << std::endl << std::endl;
@@ -366,7 +382,9 @@ public:
 		}
 
 		print_available_tables();
-		std::cout << "Enter table name to display indexes (or 'return' / 'quit'): ";
+		std::cout << "Enter table name to display indexes (or 'return' / 'quit'):" << std::endl;
+		std::cout << "> ";
+
 		std::string option;
 		while (true)
 		{
@@ -386,23 +404,29 @@ public:
 				break;
 			}
 			statusManager->print(StatusManager::Error, "Table '" + option + "' does not exist!");
-			std::cout << "Enter table name to display indexes: ";
+			std::cout << "Enter table name to display indexes (or 'return' / 'quit'):" << std::endl;
+			std::cout << "> ";
 		}
 		if (indexCatalog->getNoOfIndexesOfTableByName(option) == 0)
 		{
+			std::cout << std::endl;
 			std::cout << "Table '" << option << "' does not have any index!" << std::endl << std::endl;
-			return;
+			show_menu_loop(index_options);
 		}
 
+		std::cout << std::endl;
+		std::string actualTableName;
 		indexCatalog->print_indexes_of_a_table_by_name(option);
+		show_menu_loop(index_options);
 	}
 
 	void show_menu_loop(menu_options option)
 	{
+		std::cout << std::endl;
 		std::cout << "What would you like to do now?" << std::endl;
 		std::cout << "(r) Return to the previous menu." << std::endl;
 		std::cout << "(q) Quit the program." << std::endl;
-		std::cout << "Choose an option: [rq] ";
+		std::cout << BOLD << "Choice: [rq] " << RESET;
 		while (true)
 		{
 			switch (_getch())
@@ -439,7 +463,7 @@ public:
 		std::cout << "(3) Drop an index." << std::endl << std::endl;
 		std::cout << "(r) Return to the previous menu." << std::endl;
 		std::cout << "(q) Quit program." << std::endl << std::endl;
-		std::cout << "Choose an option: [123rq] ";
+		std::cout << BOLD << "Choice: [123rq] " << RESET;
 
 		while (true)
 		{
@@ -477,8 +501,10 @@ public:
 	{
 		std::cout << std::endl;
 		print_available_tables();
+		std::cout << "Enter table name to select from (or 'return' / 'quit'):" << std::endl;
+		std::cout << "> ";
+
 		std::string option;
-		std::cout << "Enter table name to select from (or 'return' / 'quit'): ";
 		while (true)
 		{
 			std::cin >> option;
@@ -497,19 +523,17 @@ public:
 				break;
 			}
 			statusManager->print(StatusManager::Error, "Table '" + option + "' does not exist!");
-			std::cout << "Enter table name to select from: ";
+			std::cout << "Enter table name to select from:" << std::endl;
+			std::cout << "> ";
 		}
 		auto originalTable = tableCatalog->getTable(option);
+
+		print_available_columns_of_table(option);
 		std::cout << "Enter columns to select, separated by spaces, or 'ALL' to select all "
-			"columns: (Available options: ";
-		int totalNoOfColumns = originalTable->getNoOfColumns();
-		auto availableColumns = originalTable->getColumns();
-		for (int i = 0; i < totalNoOfColumns - 1; i++)
-		{
-			std::cout << '\"' << availableColumns[i] << "\", ";
-		}
-		std::cout << '\"' << availableColumns[totalNoOfColumns - 1] << "\")" << std::endl;
-		std::cout << "[E.g.: col1 col2 col3 ...] ";
+			"columns: " << std::endl;
+		std::cout << "[E.g.: col1 col2 col3 ...]" << std::endl;
+		std::cout << "> ";
+
 		auto selectedColumns = new std::string[50];
 		std::string columnName;
 		int noOfSelectedColumns;
@@ -517,7 +541,7 @@ public:
 		while (true)
 		{
 			delete[] selectedColumns;
-			selectedColumns = new std::string[50]; //hope 50 is enough
+			selectedColumns = new std::string[50]; //just hope 50 is enough
 			noOfSelectedColumns = 0;
 			while (true)
 			{
@@ -549,14 +573,16 @@ public:
 			{
 				break;
 			}
-			std::cout << "Enter columns to select, separated by spaces: ";
+			std::cout << "Enter columns to select, separated by spaces, or 'ALL' to select all "
+				"columns: " << std::endl;
+			std::cout << "> ";
 		}
 
 		std::cout << std::endl;
-		std::cout << "Would you like to search based on the value of a column?" << std::endl;
+		std::cout << "Search based on the value of a column?" << std::endl;
 		std::cout << "(y) Yes" << std::endl;
 		std::cout << "(n) No" << std::endl;
-		std::cout << "Choose an option: [yn] ";
+		std::cout << BOLD << "Choice: [yn] " << RESET;
 
 		bool search_with_column_name;
 		std::string columnNameSearchedFor, value;
@@ -565,10 +591,11 @@ public:
 			switch (_getch())
 			{
 			case 'y':
-				std::cout << std::endl;
+				std::cout << std::endl << std::endl;
 				std::cout << "Enter column name and value to search for, separated by spaces: "
 					<< std::endl;
-				std::cout << "[E.g.: first_name Andrei] ";
+				std::cout << "[E.g.: first_name Andrei]" << std::endl;
+				std::cout << "> ";
 				while (true)
 				{
 					std::cin >> columnNameSearchedFor >> value;
@@ -579,7 +606,8 @@ public:
 					statusManager->print(StatusManager::Error,
 					                     "Column '" + columnNameSearchedFor + "' does not exist!");
 					std::cout
-						<< "Enter column value to search for, separated by spaces: ";
+						<< "Enter column value to search for, separated by spaces:" << std::endl;
+					std::cout << "> ";
 				}
 				search_with_column_name = true;
 				break;
@@ -588,7 +616,7 @@ public:
 				break;
 			default:
 				statusManager->print(StatusManager::Error, "You need to enter a valid option!");
-				std::cout << "Choose an option: [yn] ";
+				std::cout << BOLD << "Choice: [yn] " << RESET;
 				continue;
 			}
 			break;
@@ -645,14 +673,13 @@ public:
 				}
 				if (!found)
 				{
-					clear_screen();
 					statusManager->print(StatusManager::Error,
-					                     "No matching values for: '" + value + "' in column: '" + columnName +
+					                     "No matching values for '" + value + "' in column '" + columnName +
 					                     "'!");
-					std::cout << std::endl;
 					show_menu_loop(table_options);
 				}
 				app->write_select_to_file(*tableWithSelectedColumnsOnly);
+				std::cout << std::endl;
 				tableWithSelectedColumnsOnly->print_table(std::cout);
 				std::cout << std::endl;
 
@@ -668,8 +695,8 @@ public:
 			}
 			else
 			{
-				clear_screen();
 				app->write_select_to_file(*tableWithSelectedColumnsOnly);
+				std::cout << std::endl;
 				tableWithSelectedColumnsOnly->print_table(std::cout);
 				std::cout << std::endl;
 
@@ -723,7 +750,7 @@ public:
 				}
 				else
 				{
-					clear_screen();
+					std::cout << std::endl;
 					tableWithSelectedRows->print_table(std::cout);
 					std::cout << std::endl;
 					app->write_select_to_file(*tableWithSelectedRows);
@@ -731,7 +758,7 @@ public:
 			}
 			else
 			{
-				clear_screen();
+				std::cout << std::endl;
 				tableCatalog->getTable(option)->print_table(std::cout);
 				std::cout << std::endl;
 				app->write_select_to_file(*tableCatalog->getTable(option));
@@ -743,8 +770,11 @@ public:
 	void update_table()
 	{
 		std::cout << std::endl;
+		print_available_tables();
+		std::cout << "Enter table name to update (or 'return' / 'quit'):" << std::endl;
+		std::cout << "> ";
+
 		std::string option;
-		std::cout << "Enter table name to update (or 'return' / 'quit'): ";
 		while (true)
 		{
 			std::cin >> option;
@@ -763,11 +793,13 @@ public:
 				break;
 			}
 			statusManager->print(StatusManager::Error, "Table '" + option + "' does not exist!");
-			std::cout << "Enter table name to update: ";
+			std::cout << "Enter table name to update (or 'return' / 'quit'):" << std::endl;
+			std::cout << "> ";
 		}
-		std::cout << "Enter column to change and" << std::endl
-			<< " value to search for, separated by spaces: " << std::endl;
+		print_available_columns_of_table(option);
+		std::cout << "Enter column to change and value to search for, separated by spaces: " << std::endl;
 		std::cout << "[E.g.: id 101]" << std::endl;
+		std::cout << "> ";
 		std::string whereColumn, whereValue;
 		const auto table = tableCatalog->getTable(option);
 		while (true)
@@ -779,11 +811,13 @@ public:
 			}
 			statusManager->print(StatusManager::Error,
 			                     "Column '" + whereColumn + "' does not exist in table '" + option + "'!");
-			std::cout << "Enter column to change and" << std::endl
-				<< " value to search for, separated by spaces: " << std::endl;
+			std::cout << "Enter column to change and value to search for, separated by spaces: " << std::endl;
+			std::cout << "> ";
 		}
+		std::cout << "Enter column name to update and the new value, separated by spaces:" << std::endl;
+		std::cout << "> ";
+
 		std::string setColumn, setValue;
-		std::cout << "Enter column name to update and the" << std::endl << " new value, separated by spaces: ";
 		while (true)
 		{
 			std::cin >> setColumn >> setValue;
@@ -793,7 +827,8 @@ public:
 			}
 			statusManager->print(StatusManager::Error,
 			                     "Column '" + setColumn + "' does not exist in table '" + option + "'!");
-			std::cout << "Enter column name to update and the" << std::endl << " new value, separated by spaces: ";
+			std::cout << "Enter column name to update and the new value, separated by spaces:" << std::endl;
+			std::cout << "> ";
 		}
 		const int setIndex = table->return_index_of_column_by_name(setColumn);
 		const int whereIndex = table->return_index_of_column_by_name(setValue);
@@ -808,15 +843,17 @@ public:
 		table->setRows(tableRows, table->getNoOfRows(), table->getNoOfColumns());
 		app->write_table_to_file(*table);
 		statusManager->print(StatusManager::Success, "Updated table successfully!");
-		std::cout << std::endl;
 		show_menu_loop(table_options);
 	}
 
 	void delete_from()
 	{
 		std::cout << std::endl;
+		print_available_tables();
+		std::cout << "Enter table name to delete from (or 'return' / 'quit'):" << std::endl;
+		std::cout << "> ";
+
 		std::string option;
-		std::cout << "Enter table name to delete from (or 'return' / 'quit'): ";
 		while (true)
 		{
 			std::cin >> option;
@@ -835,13 +872,15 @@ public:
 				break;
 			}
 			statusManager->print(StatusManager::Error, "Table '" + option + "' does not exist!");
-			std::cout << "Enter table name to delete from: ";
+			std::cout << "Enter table name to delete from (or 'return' / 'quit'):" << std::endl;
+			std::cout << "> ";
 		}
-		std::cout << "Enter column of the value" << std::endl
-			<< "and the value to delete, separated by space:" << std::endl;
+		print_available_columns_of_table(option);
+		std::cout << "Enter column of the value and the value to delete, separated by space:" << std::endl;
 		std::cout << "[E.g.: id 101]" << std::endl;
+		std::cout << "> ";
 		std::string whereColumn, whereValue;
-		auto table = tableCatalog->getTable(option);
+		const auto table = tableCatalog->getTable(option);
 		while (true)
 		{
 			std::cin >> whereColumn >> whereValue;
@@ -852,19 +891,17 @@ public:
 			statusManager->print(StatusManager::Error,
 			                     "Column '" + whereColumn + "' does not exist in table '" + option + "'!");
 
-			std::cout << "Enter column of the value" << std::endl
-				<< "and the value to delete, separated by space:" << std::endl;
+			std::cout << "Enter column of the value and the value to delete, separated by space:" << std::endl;
+			std::cout << "> ";
 		}
 		if (table->delete_from(whereColumn, whereValue) == 0)
 		{
 			statusManager->print(StatusManager::Success, "Deleted successfully!");
 			app->write_table_to_file(*table);
-			std::cout << std::endl;
 			show_menu_loop(table_options);
 		}
 		else
 		{
-			std::cout << std::endl;
 			show_menu_loop(table_options);
 		}
 	}
@@ -872,9 +909,10 @@ public:
 	void drop_table()
 	{
 		std::cout << std::endl;
-		std::string option;
 		print_available_tables();
-		std::cout << "Enter table name to drop (or 'return' / 'quit'): ";
+		std::cout << "Enter table name to drop (or 'return' / 'quit'):" << std::endl;
+		std::cout << "> ";
+		std::string option;
 		while (true)
 		{
 			std::cin >> option;
@@ -887,23 +925,28 @@ public:
 			{
 				exit(0);
 			}
+
 			if (tableCatalog->table_exists(option) == true)
 			{
 				break;
 			}
 			statusManager->print(StatusManager::Error, "Table '" + option + "' does not exist!");
-			std::cout << "Enter table name to drop: ";
+			std::cout << "Enter table name to drop (or 'return' / 'quit'):" << std::endl;
+			std::cout << "> ";
+		}
+		const std::string actualTableName = tableCatalog->getActualTableName(option);
+		if (remove(("./tables/" + actualTableName + ".bin").data()) != 0)
+		{
+			statusManager->print(StatusManager::Error, "Could not remove file '" + actualTableName + ".bin'!");
+			show_menu_loop(table_options);
 		}
 		if (tableCatalog->drop_table(option) == 0)
 		{
-			remove(("./tables/" + option + ".bin").data());
 			statusManager->print(StatusManager::Success, "Table '" + option + "' dropped successfully!");
-			std::cout << std::endl;
 			show_menu_loop(table_options);
 		}
 		else
 		{
-			std::cout << std::endl;
 			show_menu_loop(table_options);
 		}
 	}
@@ -912,9 +955,16 @@ public:
 	{
 		std::cout << std::endl;
 		print_available_tables();
-		std::string option;
+		const int noOfTables = tableCatalog->getNoOfTables();
+		if (noOfTables == 0)
+		{
+			return;
+		}
 		std::cout <<
-			"Enter table name for the synonym (or 'return' / 'quit'): ";
+			"Enter table name for the synonym (or 'return' / 'quit'):" << std::endl;
+		std::cout << "> ";
+
+		std::string option;
 		while (true)
 		{
 			std::cin >> option;
@@ -934,10 +984,13 @@ public:
 			}
 			statusManager->print(StatusManager::Error, "Table '" + option + "' does not exist!");
 			std::cout <<
-				"Enter table name for the synonym (or 'return' / 'quit'): ";
+				"Enter table name for the synonym (or 'return' / 'quit'):" << std::endl;
+			std::cout << "> ";
 		}
 
-		std::cout << "Enter synonym name to create: ";
+		std::cout << std::endl;
+		std::cout << "Enter synonym name to create:" << std::endl;
+		std::cout << "> ";
 		std::string synonymName;
 		while (true)
 		{
@@ -947,17 +1000,16 @@ public:
 				break;
 			}
 			statusManager->print(StatusManager::Error, "Table '" + synonymName + "' already exists!");
-			std::cout << "Enter synonym name to create: ";
+			std::cout << "Enter synonym name to create:" << std::endl;
+			std::cout << "> ";
 		}
 
 		Table* table = tableCatalog->getTable(option);
 		table->add_synonym(synonymName);
 		app->write_table_to_file(*table);
 
-		clear_screen();
 		statusManager->print(StatusManager::Success,
 		                     "Synonym '" + synonymName + "' created successfully for table '" + option + "'!");
-		std::cout << std::endl;
 		show_menu_loop(table_options);
 	}
 
@@ -974,7 +1026,7 @@ public:
 		std::cout << "(7) Drop a table." << std::endl << std::endl;
 		std::cout << "(r) Return to the previous menu." << std::endl;
 		std::cout << "(q) Quit program." << std::endl << std::endl;
-		std::cout << "Choose an option: [1-7rq] ";
+		std::cout << BOLD << "Choice: [1-7rq] " << RESET;
 
 		while (true)
 		{
@@ -1034,7 +1086,8 @@ public:
 		std::cout << std::endl;
 		std::string option;
 		std::cout <<
-			"Enter table name to create (or 'return' / 'quit'): ";
+			"Enter table name to create (or 'return' / 'quit'):" << std::endl;
+		std::cout << "> ";
 		while (true)
 		{
 			std::cin >> option;
@@ -1054,28 +1107,32 @@ public:
 			}
 			statusManager->print(StatusManager::Error, "Table '" + option + "' already exists!");
 			std::cout <<
-				"Enter table name to create (or 'return' / 'quit'): ";
+				"Enter table name to create (or 'return' / 'quit'):" << std::endl;
+			std::cout << "> ";
 		}
 
+		std::cout << std::endl;
+		std::cout << "Enter number of columns for the table:" << std::endl;
+		std::cout << "> ";
+
 		int noOfColumns;
-		std::cout << "Enter number of columns for the table: ";
 		while (true)
 		{
 			if (!(std::cin >> noOfColumns))
 			{
 				std::cin.clear();
 				std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-				std::cout << std::endl;
 				statusManager->print(StatusManager::Error, "You have to enter an integer!");
-				std::cout << "Enter number of columns for the table: ";
+				std::cout << "Enter number of columns for the table:" << std::endl;
+				std::cout << "> ";
 			}
 			else
 			{
 				if (noOfColumns < 1)
 				{
-					std::cout << std::endl;
 					statusManager->print(StatusManager::Error, "Number of columns has to be at least 1!");
-					std::cout << "Enter number of columns for the table: ";
+					std::cout << "Enter number of columns for the table:" << std::endl;
+					std::cout << "> ";
 				}
 				else
 				{
@@ -1083,6 +1140,8 @@ public:
 				}
 			}
 		}
+
+		std::cout << std::endl;
 		std::cout << "Enter attribute details separated by spaces (Name, Type, Length, Default): " << std::endl;
 		std::cout << "[E.g.: id INTEGER 30 0]" << std::endl;
 		const auto columnNames = new std::string[noOfColumns];
@@ -1093,6 +1152,7 @@ public:
 		int maxColumnLength;
 		for (int i = 0; i < noOfColumns; i++)
 		{
+			std::cout << "> ";
 			std::cin >> columnName >> columnType >> maxColumnLength >> defaultValue;
 			if (columnType != "text" && columnType != "varchar" && columnType != "float" && columnType != "int" &&
 				columnType != "integer" && columnType != "numeric")
@@ -1152,9 +1212,7 @@ public:
 		app->write_table_to_file(*table);
 		delete table;
 
-		std::cout << std::endl;
 		statusManager->print(StatusManager::Success, "Table '" + option + "' created successfully!");
-		std::cout << std::endl;
 		show_menu_loop(table_options);
 	}
 
@@ -1168,7 +1226,7 @@ public:
 		std::cout << "(3) General information" << std::endl << std::endl;
 		std::cout << "(r) Return to the previous menu." << std::endl;
 		std::cout << "(q) Quit program." << std::endl << std::endl;
-		std::cout << "Please choose an option: [123rq] ";
+		std::cout << BOLD << "Choice: [123rq] " << RESET;
 		while (true)
 		{
 			char c = _getch();
@@ -1203,7 +1261,7 @@ public:
 	}
 
 
-	void clear_screen()
+	static void clear_screen()
 	{
 #ifdef _WIN32
 		system("cls");
@@ -1216,7 +1274,8 @@ public:
 	{
 		std::cout << std::endl;
 		print_available_tables();
-		std::cout << "Enter table name to display (or type 'return' / 'quit'): ";
+		std::cout << "Enter table name to display (or 'return' / 'quit'):" << std::endl;
+		std::cout << "> ";
 		std::string option;
 		while (true)
 		{
@@ -1236,43 +1295,99 @@ public:
 				break;
 			}
 			statusManager->print(StatusManager::Error, "Table '" + option + "' does not exist!");
-			std::cout << "Enter table name to display (or type 'return' / 'quit'): ";
+			std::cout << "Enter table name to display (or 'return' / 'quit'):" << std::endl;
+			std::cout << "> ";
 		}
-		clear_screen();
+		std::cout << std::endl;
 		tableCatalog->getTable(option)->print_table(std::cout);
 		std::cout << std::endl;
 		app->write_select_to_file(*tableCatalog->getTable(option));
 		show_menu_loop(table_options);
 	}
 
-	void print_available_tables()
+	static void print_available_tables()
 	{
-		std::cout << "Available tables: ";
+		const std::string msg = "Available tables: ";
+		std::cout << msg;
 		const int noOfTables = tableCatalog->getNoOfTables();
 		const Table* tables = tableCatalog->getTables();
+		int totalMessageLength = msg.length();
+		if (noOfTables == 0)
+		{
+			std::cout << "none.";
+			totalMessageLength += 5;
+		}
 		for (int i = 0; i < noOfTables; i++)
 		{
-			std::cout << tables[i].getTableName();
+			const std::string tableName = tables[i].getTableName();
+			std::cout << tableName;
+			totalMessageLength += tableName.length();
 			const int noOfSynonyms = tables[i].getNoOfSynonyms();
 			if (noOfSynonyms > 0)
 			{
+				totalMessageLength += 2; //both parentheses
+				std::cout << "[";
+
 				const std::string* synonyms = tables[i].getSynonyms();
-				std::cout << "(";
 				for (int j = 0; j < noOfSynonyms; j++)
 				{
-					std::cout << synonyms[j];
+					const std::string& synonym = synonyms[j];
+					std::cout << synonym;
+					totalMessageLength += synonym.length();
 					if (j < noOfSynonyms - 1)
 					{
 						std::cout << ", ";
+						totalMessageLength += 2;
 					}
 				}
-				std::cout << ")";
+				std::cout << "]";
 			}
 			if (i < noOfTables - 1)
 			{
 				std::cout << ", ";
+				totalMessageLength += 2;
 			}
 		}
+
+		std::cout << std::endl;
+		for (int i = 0; i < totalMessageLength; i++)
+		{
+			std::cout << '-';
+		}
 		std::cout << std::endl << std::endl;
+	}
+
+	static void print_available_columns_of_table(const std::string& tableName)
+	{
+		if (tableCatalog->table_exists(tableName) == false)
+		{
+			throw std::runtime_error("Wrong table!");
+		}
+
+		auto table = tableCatalog->getTable(tableName);
+		auto columns = table->getColumns();
+		int noOfColumns = table->getNoOfColumns();
+
+		std::cout << std::endl;
+		for (int i = 0; i < STATUS_OFFSET; i++)
+		{
+			std::cout << ' ';
+		}
+		std::cout << "[Selected table: '" << tableName << "']";
+		std::cout << std::endl;
+		for (int i = 0; i < STATUS_OFFSET; i++)
+		{
+			std::cout << ' ';
+		}
+		std::cout << "[Available columns: ";
+		for (int i = 0; i < noOfColumns; i++)
+		{
+			std::cout << " " << columns[i] << " ";
+			if (i < noOfColumns - 1)
+			{
+				std::cout << "| ";
+			}
+		}
+		std::cout << ']' << std::endl << std::endl;
 	}
 };
