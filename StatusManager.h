@@ -67,7 +67,7 @@ public:
 		{
 			msg += err;
 		}
-		std::cout << std::endl << msg << std::endl;
+		std::cout << msg << std::endl;
 	}
 
 	void toString(Status status)

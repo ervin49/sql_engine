@@ -1,4 +1,5 @@
 #pragma once
+#include <dirent.h>
 #include <iostream>
 #include <string>
 #include <fstream>
@@ -162,10 +163,10 @@ public:
 			{
 				if (p->getTableName() == tableName)
 				{
-					std::cout << '\'' << p->getIndexName() << "'.";
+					std::cout << '\'' << p->getIndexName() << "' on column '" << p->getColumnName() << "'.";
 				}
 			}
-			std::cout << std::endl << std::endl;
+			std::cout << std::endl;
 			return;
 		}
 		std::cout << "Table '" << tableName << "' has " << noOfIndexesOfTable << " indexes: ";
@@ -206,6 +207,15 @@ public:
 	void write_index_catalog_to_file()
 	{
 		// open the file(or create it if it doesn't exist already)
+		DIR* dir = opendir("./index_catalog/");
+		if (dir == nullptr)
+		{
+			system("mkdir ./index_catalog/");
+		}
+		else
+		{
+			closedir(dir);
+		}
 		std::ofstream file("./index_catalog/index_catalog.bin", std::ios::binary);
 		file.write(reinterpret_cast<char*>(&noOfIndexes), sizeof(int));
 		int len;
@@ -223,6 +233,7 @@ public:
 			file.write(reinterpret_cast<char*>(&len), sizeof(int));
 			file.write(indexes[i].getColumnName().data(), len);
 		}
+		file.close();
 	}
 
 	int drop_index(const std::string& indexName)

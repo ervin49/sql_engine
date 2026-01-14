@@ -163,10 +163,54 @@ public:
 		this->noOfWords = noOfWords;
 	}
 
-	virtual void create_synonym() const
+	virtual void create_synonym() const = 0;
+
+	void list_tables() const
 	{
-		std::cout << "asdfasdf";
-	}
+		int noOfTables = tableCatalog->getNoOfTables();
+		if (noOfTables == 0)
+		{
+			std::cout << "There aren't any tables!" << std::endl;
+			return;
+		}
+		auto tables = tableCatalog->getTables();
+		if (noOfTables == 1)
+		{
+			std::cout << "You only have one table: ";
+		}
+		else
+		{
+			std::cout << "Your tables are: ";
+		}
+		for (int i = 0; i < noOfTables; i++)
+		{
+			const Table& currTable = tables[i];
+			const int noOfSynonyms = currTable.getNoOfSynonyms();
+			const std::string* synonyms = currTable.getSynonyms();
+
+			std::cout << currTable.getTableName();
+			if (noOfSynonyms > 0)
+			{
+				std::cout << '[';
+				for (int j = 0; j < noOfSynonyms; j++)
+				{
+					const std::string& synonym = synonyms[j];
+					std::cout << synonym;
+					if (j < noOfSynonyms - 1)
+					{
+						std::cout << ", ";
+					}
+				}
+				std::cout << ']';
+			}
+			if (i < noOfTables - 1)
+			{
+				std::cout << ", ";
+			}
+		}
+		std::cout << std::endl;
+		delete[] tables;
+	};
 
 	void parse_command() const
 	{
@@ -323,6 +367,10 @@ public:
 				return;
 			}
 			import_table();
+		}
+		else if (firstWord == "list")
+		{
+			list_tables();
 		}
 		else
 		{
@@ -517,6 +565,15 @@ public:
 	{
 		// open the file(or create it if it doesn't exist already)
 		std::string tableName = table.getTableName();
+		DIR* dir = opendir("./tables/");
+		if (!dir)
+		{
+			system("mkdir ./tables"); //only works on linux
+		}
+		else
+		{
+			closedir(dir);
+		}
 		std::ofstream file("./tables/" + tableName + ".bin", std::ios::binary);
 
 		// get all the variables from the table
@@ -552,7 +609,7 @@ public:
 			file.write(reinterpret_cast<char*>(&len), sizeof(int));
 			file.write(columnTypes[i].data(), len);
 
-			file.write(reinterpret_cast<char*>(&maxColumnLengths[i]), sizeof(int));
+			file.write(reinterpret_cast<char*>(&maxColumnLengths[i]), sizeof(unsigned int));
 		}
 
 		// write the rows
@@ -589,6 +646,17 @@ public:
 			file.write(reinterpret_cast<char*>(&len), sizeof(int));
 			file.write(synonyms[i].data(), len);
 		}
+
+		for (int i = 0; i < noOfRows; i++)
+		{
+			delete[] rows[i];
+		}
+		delete[] rows;
+		delete[] columns;
+		delete[] columnTypes;
+		delete[] maxColumnLengths;
+		delete[] indexNames;
+		delete[] synonyms;
 	}
 
 
@@ -1382,6 +1450,7 @@ public:
 			<< "return to the main menu by typing 'menu'." << std::endl;
 		while (true)
 		{
+			std::cout << "> ";
 			int noOfWords;
 
 			parser->setCommand();

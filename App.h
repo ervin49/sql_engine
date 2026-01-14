@@ -4,8 +4,6 @@
 
 class App : public BaseApp
 {
-private:
-
 public:
 	void create_synonym() const override
 	{
@@ -28,12 +26,16 @@ public:
 
 		const std::string synonymName = words[2];
 		Table* table = tableCatalog->getTable(tableName);
-		if (table != nullptr)
+		if (tableCatalog->synonym_exists(synonymName) == false)
 		{
 			table->add_synonym(synonymName);
 			statusManager->print(StatusManager::Success,
 			                     "Synonym '" + synonymName + "' created successfully for table '" + tableName +
 			                     "'!");
+		}
+		else
+		{
+			statusManager->print(StatusManager::Error, "Synonym '" + synonymName + "' already exists!");
 		}
 	}
 };

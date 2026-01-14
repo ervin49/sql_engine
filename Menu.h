@@ -270,6 +270,7 @@ public:
 				break;
 			}
 			statusManager->print(StatusManager::Error, "Table '" + option + "' does not exist!");
+			std::cout << std::endl;
 			std::cout << "Enter table name (or 'return' / 'quit')" << std::endl;
 			std::cout << "> ";
 		}
@@ -290,6 +291,7 @@ public:
 			{
 				statusManager->print(StatusManager::Error,
 				                     "Table '" + option + "' does not have column '" + columnName + "'!");
+				std::cout << std::endl;
 				std::cout << "Enter column to index:" << std::endl;
 				std::cout << "> ";
 			}
@@ -298,6 +300,7 @@ public:
 				statusManager->print(StatusManager::Error,
 				                     "Table '" + option + "' already has an index on column '" + columnName +
 				                     "'!");
+				std::cout << std::endl;
 				std::cout << "Enter column to index:" << std::endl;
 				std::cout << "> ";
 			}
@@ -314,6 +317,7 @@ public:
 				break;
 			}
 			statusManager->print(StatusManager::Error, "Index '" + indexName + "' already exists!");
+			std::cout << std::endl;
 			std::cout << "Enter index name:" << std::endl;
 			std::cout << "> ";
 		}
@@ -352,6 +356,7 @@ public:
 				break;
 			}
 			statusManager->print(StatusManager::Error, "Index '" + option + "' does not exist!");
+			std::cout << std::endl;
 			std::cout << "Enter index name to drop (or 'return' / 'quit'):" << std::endl;
 			std::cout << "> ";
 		}
@@ -404,18 +409,16 @@ public:
 				break;
 			}
 			statusManager->print(StatusManager::Error, "Table '" + option + "' does not exist!");
+			std::cout << std::endl;
 			std::cout << "Enter table name to display indexes (or 'return' / 'quit'):" << std::endl;
 			std::cout << "> ";
 		}
 		if (indexCatalog->getNoOfIndexesOfTableByName(option) == 0)
 		{
-			std::cout << std::endl;
-			std::cout << "Table '" << option << "' does not have any index!" << std::endl << std::endl;
+			std::cout << "Table '" << option << "' does not have any index!" << std::endl;
 			show_menu_loop(index_options);
 		}
 
-		std::cout << std::endl;
-		std::string actualTableName;
 		indexCatalog->print_indexes_of_a_table_by_name(option);
 		show_menu_loop(index_options);
 	}
@@ -523,6 +526,7 @@ public:
 				break;
 			}
 			statusManager->print(StatusManager::Error, "Table '" + option + "' does not exist!");
+			std::cout << std::endl;
 			std::cout << "Enter table name to select from:" << std::endl;
 			std::cout << "> ";
 		}
@@ -605,6 +609,7 @@ public:
 					}
 					statusManager->print(StatusManager::Error,
 					                     "Column '" + columnNameSearchedFor + "' does not exist!");
+					std::cout << std::endl;
 					std::cout
 						<< "Enter column value to search for, separated by spaces:" << std::endl;
 					std::cout << "> ";
@@ -616,6 +621,7 @@ public:
 				break;
 			default:
 				statusManager->print(StatusManager::Error, "You need to enter a valid option!");
+				std::cout << std::endl;
 				std::cout << BOLD << "Choice: [yn] " << RESET;
 				continue;
 			}
@@ -750,9 +756,7 @@ public:
 				}
 				else
 				{
-					std::cout << std::endl;
 					tableWithSelectedRows->print_table(std::cout);
-					std::cout << std::endl;
 					app->write_select_to_file(*tableWithSelectedRows);
 				}
 			}
@@ -793,6 +797,7 @@ public:
 				break;
 			}
 			statusManager->print(StatusManager::Error, "Table '" + option + "' does not exist!");
+			std::cout << std::endl;
 			std::cout << "Enter table name to update (or 'return' / 'quit'):" << std::endl;
 			std::cout << "> ";
 		}
@@ -811,6 +816,7 @@ public:
 			}
 			statusManager->print(StatusManager::Error,
 			                     "Column '" + whereColumn + "' does not exist in table '" + option + "'!");
+			std::cout << std::endl;
 			std::cout << "Enter column to change and value to search for, separated by spaces: " << std::endl;
 			std::cout << "> ";
 		}
@@ -827,6 +833,7 @@ public:
 			}
 			statusManager->print(StatusManager::Error,
 			                     "Column '" + setColumn + "' does not exist in table '" + option + "'!");
+			std::cout << std::endl;
 			std::cout << "Enter column name to update and the new value, separated by spaces:" << std::endl;
 			std::cout << "> ";
 		}
@@ -872,6 +879,7 @@ public:
 				break;
 			}
 			statusManager->print(StatusManager::Error, "Table '" + option + "' does not exist!");
+			std::cout << std::endl;
 			std::cout << "Enter table name to delete from (or 'return' / 'quit'):" << std::endl;
 			std::cout << "> ";
 		}
@@ -891,6 +899,7 @@ public:
 			statusManager->print(StatusManager::Error,
 			                     "Column '" + whereColumn + "' does not exist in table '" + option + "'!");
 
+			std::cout << std::endl;
 			std::cout << "Enter column of the value and the value to delete, separated by space:" << std::endl;
 			std::cout << "> ";
 		}
@@ -931,6 +940,7 @@ public:
 				break;
 			}
 			statusManager->print(StatusManager::Error, "Table '" + option + "' does not exist!");
+			std::cout << std::endl;
 			std::cout << "Enter table name to drop (or 'return' / 'quit'):" << std::endl;
 			std::cout << "> ";
 		}
@@ -983,6 +993,7 @@ public:
 				break;
 			}
 			statusManager->print(StatusManager::Error, "Table '" + option + "' does not exist!");
+			std::cout << std::endl;
 			std::cout <<
 				"Enter table name for the synonym (or 'return' / 'quit'):" << std::endl;
 			std::cout << "> ";
@@ -1000,6 +1011,7 @@ public:
 				break;
 			}
 			statusManager->print(StatusManager::Error, "Table '" + synonymName + "' already exists!");
+			std::cout << std::endl;
 			std::cout << "Enter synonym name to create:" << std::endl;
 			std::cout << "> ";
 		}
@@ -1106,12 +1118,12 @@ public:
 				break;
 			}
 			statusManager->print(StatusManager::Error, "Table '" + option + "' already exists!");
+			std::cout << std::endl;
 			std::cout <<
 				"Enter table name to create (or 'return' / 'quit'):" << std::endl;
 			std::cout << "> ";
 		}
 
-		std::cout << std::endl;
 		std::cout << "Enter number of columns for the table:" << std::endl;
 		std::cout << "> ";
 
@@ -1123,6 +1135,7 @@ public:
 				std::cin.clear();
 				std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
 				statusManager->print(StatusManager::Error, "You have to enter an integer!");
+				std::cout << std::endl;
 				std::cout << "Enter number of columns for the table:" << std::endl;
 				std::cout << "> ";
 			}
@@ -1131,6 +1144,7 @@ public:
 				if (noOfColumns < 1)
 				{
 					statusManager->print(StatusManager::Error, "Number of columns has to be at least 1!");
+					std::cout << std::endl;
 					std::cout << "Enter number of columns for the table:" << std::endl;
 					std::cout << "> ";
 				}
@@ -1141,7 +1155,6 @@ public:
 			}
 		}
 
-		std::cout << std::endl;
 		std::cout << "Enter attribute details separated by spaces (Name, Type, Length, Default): " << std::endl;
 		std::cout << "[E.g.: id INTEGER 30 0]" << std::endl;
 		const auto columnNames = new std::string[noOfColumns];
@@ -1169,6 +1182,7 @@ public:
 			{
 				statusManager->print(StatusManager::Error,
 				                     "Keyword '" + columnName + "' can't be used for the column name!");
+				std::cout << std::endl;
 				i--;
 				continue;
 			}
@@ -1176,6 +1190,7 @@ public:
 			if (maxColumnLength < 1)
 			{
 				statusManager->print(StatusManager::Error, "Length of attribute has to be at least 1!");
+				std::cout << std::endl;
 				i--;
 				continue;
 			}
@@ -1187,6 +1202,7 @@ public:
 				{
 					statusManager->print(StatusManager::Error,
 					                     "You can't enter two identical column names! Try again.");
+					std::cout << std::endl;
 					hasError = true;
 					break;
 				}
@@ -1295,12 +1311,11 @@ public:
 				break;
 			}
 			statusManager->print(StatusManager::Error, "Table '" + option + "' does not exist!");
+			std::cout << std::endl;
 			std::cout << "Enter table name to display (or 'return' / 'quit'):" << std::endl;
 			std::cout << "> ";
 		}
-		std::cout << std::endl;
 		tableCatalog->getTable(option)->print_table(std::cout);
-		std::cout << std::endl;
 		app->write_select_to_file(*tableCatalog->getTable(option));
 		show_menu_loop(table_options);
 	}

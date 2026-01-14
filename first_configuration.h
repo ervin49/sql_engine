@@ -57,10 +57,9 @@ public:
 		{
 			return;
 		}
-		dirent* file;
 
 		int noOfTables = -2; // we subtract "." and ".."
-		while ((file = readdir(dir)) != nullptr)
+		while (readdir(dir) != nullptr)
 		{
 			noOfTables++;
 		}
@@ -76,6 +75,7 @@ public:
 		dir = opendir(target_path.c_str());
 
 		int currIndex = 0;
+		dirent* file;
 		while ((file = readdir(dir)))
 		{
 			std::string fileName = file->d_name;
@@ -108,7 +108,7 @@ public:
 		print_retrieved_table_message(noOfTables, tableNames);
 	}
 
-	void print_retrieved_table_message(const int noOfTables, const std::string* tableNames) const
+	static void print_retrieved_table_message(const int noOfTables, const std::string* tableNames)
 	{
 		if (noOfTables == 1)
 		{
@@ -141,7 +141,7 @@ public:
 		std::cout << std::endl;
 	}
 
-	Table* read_table_from_file(const std::string& fileLocation) const
+	static Table* read_table_from_file(const std::string& fileLocation)
 	{
 		std::ifstream file(fileLocation, std::ios::binary);
 		int noOfRows, noOfColumns, noOfIndexes, noOfSynonyms;
@@ -236,6 +236,11 @@ public:
 		table->setSynonyms(synonyms, noOfSynonyms);
 		indexCatalog->setIndexes(indexes, noOfIndexes);
 
+		for (int i = 0; i < noOfRows; i++)
+		{
+			delete[] rows[i];
+		}
+		delete[] rows;
 		delete[] indexes;
 		delete[] columns;
 		delete[] columnsOfIndexes;
@@ -246,7 +251,7 @@ public:
 		return table;
 	}
 
-	void load_index_catalog()
+	static void load_index_catalog()
 	{
 		std::string fileName = "./index_catalog/index_catalog.bin";
 		std::ifstream f(fileName, std::ios::binary);
