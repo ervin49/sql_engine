@@ -282,7 +282,7 @@ public:
 		std::cout << std::endl;
 		for (const Table* p = &tables[0]; p < &tables[noOfTables]; p++)
 		{
-			p->print_table(std::cout);
+			p->print_table(std::cout, p->getTableName());
 			std::cout << std::endl << std::endl;
 		}
 	}

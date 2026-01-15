@@ -241,7 +241,7 @@ public:
 
 	friend std::ostream& operator<<(std::ostream& out, const BaseTable& table)
 	{
-		table.print_table(out);
+		table.print_table(out, table.tableName);
 		return out;
 	}
 
@@ -493,13 +493,13 @@ public:
 
 	std::string getTableName() const { return this->tableName; }
 
-	void print_table(std::ostream& out) const
+	void print_table(std::ostream& out, const std::string& synonymName) const
 	{
 		out << std::endl;
 
-		if (!tableName.empty())
+		if (!synonymName.empty())
 		{
-			out << '[' << tableName << ']' << std::endl;
+			out << '[' << synonymName << ']' << std::endl;
 		}
 		int* maxLengthOnColumn = new int[noOfColumns];
 

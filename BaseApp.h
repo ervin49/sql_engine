@@ -877,8 +877,8 @@ public:
 		std::string tableName = words[2];
 		if (tableCatalog->table_exists(tableName))
 		{
-			tableCatalog->getTable(tableName)->print_table(std::cout);
-			write_select_to_file(*tableCatalog->getTable(tableName));
+			tableCatalog->getTable(tableName)->print_table(std::cout, tableName);
+			write_select_to_file(*tableCatalog->getTable(tableName), tableName);
 		}
 		else
 		{
@@ -1032,7 +1032,7 @@ public:
 		}
 	}
 
-	void write_select_to_file(Table table) const
+	void write_select_to_file(Table table, const std::string& synonymName) const
 	{
 		std::string targetPath = "./select_outputs/";
 		int index = -1; // subtract "." and ".."
@@ -1043,7 +1043,7 @@ public:
 		}
 		std::ofstream file;
 		file.open(targetPath + "select_" + std::to_string(index));
-		table.print_table(file);
+		table.print_table(file, synonymName);
 	}
 
 	void select_from() const
@@ -1067,8 +1067,8 @@ public:
 		{
 			if (noOfWords == 4)
 			{
-				tableCatalog->getTable(tableName)->print_table(std::cout);
-				write_select_to_file(*tableCatalog->getTable(tableName));
+				tableCatalog->getTable(tableName)->print_table(std::cout, tableName);
+				write_select_to_file(*tableCatalog->getTable(tableName), tableName);
 			}
 			else
 			{
@@ -1121,8 +1121,8 @@ public:
 				}
 				else
 				{
-					tableWithSelectedRows->print_table(std::cout);
-					write_select_to_file(*tableWithSelectedRows);
+					tableWithSelectedRows->print_table(std::cout, tableName);
+					write_select_to_file(*tableWithSelectedRows, tableName);
 				}
 
 				// delete all dynamically allocated variables
@@ -1219,8 +1219,8 @@ public:
 
 		if (noOfWords < 5)
 		{
-			tableWithSelectedColumnsOnly->print_table(std::cout);
-			write_select_to_file(*tableWithSelectedColumnsOnly);
+			tableWithSelectedColumnsOnly->print_table(std::cout, tableName);
+			write_select_to_file(*tableWithSelectedColumnsOnly, tableName);
 			delete tableWithSelectedColumnsOnly;
 			delete[] selectedColumns;
 			return;
@@ -1270,8 +1270,8 @@ public:
 		}
 		else
 		{
-			tableWithSelectedRows->print_table(std::cout);
-			write_select_to_file(*tableWithSelectedRows);
+			tableWithSelectedRows->print_table(std::cout, tableName);
+			write_select_to_file(*tableWithSelectedRows, tableName);
 		}
 
 		// delete all dynamically allocated variables

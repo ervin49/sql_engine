@@ -187,7 +187,7 @@ public:
 				std::cout << '\'' << p->getIndexName() << "' on column '" << p->getColumnName() << "'.";
 			}
 		}
-		std::cout << std::endl << std::endl;
+		std::cout << std::endl;
 	}
 
 	int getNoOfIndexesOfTableByName(const std::string& tableName) const
