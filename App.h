@@ -29,6 +29,7 @@ public:
 		if (tableCatalog->synonym_exists(synonymName) == false)
 		{
 			table->add_synonym(synonymName);
+			write_table_to_file(*table);
 			statusManager->print(StatusManager::Success,
 			                     "Synonym '" + synonymName + "' created successfully for table '" + tableName +
 			                     "'!");

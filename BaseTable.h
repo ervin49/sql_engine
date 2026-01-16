@@ -256,7 +256,7 @@ public:
 
 	bool is_column_type(const std::string& value, const std::string& columnType)
 	{
-		if (value[0] == '\'' && value[value.length() - 1] == '\'' && (columnType == "text" || columnType == "varchar"))
+		if (columnType == "text" || columnType == "varchar")
 		{
 			return true;
 		}
@@ -276,25 +276,57 @@ public:
 
 	bool is_integer(const std::string& str)
 	{
+		if (str.empty())
+		{
+			std::cout << "1";
+			return false;
+		}
+
 		for (int i = 0; i < str.length(); i++)
 		{
-			if (std::isdigit(str[i]) == false)
+			if (i == 0 && str[i] == '-')
+			{
+				if (str.length() == 1)
+				{
+					std::cout << "2";
+					return false;
+				}
+				continue;
+			}
+
+			if (!isdigit(str[i]))
 			{
 				return false;
 			}
 		}
+
 		return true;
 	}
 
 	bool is_float(const std::string& str)
 	{
+		if (str.empty())
+		{
+			return false;
+		}
+
 		bool hasDot = false;
 		for (int i = 0; i < str.length(); i++)
 		{
+			if (i == 0 && str[i] == '-')
+			{
+				if (str.length() == 1)
+				{
+					return false;
+				}
+				continue;
+			}
+
 			if (std::isdigit(str[i]) == false && str[i] != '.')
 			{
 				return false;
 			}
+
 			if (str[i] == '.')
 			{
 				// can't have dot on first or last character
@@ -302,6 +334,11 @@ public:
 				{
 					return false;
 				}
+				if (i == 1 && str[0] == '-')
+				{
+					return false;
+				}
+
 				if (hasDot == false)
 				{
 					hasDot = true;
@@ -313,7 +350,8 @@ public:
 				}
 			}
 		}
-		return true;
+
+		return hasDot;
 	}
 
 	std::string* getColumns() const
@@ -448,8 +486,7 @@ public:
 			{
 				statusManager->print(StatusManager::Error,
 				                     "Value " + newRow[i] + " does not match column type '" + columnTypes[i] +
-				                     "' on column '" + columnNames[i] +
-				                     "'! (!) Note: text has to be inside ''");
+				                     "' on column '" + columnNames[i] + "'!");
 				return 1;
 			}
 			if (maxColumnLengths[i] < newRow[i].length())
@@ -460,7 +497,8 @@ public:
 				                     ", Max: " + std::to_string(maxColumnLengths[i]) + ")");
 				return 1;
 			}
-			if (columnTypes[i] == "text" || columnTypes[i] == "varchar")
+			if ((columnTypes[i] == "text" || columnTypes[i] == "varchar") && newRow[i][0] == '\'' && newRow[i][newRow[i]
+				.length() - 1] == '\'')
 			{
 				newRow[i] = newRow[i].substr(1, newRow[i].length() - 2);
 			}
@@ -924,7 +962,16 @@ public:
 		}
 	}
 
-	std::string* getColumnTypes() const { return columnTypes; }
+	std::string* getColumnTypes() const
+	{
+		auto* aux = new std::string[noOfColumns];
+		for (int i = 0; i < noOfColumns; i++)
+		{
+			aux[i] = columnTypes[i];
+		}
+
+		return aux;
+	}
 
 	void setMaxColumnLengths(unsigned int* maxColumnLengths, int noOfColumns)
 	{

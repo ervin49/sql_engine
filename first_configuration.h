@@ -178,39 +178,39 @@ public:
 		unsigned int len;
 		for (int i = 0; i < noOfColumns; i++)
 		{
-			file.read(reinterpret_cast<char*>(&len), sizeof(int));
+			file.read(reinterpret_cast<char*>(&len), sizeof(unsigned int));
 			columns[i].resize(len);
 			file.read(&columns[i][0], len);
 
-			file.read(reinterpret_cast<char*>(&len), sizeof(int));
+			file.read(reinterpret_cast<char*>(&len), sizeof(unsigned int));
 			columnTypes[i].resize(len);
 			file.read(&columnTypes[i][0], len);
 
-			file.read(reinterpret_cast<char*>(&maxColumnLengths[i]), sizeof(int));
+			file.read(reinterpret_cast<char*>(&maxColumnLengths[i]), sizeof(unsigned int));
 		}
 		for (int i = 0; i < noOfRows; i++)
 		{
 			for (int j = 0; j < noOfColumns; j++)
 			{
-				file.read(reinterpret_cast<char*>(&len), sizeof(int));
+				file.read(reinterpret_cast<char*>(&len), sizeof(unsigned int));
 				rows[i][j].resize(len);
 				file.read(&rows[i][j][0], len);
 			}
 		}
 		for (int i = 0; i < noOfIndexes; i++)
 		{
-			file.read(reinterpret_cast<char*>(&len), sizeof(int));
+			file.read(reinterpret_cast<char*>(&len), sizeof(unsigned int));
 			indexNames[i].resize(len);
 			file.read(&indexNames[i][0], len);
 
-			file.read(reinterpret_cast<char*>(&len), sizeof(int));
+			file.read(reinterpret_cast<char*>(&len), sizeof(unsigned int));
 			columnsOfIndexes[i].resize(len);
 			file.read(&columnsOfIndexes[i][0], len);
 		}
 
 		for (int i = 0; i < noOfSynonyms; i++)
 		{
-			file.read(reinterpret_cast<char*>(&len), sizeof(int));
+			file.read(reinterpret_cast<char*>(&len), sizeof(unsigned int));
 			synonyms[i].resize(len);
 			file.read(&synonyms[i][0], len);
 		}
@@ -259,24 +259,24 @@ public:
 		{
 			return;
 		}
-		int noOfIndexes = 0;
-		f.read(reinterpret_cast<char*>(&noOfIndexes), sizeof(int));
+		unsigned int noOfIndexes = 0;
+		f.read(reinterpret_cast<char*>(&noOfIndexes), sizeof(unsigned int));
 
 		auto indexes = new Index[noOfIndexes];
 		std::string indexName, tableName, columnName;
-		int len;
+		unsigned int len;
 
 		for (int i = 0; i < noOfIndexes; i++)
 		{
-			f.read(reinterpret_cast<char*>(&len), sizeof(int));
+			f.read(reinterpret_cast<char*>(&len), sizeof(unsigned int));
 			indexName.resize(len);
 			f.read(&indexName[0], len);
 
-			f.read(reinterpret_cast<char*>(&len), sizeof(int));
+			f.read(reinterpret_cast<char*>(&len), sizeof(unsigned int));
 			tableName.resize(len);
 			f.read(&tableName[0], len);
 
-			f.read(reinterpret_cast<char*>(&len), sizeof(int));
+			f.read(reinterpret_cast<char*>(&len), sizeof(unsigned int));
 			columnName.resize(len);
 			f.read(&columnName[0], len);
 

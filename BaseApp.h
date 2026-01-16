@@ -127,7 +127,7 @@ public:
 		return "";
 	}
 
-	void print_application() const { std::cout << "Current running application: " << "de schimbat aici" << std::endl; }
+	static void print_application() { std::cout << "Current running application: " << "de schimbat aici" << std::endl; }
 
 
 	friend std::ostream& operator<<(std::ostream& out, const BaseApp& application)
@@ -165,7 +165,7 @@ public:
 
 	virtual void create_synonym() const = 0;
 
-	void list_tables() const
+	static void list_tables()
 	{
 		int noOfTables = tableCatalog->getNoOfTables();
 		if (noOfTables == 0)
@@ -173,22 +173,23 @@ public:
 			std::cout << "There aren't any tables!" << std::endl;
 			return;
 		}
+
+		const std::string msg = "Current tables:";
+		std::cout << msg << std::endl;
+		for (int i = 0; i < msg.length(); i++)
+		{
+			std::cout << '-';
+		}
+		std::cout << std::endl;
+
 		auto tables = tableCatalog->getTables();
-		if (noOfTables == 1)
-		{
-			std::cout << "You only have one table: ";
-		}
-		else
-		{
-			std::cout << "Your tables are: ";
-		}
 		for (int i = 0; i < noOfTables; i++)
 		{
 			const Table& currTable = tables[i];
 			const int noOfSynonyms = currTable.getNoOfSynonyms();
 			const std::string* synonyms = currTable.getSynonyms();
 
-			std::cout << currTable.getTableName();
+			std::cout << i + 1 << ". Table: " << currTable.getTableName();
 			if (noOfSynonyms > 0)
 			{
 				std::cout << '[';
@@ -203,9 +204,28 @@ public:
 				}
 				std::cout << ']';
 			}
+
+			const int noOfIndexes = currTable.getNoOfIndexes();
+			const std::string* indexes = currTable.getIndexNames();
+			const std::string* columnsOfIndexes = indexCatalog->
+				getColumnsOfIndexesByTableName(currTable.getTableName());
+			if (noOfIndexes > 0)
+			{
+				std::cout << std::endl << "   Indexes: " << std::endl;
+				for (int j = 0; j < noOfIndexes; j++)
+				{
+					std::cout << "     - '" << indexes[j] << "' on column '" << columnsOfIndexes[j] << "'";
+					if (j < noOfIndexes - 1)
+					{
+						std::cout << std::endl;
+					}
+				}
+			}
+			delete[] indexes;
+			delete[] columnsOfIndexes;
 			if (i < noOfTables - 1)
 			{
-				std::cout << ", ";
+				std::cout << std::endl;
 			}
 		}
 		std::cout << std::endl;
@@ -595,18 +615,18 @@ public:
 		// have to write the strings lengths
 		// before the strings themselves
 		unsigned int len = tableName.size();
-		file.write(reinterpret_cast<char*>(&len), sizeof(int));
+		file.write(reinterpret_cast<char*>(&len), sizeof(unsigned int));
 		file.write(tableName.data(), len);
 
 		// write the columns
 		for (int i = 0; i < noOfColumns; i++)
 		{
 			len = columns[i].length();
-			file.write(reinterpret_cast<char*>(&len), sizeof(int));
+			file.write(reinterpret_cast<char*>(&len), sizeof(unsigned int));
 			file.write(columns[i].data(), len);
 
 			len = columnTypes[i].length();
-			file.write(reinterpret_cast<char*>(&len), sizeof(int));
+			file.write(reinterpret_cast<char*>(&len), sizeof(unsigned int));
 			file.write(columnTypes[i].data(), len);
 
 			file.write(reinterpret_cast<char*>(&maxColumnLengths[i]), sizeof(unsigned int));
@@ -620,7 +640,7 @@ public:
 			for (int j = 0; j < noOfColumns; j++)
 			{
 				len = rows[i][j].size();
-				file.write(reinterpret_cast<char*>(&len), sizeof(int));
+				file.write(reinterpret_cast<char*>(&len), sizeof(unsigned int));
 				file.write(rows[i][j].data(), len);
 			}
 		}
@@ -630,12 +650,12 @@ public:
 		for (int i = 0; i < noOfIndexes; i++)
 		{
 			len = indexNames[i].size();
-			file.write(reinterpret_cast<char*>(&len), sizeof(int));
+			file.write(reinterpret_cast<char*>(&len), sizeof(unsigned int));
 			file.write(indexNames[i].data(), len);
 
 			std::string columnNameOfIndex = indexCatalog->getIndex(indexNames[i])->getColumnName();
 			len = columnNameOfIndex.length();
-			file.write(reinterpret_cast<char*>(&len), sizeof(int));
+			file.write(reinterpret_cast<char*>(&len), sizeof(unsigned int));
 			file.write(columnNameOfIndex.data(), len);
 		}
 
@@ -643,7 +663,7 @@ public:
 		for (int i = 0; i < noOfSynonyms; i++)
 		{
 			len = synonyms[i].size();
-			file.write(reinterpret_cast<char*>(&len), sizeof(int));
+			file.write(reinterpret_cast<char*>(&len), sizeof(unsigned int));
 			file.write(synonyms[i].data(), len);
 		}
 
@@ -1446,7 +1466,7 @@ public:
 
 	void parse_commands()
 	{
-		std::cout << "(!) Note: You can quit this program anytime by typing 'quit' or" << std::endl
+		std::cout << "(!) Note: You can exit this program anytime by typing 'q' / 'quit' or" << std::endl
 			<< "return to the main menu by typing 'menu'." << std::endl;
 		while (true)
 		{
@@ -1497,7 +1517,7 @@ public:
 			setQuery(words, noOfWords, parser->getString());
 			if (noOfWords == 1)
 			{
-				if (words[0] == "exit" || words[0] == "quit")
+				if (words[0] == "exit" || words[0] == "quit" || words[0] == "q")
 				{
 					exit(0);
 				}

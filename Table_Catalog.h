@@ -230,16 +230,19 @@ public:
 
 	Table* getTable(const std::string& tableName) const
 	{
+		Table* aux;
 		for (int i = 0; i < noOfTables; i++)
 		{
 			if (tables[i].getTableName() == tableName)
 			{
-				return &tables[i];
+				aux = new Table(tables[i]);
+				return aux;
 			}
 
 			if (tables[i].has_synonym(tableName))
 			{
-				return &tables[i];
+				aux = new Table(tables[i]);
+				return aux;
 			}
 		}
 

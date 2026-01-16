@@ -337,4 +337,17 @@ public:
 		this->indexes = newIndexes;
 		this->noOfIndexes = noOfIndexes;
 	}
+
+	const std::string* getColumnsOfIndexesByTableName(const std::string& tableName)
+	{
+		std::string* columnsOfIndexes = new std::string[noOfIndexes];
+		for (int i = 0; i < noOfIndexes; i++)
+		{
+			if (indexes[i].getTableName() == tableName)
+			{
+				columnsOfIndexes[i] = indexes[i].getColumnName();
+			}
+		}
+		return columnsOfIndexes;
+	}
 };
