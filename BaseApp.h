@@ -207,8 +207,8 @@ public:
 
 			const int noOfIndexes = currTable.getNoOfIndexes();
 			const std::string* indexes = currTable.getIndexNames();
-			const std::string* columnsOfIndexes = indexCatalog->
-				getColumnsOfIndexesByTableName(currTable.getTableName());
+			const std::string* columnsOfIndexes =
+				indexCatalog->getColumnsOfIndexesByTableName(currTable.getTableName());
 			if (noOfIndexes > 0)
 			{
 				std::cout << std::endl << "   Indexes: " << std::endl;
@@ -433,12 +433,12 @@ public:
 		}
 
 		auto table = tableCatalog->getTable(tableName);
-		if (table->add_row(inputFields) == 0)
+		if (table->add_row(inputFields, noOfFields) == 0)
 		{
 			write_table_to_file(*table);
 			int noOfRows = table->getNoOfRows();
 			statusManager->print(StatusManager::Success,
-			                     "Inserted successfully! (Total number of rows: " + std::to_string(noOfRows) + ')');
+								 "Inserted successfully! (Total number of rows: " + std::to_string(noOfRows) + ')');
 		}
 	}
 
@@ -539,7 +539,7 @@ public:
 				statusManager->print(
 					StatusManager::Error,
 					"The value '" + fields[2] +
-					"' is invalid! You need to specify a positive integer for the attribute size.");
+						"' is invalid! You need to specify a positive integer for the attribute size.");
 				delete table;
 				delete[] maxColumnLengths;
 				delete[] columnTypes;
@@ -588,7 +588,7 @@ public:
 		DIR* dir = opendir("./tables/");
 		if (!dir)
 		{
-			system("mkdir ./tables"); //only works on linux
+			system("mkdir ./tables"); // only works on linux
 		}
 		else
 		{
@@ -598,7 +598,7 @@ public:
 
 		// get all the variables from the table
 		int noOfColumns = table.getNoOfColumns(), noOfRows = table.getNoOfRows(), noOfIndexes = table.getNoOfIndexes(),
-		    noOfSynonyms = table.getNoOfSynonyms();
+			noOfSynonyms = table.getNoOfSynonyms();
 		std::string* columns = table.getColumns();
 		std::string* synonyms = table.getSynonyms();
 		std::string** rows = table.getRows();
@@ -659,7 +659,7 @@ public:
 			file.write(columnNameOfIndex.data(), len);
 		}
 
-		//write the synonyms
+		// write the synonyms
 		for (int i = 0; i < noOfSynonyms; i++)
 		{
 			len = synonyms[i].size();
@@ -841,7 +841,7 @@ public:
 		if (noOfWords != 3)
 		{
 			statusManager->print(StatusManager::Error,
-			                     "Argument count mismatch: expected 3, got " + std::to_string(noOfWords) + "!");
+								 "Argument count mismatch: expected 3, got " + std::to_string(noOfWords) + "!");
 			return;
 		}
 
@@ -890,7 +890,7 @@ public:
 		if (noOfWords != 3)
 		{
 			statusManager->print(StatusManager::Error,
-			                     "Argument count mismatch: expected 3, got " + std::to_string(noOfWords) + "!");
+								 "Argument count mismatch: expected 3, got " + std::to_string(noOfWords) + "!");
 			return;
 		}
 
@@ -913,7 +913,7 @@ public:
 		if (noOfWords != 10)
 		{
 			statusManager->print(StatusManager::Error,
-			                     "Invalid number of tokens, expected 9, got " + std::to_string(noOfWords) + "!");
+								 "Invalid number of tokens, expected 9, got " + std::to_string(noOfWords) + "!");
 			return;
 		}
 
@@ -925,7 +925,7 @@ public:
 		if (words[2] != "set")
 		{
 			statusManager->print(StatusManager::Error,
-			                     "Syntax Error: Expected 'SET' at position 2, but found '" + words[2] + "'.");
+								 "Syntax Error: Expected 'SET' at position 2, but found '" + words[2] + "'.");
 			return;
 		}
 
@@ -935,19 +935,19 @@ public:
 		if (!table->column_exists(setColumnName))
 		{
 			statusManager->print(StatusManager::Error,
-			                     "Table '" + tableName + "' does not have column '" + setColumnName + "'!");
+								 "Table '" + tableName + "' does not have column '" + setColumnName + "'!");
 			return;
 		}
 		if (words[4] != "=")
 		{
 			statusManager->print(StatusManager::Error,
-			                     "Syntax Error: Expected '=' at position 4, but found '" + words[4] + "'.");
+								 "Syntax Error: Expected '=' at position 4, but found '" + words[4] + "'.");
 			return;
 		}
 		if (words[8] != "=")
 		{
 			statusManager->print(StatusManager::Error,
-			                     "Syntax Error: Expected '=' at position 8, but found '" + words[8] + "'.");
+								 "Syntax Error: Expected '=' at position 8, but found '" + words[8] + "'.");
 			return;
 		}
 
@@ -955,7 +955,7 @@ public:
 		if (!table->column_exists(whereColumnName))
 		{
 			statusManager->print(StatusManager::Error,
-			                     "Table '" + tableName + "' does not have column '" + whereColumnName + "'!");
+								 "Table '" + tableName + "' does not have column '" + whereColumnName + "'!");
 			return;
 		}
 
@@ -971,8 +971,8 @@ public:
 			if (!table->is_integer(setValue))
 			{
 				statusManager->print(StatusManager::Error,
-				                     "Type mismatch! Column '" + setColumnName + "' is INTEGER, but value '" +
-				                     setValue + "' is not.");
+									 "Type mismatch! Column '" + setColumnName + "' is INTEGER, but value '" +
+										 setValue + "' is not.");
 				return;
 			}
 		}
@@ -981,8 +981,8 @@ public:
 			if (table->is_integer(setValue))
 			{
 				statusManager->print(StatusManager::Error,
-				                     "Type mismatch! Column '" + setColumnName + "' is VARCHAR, but value '" +
-				                     setValue + "' is numeric.");
+									 "Type mismatch! Column '" + setColumnName + "' is VARCHAR, but value '" +
+										 setValue + "' is numeric.");
 				return;
 			}
 		}
@@ -1004,7 +1004,7 @@ public:
 			write_table_to_file(*table);
 			std::cout << "Value set to: " << setValue << std::endl;
 			statusManager->print(StatusManager::Success,
-			                     "Updated table successfully! (" + std::to_string(count) + " rows affected)");
+								 "Updated table successfully! (" + std::to_string(count) + " rows affected)");
 		}
 		else
 		{
@@ -1095,13 +1095,13 @@ public:
 				if (words[4] != "where")
 				{
 					statusManager->print(StatusManager::Error,
-					                     "Syntax Error: Expected keyword 'WHERE', but found '" + words[4] +
-					                     "' instead.");
+										 "Syntax Error: Expected keyword 'WHERE', but found '" + words[4] +
+											 "' instead.");
 				}
 				else if (words[6] != "=")
 				{
 					statusManager->print(StatusManager::Error,
-					                     "Syntax Error: Expected symbol '=', but found '" + words[6] + "' instead.");
+										 "Syntax Error: Expected symbol '=', but found '" + words[6] + "' instead.");
 				}
 				auto originalTable = tableCatalog->getTable(tableName);
 				std::string columnName = words[noOfWords - 3];
@@ -1113,6 +1113,8 @@ public:
 				const int noOfColumns = originalTable->getNoOfColumns();
 				std::string** rowsOfOriginalTable = originalTable->getRows();
 				auto* tableWithSelectedRows = new Table(noOfColumns, "");
+				tableWithSelectedRows->setMaxColumnLengths(originalTable->getMaxColumnLengths(), noOfColumns);
+				tableWithSelectedRows->setColumnTypes(originalTable->getColumnTypes(), noOfColumns);
 
 				std::string* selectedColumns = originalTable->getColumns();
 				for (int i = 0; i < noOfColumns; i++)
@@ -1128,7 +1130,7 @@ public:
 						{
 							// it matches what we are searching for
 							found = true;
-							tableWithSelectedRows->add_row(rowsOfOriginalTable[i]);
+							tableWithSelectedRows->add_row(rowsOfOriginalTable[i], noOfColumns);
 						}
 					}
 				}
@@ -1136,8 +1138,7 @@ public:
 				if (!found)
 				{
 					statusManager->print(StatusManager::Error,
-					                     "No matching values for: '" + value + "' in column: '" + columnName +
-					                     "'!");
+										 "No matching values for: '" + value + "' in column: '" + columnName + "'!");
 				}
 				else
 				{
@@ -1196,8 +1197,8 @@ public:
 			if (originalTable->column_exists(selectedColumns[i]) == false)
 			{
 				statusManager->print(StatusManager::Error,
-				                     "Column '" + selectedColumns[i] + "' does not exist in table '" + tableName +
-				                     "'!");
+									 "Column '" + selectedColumns[i] + "' does not exist in table '" + tableName +
+										 "'!");
 				return;
 			}
 		}
@@ -1249,12 +1250,12 @@ public:
 		if (words[4] != "where")
 		{
 			statusManager->print(StatusManager::Error,
-			                     "Syntax Error: Expected keyword 'WHERE', but found '" + words[4] + "' instead.");
+								 "Syntax Error: Expected keyword 'WHERE', but found '" + words[4] + "' instead.");
 		}
 		else if (words[6] != "=")
 		{
 			statusManager->print(StatusManager::Error,
-			                     "Syntax Error: Expected symbol '=', but found '" + words[6] + "' instead.");
+								 "Syntax Error: Expected symbol '=', but found '" + words[6] + "' instead.");
 		}
 
 		const std::string columnName = words[noOfWords - 3]; //
@@ -1278,7 +1279,7 @@ public:
 				{
 					// it matches what we are searching for
 					found = true;
-					tableWithSelectedRows->add_row(rowsOfNewTable[i]);
+					tableWithSelectedRows->add_row(rowsOfNewTable[i], noOfSelectedColumns);
 				}
 			}
 		}
@@ -1286,7 +1287,7 @@ public:
 		if (!found)
 		{
 			statusManager->print(StatusManager::Error,
-			                     "No matching values for: '" + value + "' in column: '" + columnName + "'!");
+								 "No matching values for: '" + value + "' in column: '" + columnName + "'!");
 		}
 		else
 		{
@@ -1363,11 +1364,11 @@ public:
 			if (noOfColumns != noOfFields)
 			{
 				statusManager->print(StatusManager::Error,
-				                     "Invalid column number on row " + std::to_string(noOfRows - 1));
+									 "Invalid column number on row " + std::to_string(noOfRows - 1));
 				addRow = false;
 			}
 
-			if (addRow && table->add_row(fields) == 0)
+			if (addRow && table->add_row(fields, noOfColumns) == 0)
 			{
 				importedRows++;
 			}
@@ -1467,7 +1468,7 @@ public:
 	void parse_commands()
 	{
 		std::cout << "(!) Note: You can exit this program anytime by typing 'q' / 'quit' or" << std::endl
-			<< "return to the main menu by typing 'menu'." << std::endl;
+				  << "return to the main menu by typing 'menu'." << std::endl;
 		while (true)
 		{
 			std::cout << "> ";

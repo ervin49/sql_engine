@@ -1,7 +1,6 @@
 #pragma once
 #include "BaseApp.h"
 #include "Table.h"
-
 class App : public BaseApp
 {
 public:

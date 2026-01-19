@@ -1,6 +1,6 @@
 #pragma once
 #include <iostream>
-#include <string>
+#include <cstring>
 
 class Parser
 {
@@ -279,7 +279,6 @@ public:
         {
             noOfWords++;
         }
-        //aici era un noOfWords++ pe care l-am sters
         auto* words = new std::string[noOfWords + 1];
         int currentWordIndex = 0;
         for (int i = startIndex; i <= stopIndex; i++)

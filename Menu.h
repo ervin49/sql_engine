@@ -1,19 +1,20 @@
 #pragma once
 #include <iostream>
 #include <limits>
+#include "App.h"
 
 #include "globals.h"
 
 #include "StatusManager.h"
 
-//indentation for status messages
+// indentation for status messages
 #define STATUS_OFFSET 5
 
-//this is to output bold text on the console
+// this is to output bold text on the console
 #define BOLD "\033[1m"
 
-//this is to reset the bold text, otherwise
-//all following text would be bold, not just the next word
+// this is to reset the bold text, otherwise
+// all following text would be bold, not just the next word
 #define RESET "\033[0m"
 
 #ifdef _WIN32
@@ -81,7 +82,7 @@ private:
 				std::cout << "--- CREATE TABLE ---" << std::endl;
 				std::cout << "(!) Note: What is denoted between [] is not mandatory." << std::endl << std::endl;
 				std::cout << "Format: CREATE TABLE table_name [IF NOT EXISTS] ((col_name, type, size, default), ...)"
-					<< std::endl;
+						  << std::endl;
 				std::cout << "Types:  integer, text, float" << std::endl;
 				std::cout << "E.g.:   CREATE TABLE students ((name, text, 20, -), (age, integer, 3, 0))" << std::endl;
 				press_enter_to_continue();
@@ -226,8 +227,8 @@ public:
 	{
 		std::cout << std::endl;
 		std::cout << "Welcome to the Sql Engine interactive menu! What would you like to work with?" << std::endl
-			<< std::endl
-			<< std::endl;
+				  << std::endl
+				  << std::endl;
 		std::cout << "(1) A table." << std::endl << std::endl;
 		std::cout << "(2) An index." << std::endl << std::endl;
 		std::cout << "(r) Return to the previous menu." << std::endl;
@@ -306,7 +307,7 @@ public:
 			if (table->column_exists(columnName) == false)
 			{
 				statusManager->print(StatusManager::Error,
-				                     "Table '" + option + "' does not have column '" + columnName + "'!");
+									 "Table '" + option + "' does not have column '" + columnName + "'!");
 				std::cout << std::endl;
 				std::cout << "Enter column to index:" << std::endl;
 				std::cout << "> ";
@@ -314,8 +315,7 @@ public:
 			else if (indexCatalog->has_index(tableName, columnName) == true)
 			{
 				statusManager->print(StatusManager::Error,
-				                     "Table '" + option + "' already has an index on column '" + columnName +
-				                     "'!");
+									 "Table '" + option + "' already has an index on column '" + columnName + "'!");
 				std::cout << std::endl;
 				std::cout << "Enter column to index:" << std::endl;
 				std::cout << "> ";
@@ -563,7 +563,8 @@ public:
 
 		print_available_columns_of_table(synonymName);
 		std::cout << "Enter columns to select, separated by spaces, or 'ALL' to select all "
-			"columns: " << std::endl;
+					 "columns: "
+				  << std::endl;
 		std::cout << "[E.g.: col1 col2 col3 ...]" << std::endl;
 		std::cout << "> ";
 
@@ -574,7 +575,7 @@ public:
 		while (true)
 		{
 			delete[] selectedColumns;
-			selectedColumns = new std::string[50]; //just hope 50 is enough
+			selectedColumns = new std::string[50]; // just hope 50 is enough
 			noOfSelectedColumns = 0;
 			while (true)
 			{
@@ -597,8 +598,8 @@ public:
 			{
 				if (originalTable->column_exists(selectedColumns[i]) == false)
 				{
-					std::cout << "Column '" << selectedColumns[i]
-						<< "' does not exist in table '" + option + "'!" << std::endl;
+					std::cout << "Column '" << selectedColumns[i] << "' does not exist in table '" + option + "'!"
+							  << std::endl;
 					has_error = true;
 				}
 			}
@@ -607,7 +608,8 @@ public:
 				break;
 			}
 			std::cout << "Enter columns to select, separated by spaces, or 'ALL' to select all "
-				"columns: " << std::endl;
+						 "columns: "
+					  << std::endl;
 			std::cout << "> ";
 		}
 
@@ -625,8 +627,7 @@ public:
 			{
 			case 'y':
 				std::cout << std::endl << std::endl;
-				std::cout << "Enter column name and value to search for, separated by spaces: "
-					<< std::endl;
+				std::cout << "Enter column name and value to search for, separated by spaces: " << std::endl;
 				std::cout << "[E.g.: first_name Andrei]" << std::endl;
 				std::cout << "> ";
 				while (true)
@@ -637,10 +638,9 @@ public:
 						break;
 					}
 					statusManager->print(StatusManager::Error,
-					                     "Column '" + columnNameSearchedFor + "' does not exist!");
+										 "Column '" + columnNameSearchedFor + "' does not exist!");
 					std::cout << std::endl;
-					std::cout
-						<< "Enter column value to search for, separated by spaces:" << std::endl;
+					std::cout << "Enter column value to search for, separated by spaces:" << std::endl;
 					std::cout << "> ";
 				}
 				search_with_column_name = true;
@@ -702,23 +702,21 @@ public:
 						if (rowsOfNewTable[i][j] == value && j == index)
 						{
 							found = true;
-							tableWithSelectedRows->add_row(rowsOfNewTable[i]);
+							tableWithSelectedRows->add_row(rowsOfNewTable[i], noOfSelectedColumns);
 						}
 					}
 				}
 				if (!found)
 				{
 					statusManager->print(StatusManager::Error,
-					                     "No matching values for '" + value + "' in column '" + columnName +
-					                     "'!");
+										 "No matching values for '" + value + "' in column '" + columnName + "'!");
 					show_menu_loop(table_options);
 				}
-				app->write_select_to_file(*tableWithSelectedColumnsOnly, synonymName);
-				std::cout << std::endl;
-				tableWithSelectedColumnsOnly->print_table(std::cout, synonymName);
-				std::cout << std::endl;
+				app->write_select_to_file(*tableWithSelectedRows, synonymName);
+				tableWithSelectedRows->print_table(std::cout, synonymName);
 
 				delete tableWithSelectedColumnsOnly;
+				delete tableWithSelectedRows;
 				for (int i = 0; i < noOfRows; i++)
 				{
 					delete rowsOfOriginalTable[i];
@@ -731,9 +729,7 @@ public:
 			else
 			{
 				app->write_select_to_file(*tableWithSelectedColumnsOnly, synonymName);
-				std::cout << std::endl;
 				tableWithSelectedColumnsOnly->print_table(std::cout, synonymName);
-				std::cout << std::endl;
 
 				delete tableWithSelectedColumnsOnly;
 				for (int i = 0; i < noOfRows; i++)
@@ -751,11 +747,15 @@ public:
 			if (search_with_column_name == true)
 			{
 				bool found = false;
-				int index = originalTable->return_index_of_column_by_name(columnNameSearchedFor);
+				const int index = originalTable->return_index_of_column_by_name(columnNameSearchedFor);
 				const int noOfRows = originalTable->getNoOfRows();
 				const int noOfColumns = originalTable->getNoOfColumns();
 				std::string** rowsOfOriginalTable = originalTable->getRows();
 				auto* tableWithSelectedRows = new Table(noOfColumns, "");
+				std::string* columnTypes = originalTable->getColumnTypes();
+				unsigned int* maxColumnLengths = originalTable->getMaxColumnLengths();
+				tableWithSelectedRows->setMaxColumnLengths(maxColumnLengths, noOfColumns);
+				tableWithSelectedRows->setColumnTypes(columnTypes, noOfColumns);
 
 				std::string* selectedColumns = originalTable->getColumns();
 				for (int i = 0; i < noOfColumns; i++)
@@ -771,7 +771,7 @@ public:
 						{
 							// it matches what we are searching for
 							found = true;
-							tableWithSelectedRows->add_row(rowsOfOriginalTable[i]);
+							tableWithSelectedRows->add_row(rowsOfOriginalTable[i], noOfColumns);
 						}
 					}
 				}
@@ -779,19 +779,15 @@ public:
 				if (!found)
 				{
 					statusManager->print(StatusManager::Error,
-					                     "No matching values for: '" + value + "' in column: '" +
-					                     columnNameSearchedFor + "'!");
-					std::cout << std::endl;
+										 "No matching values for: '" + value + "' in column: '" +
+											 columnNameSearchedFor + "'!");
 				}
 				else
 				{
 					tableWithSelectedRows->print_table(std::cout, synonymName);
 					app->write_select_to_file(*tableWithSelectedRows, synonymName);
-					delete selectedColumns;
-					for (int i = 0; i < noOfRows; i++)
-					{
-						delete rowsOfOriginalTable[i];
-					}
+					delete[] maxColumnLengths;
+					delete[] columnTypes;
 					delete tableWithSelectedRows;
 					delete[] rowsOfOriginalTable;
 				}
@@ -856,7 +852,7 @@ public:
 				break;
 			}
 			statusManager->print(StatusManager::Error,
-			                     "Column '" + whereColumn + "' does not exist in table '" + option + "'!");
+								 "Column '" + whereColumn + "' does not exist in table '" + option + "'!");
 			std::cout << std::endl;
 			std::cout << "Enter column to change and value to search for, separated by spaces: " << std::endl;
 			std::cout << "> ";
@@ -873,7 +869,7 @@ public:
 				break;
 			}
 			statusManager->print(StatusManager::Error,
-			                     "Column '" + setColumn + "' does not exist in table '" + option + "'!");
+								 "Column '" + setColumn + "' does not exist in table '" + option + "'!");
 			std::cout << std::endl;
 			std::cout << "Enter column name to update and the new value, separated by spaces:" << std::endl;
 			std::cout << "> ";
@@ -952,7 +948,7 @@ public:
 				break;
 			}
 			statusManager->print(StatusManager::Error,
-			                     "Column '" + whereColumn + "' does not exist in table '" + option + "'!");
+								 "Column '" + whereColumn + "' does not exist in table '" + option + "'!");
 
 			std::cout << std::endl;
 			std::cout << "Enter column of the value and the value to delete, separated by space:" << std::endl;
@@ -1034,8 +1030,7 @@ public:
 			return;
 		}
 
-		std::cout <<
-			"Enter table name for the synonym (or 'return' / 'quit'):" << std::endl;
+		std::cout << "Enter table name for the synonym (or 'return' / 'quit'):" << std::endl;
 		std::cout << "> ";
 
 		std::string option;
@@ -1058,8 +1053,7 @@ public:
 			}
 			statusManager->print(StatusManager::Error, "Table '" + option + "' does not exist!");
 			std::cout << std::endl;
-			std::cout <<
-				"Enter table name for the synonym (or 'return' / 'quit'):" << std::endl;
+			std::cout << "Enter table name for the synonym (or 'return' / 'quit'):" << std::endl;
 			std::cout << "> ";
 		}
 
@@ -1085,7 +1079,7 @@ public:
 		app->write_table_to_file(*table);
 
 		statusManager->print(StatusManager::Success,
-		                     "Synonym '" + synonymName + "' created successfully for table '" + option + "'!");
+							 "Synonym '" + synonymName + "' created successfully for table '" + option + "'!");
 		show_menu_loop(table_options);
 	}
 
@@ -1106,8 +1100,7 @@ public:
 			return;
 		}
 
-		std::cout <<
-			"Enter table name to insert into (or 'return' / 'quit'):" << std::endl;
+		std::cout << "Enter table name to insert into (or 'return' / 'quit'):" << std::endl;
 		std::cout << "> ";
 
 		std::string option;
@@ -1130,14 +1123,14 @@ public:
 			}
 			statusManager->print(StatusManager::Error, "Table '" + option + "' does not exist!");
 			std::cout << std::endl;
-			std::cout <<
-				"Enter table name to insert into (or 'return' / 'quit'):" << std::endl;
+			std::cout << "Enter table name to insert into (or 'return' / 'quit'):" << std::endl;
 			std::cout << "> ";
 		}
 
 		const std::string& tableName = option;
 		Table* table = tableCatalog->getTable(tableName);
 		const std::string* columns = table->getColumns();
+		const unsigned int* maxColumnLengths = table->getMaxColumnLengths();
 		const int noOfColumns = table->getNoOfColumns();
 		int maxColumnLength = 0;
 		for (int i = 0; i < noOfColumns; i++)
@@ -1163,27 +1156,41 @@ public:
 			}
 			std::cout << columns[currIndex] << " : ";
 			std::cin >> currValue;
-			if (table->is_column_type(currValue, columnTypes[currIndex]))
+			if (table->is_column_type(currValue, columnTypes[currIndex]) &&
+				currValue.length() <= maxColumnLengths[currIndex])
 			{
 				newValues[currIndex] = currValue;
 				currIndex++;
 				continue;
 			}
 
-			for (int i = 0; i < maxColumnLength + 3; i++)
+			if (!table->is_column_type(currValue, columnTypes[currIndex]))
 			{
-				std::cout << ' ';
+				for (int i = 0; i < maxColumnLength + 3; i++)
+				{
+					std::cout << ' ';
+				}
+				statusManager->print(StatusManager::Error,
+									 "Value does not match column type '" + columnTypes[currIndex] + "'!");
 			}
-			statusManager->print(StatusManager::Error,
-			                     "Value does not match column type '" + columnTypes[currIndex] + "'!");
+			else
+			{
+				for (int i = 0; i < maxColumnLength + 3; i++)
+				{
+					std::cout << ' ';
+				}
+				statusManager->print(StatusManager::Error,
+									 "Value exceeds max length! (Length: " + std::to_string(currValue.length()) +
+										 ", max: " + std::to_string(maxColumnLengths[currIndex]) + "!");
+			}
 		}
 
-		if (table->add_row(newValues) == 0)
+		if (table->add_row(newValues, noOfColumns) == 0)
 		{
 			app->write_table_to_file(*table);
 			int noOfRows = table->getNoOfRows();
 			statusManager->print(StatusManager::Success,
-			                     "Inserted successfully! (Total number of rows: " + std::to_string(noOfRows) + ')');
+								 "Inserted successfully! (Total number of rows: " + std::to_string(noOfRows) + ')');
 
 			delete[] columns;
 			delete[] columnTypes;
@@ -1277,8 +1284,7 @@ public:
 	{
 		std::cout << std::endl;
 		std::string option;
-		std::cout <<
-			"Enter table name to create (or 'return' / 'quit'):" << std::endl;
+		std::cout << "Enter table name to create (or 'return' / 'quit'):" << std::endl;
 		std::cout << "> ";
 		while (true)
 		{
@@ -1299,8 +1305,7 @@ public:
 			}
 			statusManager->print(StatusManager::Error, "Table '" + option + "' already exists!");
 			std::cout << std::endl;
-			std::cout <<
-				"Enter table name to create (or 'return' / 'quit'):" << std::endl;
+			std::cout << "Enter table name to create (or 'return' / 'quit'):" << std::endl;
 			std::cout << "> ";
 		}
 
@@ -1351,8 +1356,8 @@ public:
 				columnType != "integer" && columnType != "numeric")
 			{
 				statusManager->print(StatusManager::Error,
-				                     "You need to enter a valid column type! (Options are: text, varchar, int, "
-				                     "integer, numeric, float)");
+									 "You need to enter a valid column type! (Options are: text, varchar, int, "
+									 "integer, numeric, float)");
 				i--;
 				continue;
 			}
@@ -1361,7 +1366,7 @@ public:
 				columnName == "integer" && columnName == "numeric")
 			{
 				statusManager->print(StatusManager::Error,
-				                     "Keyword '" + columnName + "' can't be used for the column name!");
+									 "Keyword '" + columnName + "' can't be used for the column name!");
 				std::cout << std::endl;
 				i--;
 				continue;
@@ -1381,7 +1386,7 @@ public:
 				if (columnNames[j] == columnName)
 				{
 					statusManager->print(StatusManager::Error,
-					                     "You can't enter two identical column names! Try again.");
+										 "You can't enter two identical column names! Try again.");
 					hasError = true;
 					break;
 				}
@@ -1530,7 +1535,7 @@ public:
 			const int noOfSynonyms = tables[i].getNoOfSynonyms();
 			if (noOfSynonyms > 0)
 			{
-				totalMessageLength += 2; //both parentheses
+				totalMessageLength += 2; // both parentheses
 				std::cout << "[";
 
 				const std::string* synonyms = tables[i].getSynonyms();

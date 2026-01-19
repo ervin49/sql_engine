@@ -1,7 +1,6 @@
 #pragma once
 #include <iostream>
 #include <string>
-
 #include "Index_Catalog.h"
 #include "globals.h"
 #define OFFSET 10
@@ -217,7 +216,7 @@ public:
 
 	BaseTable& operator+=(std::string* row)
 	{
-		this->add_row(row);
+		this->add_row(row, noOfColumns);
 		return *this;
 	}
 
@@ -478,27 +477,33 @@ public:
 		return false;
 	}
 
-	int add_row(std::string newRow[])
+	int add_row(std::string* newRow, int noOfColumns)
 	{
+		if (noOfColumns != this->noOfColumns)
+		{
+			throw std::runtime_error("Different no of columns when adding row! Got: " + std::to_string(noOfColumns) +
+									 ", expected : " + std::to_string(this->noOfColumns));
+		}
+
 		for (int i = 0; i < noOfColumns; i++)
 		{
 			if (is_column_type(newRow[i], columnTypes[i]) == false)
 			{
 				statusManager->print(StatusManager::Error,
-				                     "Value " + newRow[i] + " does not match column type '" + columnTypes[i] +
-				                     "' on column '" + columnNames[i] + "'!");
+									 "Value " + newRow[i] + " does not match column type '" + columnTypes[i] +
+										 "' on column '" + columnNames[i] + "'!");
 				return 1;
 			}
 			if (maxColumnLengths[i] < newRow[i].length())
 			{
 				statusManager->print(StatusManager::Error,
-				                     "Value " + newRow[i] + " in column '" + columnNames[i] +
-				                     "' exceeds max length! (Length: " + std::to_string(newRow[i].length()) +
-				                     ", Max: " + std::to_string(maxColumnLengths[i]) + ")");
+									 "Value " + newRow[i] + " in column '" + columnNames[i] +
+										 "' exceeds max length! (Length: " + std::to_string(newRow[i].length()) +
+										 ", Max: " + std::to_string(maxColumnLengths[i]) + ")");
 				return 1;
 			}
-			if ((columnTypes[i] == "text" || columnTypes[i] == "varchar") && newRow[i][0] == '\'' && newRow[i][newRow[i]
-				.length() - 1] == '\'')
+			if ((columnTypes[i] == "text" || columnTypes[i] == "varchar") && newRow[i][0] == '\'' &&
+				newRow[i][newRow[i].length() - 1] == '\'')
 			{
 				newRow[i] = newRow[i].substr(1, newRow[i].length() - 2);
 			}
@@ -857,7 +862,7 @@ public:
 		if ((indexOfColumn = return_index_of_column_by_name(columnName)) == -1)
 		{
 			statusManager->print(StatusManager::Error,
-			                     "Table '" + tableName + "' does not have column '" + columnName + "'!");
+								 "Table '" + tableName + "' does not have column '" + columnName + "'!");
 			return -1;
 		}
 
@@ -875,8 +880,8 @@ public:
 		if (deleted == false)
 		{
 			statusManager->print(StatusManager::Error,
-			                     "Couldn't find value '" + nameOfValue + "' in column '" + columnName +
-			                     "'! No rows deleted.");
+								 "Couldn't find value '" + nameOfValue + "' in column '" + columnName +
+									 "'! No rows deleted.");
 			return -2;
 		}
 		return 0;
