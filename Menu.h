@@ -531,7 +531,6 @@ public:
 		{
 			return;
 		}
-
 		std::cout << "Enter table name to select from (or 'return' / 'quit'):" << std::endl;
 		std::cout << "> ";
 
@@ -693,7 +692,11 @@ public:
 			if (search_with_column_name == true)
 			{
 				const auto tableWithSelectedRows = new Table(noOfSelectedColumns, "");
-				const int index = tableWithSelectedRows->return_index_of_column_by_name(columnName);
+				for (int i = 0; i < noOfSelectedColumns; i++)
+				{
+					tableWithSelectedRows->setColumn(i, selectedColumns[i]);
+				}
+				const int index = tableWithSelectedRows->return_index_of_column_by_name(columnNameSearchedFor);
 				bool found = false;
 				for (int i = 0; i < noOfRows; i++)
 				{
@@ -709,7 +712,12 @@ public:
 				if (!found)
 				{
 					statusManager->print(StatusManager::Error,
+<<<<<<< Updated upstream
 										 "No matching values for '" + value + "' in column '" + columnName + "'!");
+=======
+					                     "No matching values for '" + value + "' in column '" + columnNameSearchedFor +
+					                     "'!");
+>>>>>>> Stashed changes
 					show_menu_loop(table_options);
 				}
 				app->write_select_to_file(*tableWithSelectedRows, synonymName);
@@ -786,10 +794,13 @@ public:
 				{
 					tableWithSelectedRows->print_table(std::cout, synonymName);
 					app->write_select_to_file(*tableWithSelectedRows, synonymName);
+<<<<<<< Updated upstream
 					delete[] maxColumnLengths;
 					delete[] columnTypes;
 					delete tableWithSelectedRows;
 					delete[] rowsOfOriginalTable;
+=======
+>>>>>>> Stashed changes
 				}
 			}
 			else

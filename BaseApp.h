@@ -67,7 +67,6 @@ public:
 		}
 		if (a.parser != nullptr)
 		{
-			// a.parser can not be nullptr (class invariant), but for safety reasons
 			this->parser = new Parser(*a.parser);
 		}
 		else
@@ -230,7 +229,7 @@ public:
 		}
 		std::cout << std::endl;
 		delete[] tables;
-	};
+	}
 
 	void parse_command() const
 	{
@@ -1052,7 +1051,7 @@ public:
 		}
 	}
 
-	void write_select_to_file(Table table, const std::string& synonymName) const
+	void write_select_to_file(const Table& table, const std::string& synonymName) const
 	{
 		std::string targetPath = "./select_outputs/";
 		int index = -1; // subtract "." and ".."

@@ -24,7 +24,7 @@ public:
 		for (int i = 0; i < noOfColumns; i++)
 		{
 			const std::string type = columnTypes[i];
-			if (type != "int" | type != "numeric" || type != "integer" || type != "float" || type != "text")
+			if (type != "int" && type != "numeric" && type != "integer" && type != "float" && type != "text")
 			{
 				throw std::runtime_error("Incorrect column type!");
 			}
@@ -164,17 +164,22 @@ public:
 	{
 		if (this != &other)
 		{
-			if (columnNames != nullptr)
-				delete[] columnNames;
-			for (int i = 0; i < noOfRows; i++)
-				delete[] rows[i];
-			delete[] rows;
+            if(rows){
+                for(int i = 0; i < noOfRows; i++){
+                    delete[] rows[i];
+                }
+                delete[] rows;
+            }
 
 			this->tableName = other.tableName;
 			this->noOfColumns = other.noOfColumns;
 			this->noOfRows = other.noOfRows;
 			this->noOfIndexes = other.noOfIndexes;
 
+            delete[] columnNames;
+            delete[] columnTypes;
+            delete[] indexNames;
+            delete[] maxColumnLengths;
 			this->columnNames = new std::string[noOfColumns];
 			for (int i = 0; i < noOfColumns; i++)
 			{
@@ -487,6 +492,9 @@ public:
 
 		for (int i = 0; i < noOfColumns; i++)
 		{
+            if(columnTypes[i].empty()){
+                continue;
+            }
 			if (is_column_type(newRow[i], columnTypes[i]) == false)
 			{
 				statusManager->print(StatusManager::Error,
@@ -528,7 +536,13 @@ public:
 		{
 			newRows[noOfRows][i] = newRow[i];
 		}
+
+		for (int i = 0; i < noOfRows; i++)
+		{
+            delete[] rows[i];
+		}
 		delete[] rows;
+
 		rows = newRows;
 		this->noOfRows++;
 		return 0;

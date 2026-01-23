@@ -14,8 +14,9 @@ public:
 		{
 			BaseTable::operator=(other);
 
-			this->noOfSynonyms = other.noOfSynonyms;
 
+            delete[] synonyms;
+			this->noOfSynonyms = other.noOfSynonyms;
 			this->synonyms = new std::string[noOfSynonyms];
 			for (int i = 0; i < noOfSynonyms; i++)
 			{
@@ -25,10 +26,13 @@ public:
 		return *this;
 	}
 
-	Table(const Table& other) : BaseTable(other)
+	Table(const BaseTable& other,int noOfSynonyms,std::string* synonyms) : BaseTable(other)
 	{
-		noOfSynonyms = 0;
-		synonyms = nullptr;
+		this->noOfSynonyms = noOfSynonyms;
+		this->synonyms = new std::string[noOfSynonyms];
+        for(int i = 0; i < noOfSynonyms; i++){
+            this->synonyms[i] = synonyms[i];
+        }
 	}
 
 	Table()
