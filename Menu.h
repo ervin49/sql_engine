@@ -712,12 +712,8 @@ public:
 				if (!found)
 				{
 					statusManager->print(StatusManager::Error,
-<<<<<<< Updated upstream
-										 "No matching values for '" + value + "' in column '" + columnName + "'!");
-=======
 					                     "No matching values for '" + value + "' in column '" + columnNameSearchedFor +
 					                     "'!");
->>>>>>> Stashed changes
 					show_menu_loop(table_options);
 				}
 				app->write_select_to_file(*tableWithSelectedRows, synonymName);
@@ -727,8 +723,8 @@ public:
 				delete tableWithSelectedRows;
 				for (int i = 0; i < noOfRows; i++)
 				{
-					delete rowsOfOriginalTable[i];
-					delete rowsOfNewTable[i];
+					delete[] rowsOfOriginalTable[i];
+					delete[] rowsOfNewTable[i];
 				}
 				delete[] columnsOfOriginalTable;
 				delete[] rowsOfNewTable;
@@ -794,13 +790,10 @@ public:
 				{
 					tableWithSelectedRows->print_table(std::cout, synonymName);
 					app->write_select_to_file(*tableWithSelectedRows, synonymName);
-<<<<<<< Updated upstream
 					delete[] maxColumnLengths;
 					delete[] columnTypes;
 					delete tableWithSelectedRows;
 					delete[] rowsOfOriginalTable;
-=======
->>>>>>> Stashed changes
 				}
 			}
 			else
@@ -1612,7 +1605,7 @@ public:
 		}
 		std::cout << ']' << std::endl << std::endl;
 
-		delete table;
+        delete table;
 		delete[] columns;
 	}
 };

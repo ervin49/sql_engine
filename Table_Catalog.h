@@ -235,7 +235,7 @@ public:
 		{
 			if (tables[i].getTableName() == tableName)
 			{
-				aux = new Table(tables[i]);
+				aux = new Table(tables[i],tables[i].getNoOfSynonyms(),tables[i].getSynonyms());
 				return aux;
 			}
 
