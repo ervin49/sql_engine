@@ -1,0 +1,292 @@
+#include <dirent.h>
+#include <iostream>
+#include <fstream>
+
+#include "status_manager.hpp"
+#include "table_collection.hpp"
+#include "index_collection.hpp"
+#include "globals.hpp"
+#include "app_initializer.hpp"
+
+AppInitializer::AppInitializer() = default;
+
+AppInitializer::AppInitializer(const std::string& path) { this->target_path = path; }
+
+AppInitializer::AppInitializer(const AppInitializer& other) { this->target_path = other.target_path; }
+
+AppInitializer::~AppInitializer() = default;
+
+AppInitializer& AppInitializer::operator=(const AppInitializer& other)
+{
+    if (this != &other)
+    {
+        this->target_path = other.target_path;
+    }
+    return *this;
+}
+
+bool AppInitializer::operator==(const AppInitializer& other) const { return this->target_path == other.target_path; }
+
+bool AppInitializer::operator!() const { return target_path.empty(); }
+
+char AppInitializer::operator[](int index) const
+{
+    if (index >= 0 && index < target_path.length())
+    {
+        return target_path[index];
+    }
+    return '\0';
+}
+
+std::ostream& operator<<(std::ostream& out, const AppInitializer& fc)
+{
+    out << "Path: " << fc.target_path;
+    return out;
+}
+
+AppInitializer::operator std::string() const { return this->target_path; }
+
+void AppInitializer::run(){
+    loadTables();
+    loadIndexes();
+}
+
+void AppInitializer::loadTables() const
+{
+    DIR* dir = opendir(target_path.c_str());
+    if (dir == nullptr)
+    {
+        return;
+    }
+
+    int noOfTables = -2; // we subtract "." and ".."
+    while (readdir(dir) != nullptr)
+    {
+        noOfTables++;
+    }
+    const auto tableNames = new std::string[noOfTables];
+
+    if (noOfTables <= 0)
+    {
+        closedir(dir);
+        return;
+    }
+
+    closedir(dir);
+    dir = opendir(target_path.c_str());
+
+    int currIndex = 0;
+    dirent* file;
+    while ((file = readdir(dir)))
+    {
+        std::string fileName = file->d_name;
+        if (fileName != "." && fileName != "..")
+        {
+            if (fileName.substr(fileName.length() - 4, 4) != ".bin")
+            {
+                statusManager->print(StatusManager::Error,
+                                     "File '" + fileName + "' does not have extension .bin!");
+                noOfTables--; // it's not a table
+                continue;
+            }
+
+            std::string tableName = fileName.substr(0, fileName.length() - 4);
+            tableNames[currIndex++] = tableName;
+
+            // we retrieve all data from the table file
+            std::ifstream sameFile(target_path + fileName, std::ios::binary);
+            if (!sameFile.is_open())
+            {
+                statusManager->print(StatusManager::Error, "Can't open file!");
+                return;
+            }
+
+            Table* tempTable = readTableFromFile(target_path + fileName);
+            tableCollection->addTable(*tempTable);
+            delete tempTable;
+        }
+    }
+    printRetrievedTableMessage(noOfTables, tableNames);
+}
+
+void AppInitializer::printRetrievedTableMessage(const int noOfTables, const std::string* tableNames)
+{
+    if (noOfTables == 1)
+    {
+        const std::string s = "Success: Retrieved table '" + tableNames[0] + "' successfully.";
+        std::cout << s << std::endl;
+        for (int i = 0; i < s.length(); i++)
+        {
+            std::cout << '-';
+        }
+        std::cout << std::endl;
+        return;
+    }
+
+    std::string s = "Success: Retrieved tables ";
+    for (int i = 0; i < noOfTables; i++)
+    {
+        s += "'" + tableNames[i] + "'";
+        if (i < noOfTables - 1)
+        {
+            s += ", ";
+        }
+    }
+    s += " successfully.";
+
+    std::cout << s << std::endl;
+    for (int i = 0; i < s.length(); i++)
+    {
+        std::cout << '-';
+    }
+    std::cout << std::endl;
+}
+
+Table* AppInitializer::readTableFromFile(const std::string& fileLocation)
+{
+    std::ifstream file(fileLocation, std::ios::binary);
+    int noOfRows, noOfColumns, noOfIndexes, noOfSynonyms;
+    std::string *columns, *indexNames, *columnTypes, *columnsOfIndexes, *synonyms;
+    std::string** rows;
+    unsigned int* maxColumnLengths;
+
+    // retrieve variables
+    file.read(reinterpret_cast<char*>(&noOfColumns), sizeof(int));
+    file.read(reinterpret_cast<char*>(&noOfRows), sizeof(int));
+    file.read(reinterpret_cast<char*>(&noOfIndexes), sizeof(int));
+    file.read(reinterpret_cast<char*>(&noOfSynonyms), sizeof(int));
+
+    int tableNameLength;
+    file.read(reinterpret_cast<char*>(&tableNameLength), sizeof(int));
+    std::string tableName;
+    tableName.resize(tableNameLength);
+    file.read(&tableName[0], tableNameLength);
+
+    // allocate memory
+    columns = new std::string[noOfColumns];
+    columnTypes = new std::string[noOfColumns];
+    maxColumnLengths = new unsigned int[noOfColumns];
+    rows = new std::string*[noOfRows];
+    synonyms = new std::string[noOfSynonyms];
+    for (int i = 0; i < noOfRows; i++)
+    {
+        rows[i] = new std::string[noOfColumns];
+    }
+    indexNames = new std::string[noOfIndexes];
+    columnsOfIndexes = new std::string[noOfIndexes];
+
+    // retrieve arrays
+    unsigned int len;
+    for (int i = 0; i < noOfColumns; i++)
+    {
+        file.read(reinterpret_cast<char*>(&len), sizeof(unsigned int));
+        columns[i].resize(len);
+        file.read(&columns[i][0], len);
+
+        file.read(reinterpret_cast<char*>(&len), sizeof(unsigned int));
+        columnTypes[i].resize(len);
+        file.read(&columnTypes[i][0], len);
+
+        file.read(reinterpret_cast<char*>(&maxColumnLengths[i]), sizeof(unsigned int));
+    }
+    for (int i = 0; i < noOfRows; i++)
+    {
+        for (int j = 0; j < noOfColumns; j++)
+        {
+            file.read(reinterpret_cast<char*>(&len), sizeof(unsigned int));
+            rows[i][j].resize(len);
+            file.read(&rows[i][j][0], len);
+        }
+    }
+    for (int i = 0; i < noOfIndexes; i++)
+    {
+        file.read(reinterpret_cast<char*>(&len), sizeof(unsigned int));
+        indexNames[i].resize(len);
+        file.read(&indexNames[i][0], len);
+
+        file.read(reinterpret_cast<char*>(&len), sizeof(unsigned int));
+        columnsOfIndexes[i].resize(len);
+        file.read(&columnsOfIndexes[i][0], len);
+    }
+
+    for (int i = 0; i < noOfSynonyms; i++)
+    {
+        file.read(reinterpret_cast<char*>(&len), sizeof(unsigned int));
+        synonyms[i].resize(len);
+        file.read(&synonyms[i][0], len);
+    }
+    file.close();
+
+    // set the values
+    auto table = new Table(noOfColumns, tableName);
+    for (int i = 0; i < noOfColumns; i++)
+    {
+        table->setColumn(i, columns[i]);
+    }
+    auto indexes = new Index[noOfIndexes];
+    for (int i = 0; i < noOfIndexes; i++)
+    {
+        indexes[i].setIndexName(indexNames[i]);
+        indexes[i].setTableName(tableName);
+        indexes[i].setColumnName(columnsOfIndexes[i]);
+    }
+    table->setRows(rows, noOfRows, noOfColumns);
+    table->setIndexNames(indexNames, noOfIndexes);
+    table->setColumnTypes(columnTypes, noOfColumns);
+    table->setMaxColumnLengths(maxColumnLengths, noOfColumns);
+    table->setSynonyms(synonyms, noOfSynonyms);
+    indexCollection->setIndexes(indexes, noOfIndexes);
+
+    for (int i = 0; i < noOfRows; i++)
+    {
+        delete[] rows[i];
+    }
+    delete[] rows;
+    delete[] indexes;
+    delete[] columns;
+    delete[] columnsOfIndexes;
+    delete[] columnTypes;
+    delete[] maxColumnLengths;
+    delete[] indexNames;
+    delete[] synonyms;
+    return table;
+}
+
+void AppInitializer::loadIndexes() const
+{
+    std::string fileName = "./index_catalog/index_catalog.bin";
+    std::ifstream f(fileName, std::ios::binary);
+    if (f.is_open() == false)
+    {
+        return;
+    }
+    unsigned int noOfIndexes = 0;
+    f.read(reinterpret_cast<char*>(&noOfIndexes), sizeof(unsigned int));
+
+    auto indexes = new Index[noOfIndexes];
+    std::string indexName, tableName, columnName;
+    unsigned int len;
+
+    for (int i = 0; i < noOfIndexes; i++)
+    {
+        f.read(reinterpret_cast<char*>(&len), sizeof(unsigned int));
+        indexName.resize(len);
+        f.read(&indexName[0], len);
+
+        f.read(reinterpret_cast<char*>(&len), sizeof(unsigned int));
+        tableName.resize(len);
+        f.read(&tableName[0], len);
+
+        f.read(reinterpret_cast<char*>(&len), sizeof(unsigned int));
+        columnName.resize(len);
+        f.read(&columnName[0], len);
+
+        indexes[i].setIndexName(indexName);
+        indexes[i].setTableName(tableName);
+        indexes[i].setColumnName(columnName);
+    }
+    f.close();
+
+    indexCollection->setIndexes(indexes, noOfIndexes);
+    delete[] indexes;
+}
