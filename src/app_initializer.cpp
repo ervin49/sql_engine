@@ -59,9 +59,15 @@ void AppInitializer::loadTables() const
         return;
     }
 
-    int noOfTables = -2; // we subtract "." and ".."
-    while (readdir(dir) != nullptr)
+    int noOfTables = 0; 
+    struct dirent* entry;
+    while ((entry = readdir(dir)) != nullptr)
     {
+        std::string name = entry->d_name;
+        if(name == "." || name == ".."){
+            continue;
+        }
+
         noOfTables++;
     }
     const auto tableNames = new std::string[noOfTables];
@@ -254,7 +260,7 @@ Table* AppInitializer::readTableFromFile(const std::string& fileLocation)
 
 void AppInitializer::loadIndexes() const
 {
-    std::string fileName = "./index_catalog/index_catalog.bin";
+    std::string fileName = "./indexes/index_collection.bin";
     std::ifstream f(fileName, std::ios::binary);
     if (f.is_open() == false)
     {

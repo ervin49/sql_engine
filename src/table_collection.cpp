@@ -224,19 +224,16 @@ Table* TableCollection::getTables() const
 
 Table* TableCollection::getTable(const std::string& tableName) const
 {
-    Table* aux;
     for (int i = 0; i < noOfTables; i++)
     {
         if (tables[i].getTableName() == tableName)
         {
-            aux = new Table(tables[i], tables[i].getNoOfSynonyms(), tables[i].getSynonyms());
-            return aux;
+            return &tables[i];
         }
 
         if (tables[i].hasSynonym(tableName))
         {
-            aux = new Table(tables[i]);
-            return aux;
+            return &tables[i];
         }
     }
 

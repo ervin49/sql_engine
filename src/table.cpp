@@ -57,8 +57,7 @@ Table::~Table()
 void Table::addSynonym(const std::string& newSynonym)
 {
     auto newSynonyms = new std::string[noOfSynonyms + 1];
-    for (int i = 0; i < noOfSynonyms; i++)
-    {
+    for (int i = 0; i < noOfSynonyms; i++){
         newSynonyms[i] = synonyms[i];
     }
     newSynonyms[noOfSynonyms] = newSynonym;

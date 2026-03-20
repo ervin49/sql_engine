@@ -398,7 +398,7 @@ void MainMenu::selectFrom()
         std::cout << "> ";
     }
     const std::string& synonymName = option;
-    const auto originalTable = tableCollection->getTable(synonymName);
+    Table* originalTable = tableCollection->getTable(synonymName);
 
     printAvailableColumnsOfTable(synonymName);
     std::cout << "Enter columns to select, separated by spaces, or 'ALL' to select all "
@@ -1392,6 +1392,5 @@ void MainMenu::printAvailableColumnsOfTable(const std::string& tableName)
     }
     std::cout << ']' << std::endl << std::endl;
 
-    delete table;
     delete[] columns;
 }

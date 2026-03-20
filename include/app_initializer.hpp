@@ -11,23 +11,15 @@ private:
 
 public:
     AppInitializer();
-
     AppInitializer(const std::string& path);
-
     AppInitializer(const AppInitializer& other);
-
     ~AppInitializer();
 
     AppInitializer& operator=(const AppInitializer& other);
-
     bool operator==(const AppInitializer& other) const;
-
     bool operator!() const;
-
     char operator[](int index) const;
-
     friend std::ostream& operator<<(std::ostream& out, const AppInitializer& fc);
-
     operator std::string() const;
 
 
