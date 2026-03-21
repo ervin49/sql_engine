@@ -73,6 +73,9 @@ void StatusManager::toString(Status status)
     case(Error):
         msg = "Error: ";
         break;
+    case(Info):
+        msg = "Info: ";
+        break;
     default:
         break;
     }

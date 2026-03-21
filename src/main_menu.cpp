@@ -10,13 +10,12 @@
 #include "index_collection.hpp"
 
 // indentation for status messages
-#define STATUSoFFSET 5
+#define STATUS_OFFSET 5
 
-// this is to output bold text on the console
+// output bold text on the console
 #define BOLD "\033[1m"
 
-// this is to reset the bold text, otherwise
-// all following text would be bold, not just the next word
+// reset the bold text 
 #define RESET "\033[0m"
 
 
@@ -24,42 +23,42 @@ MainMenu::MainMenu() { app = new App(); }
 
 void MainMenu::displayWelcomeMenu()
 {
-    clearScreen();
-    if (firstEnter == true)
-    {
-        AppInitializer initializer;
-        initializer.run();
-        firstEnter = false;
-    }
-
-    std::cout << std::endl;
-    std::cout << "Welcome to Sql Engine! Please choose what you want to do." << std::endl;
-    std::cout << std::endl << std::endl;
-    std::cout << "(1) Run commands using the interactive menu." << std::endl << std::endl;
-    std::cout << "(2) Run commands using plain old sql queries." << std::endl << std::endl;
-    std::cout << "(h) Display help menu." << std::endl << std::endl;
-    std::cout << "(q) Quit program." << std::endl << std::endl;
-    std::cout << BOLD << "Choice: [12hq] " << RESET;
-
     while (true)
     {
+        clearScreen();
+        std::cout << std::endl;
+        std::cout << "sql-engine";
+        std::cout << "──────────" << std::endl;
+
+        if (firstEnter == true)
+        {
+            AppInitializer* initializer = new AppInitializer;
+            initializer->run();
+            delete initializer;
+
+            firstEnter = false;
+        }
+
+        std::cout << std::endl;
+        std::cout << "Choose an option:" << std::endl<<std::endl;
+        std::cout << "  1  Interactive menu"<< std::endl;
+        std::cout << "  2  Run SQL queries" << std::endl<<std::endl;
+        std::cout << "  h  Help" << std::endl;
+        std::cout << "  q  Quit" << std::endl << std::endl;
+        std::cout << BOLD << "Choice: [12hq] " << RESET;
+
         switch (_getch())
         {
         case '1':
-            clearScreen();
             runInteractiveMenu();
             break;
         case '2':
-            clearScreen();
             app->parseCommands();
-            displayWelcomeMenu();
             break;
         case 'h':
-            clearScreen();
             helpMenu->displayHelp();
             break;
         case 'q':
-            clearScreen();
             exit(0);
         default:
             break;
@@ -69,34 +68,31 @@ void MainMenu::displayWelcomeMenu()
 
 void MainMenu::runInteractiveMenu()
 {
-    std::cout << std::endl;
-    std::cout << "Welcome to the Sql Engine interactive menu! What would you like to work with?" << std::endl
-        << std::endl
-        << std::endl;
-    std::cout << "(1) A table." << std::endl << std::endl;
-    std::cout << "(2) An index." << std::endl << std::endl;
-    std::cout << "(r) Return to the previous menu." << std::endl;
-    std::cout << "(q) Quit program." << std::endl << std::endl;
-    std::cout << BOLD << "Choice: [12rq] " << RESET;
-
-    while (true)
+    bool keepRunning = true;
+    while (keepRunning)
     {
+        clearScreen();
+        std::cout << std::endl;
+        std::cout << "Choose object type:" << std::endl
+            << std::endl;
+        std::cout << "  1  Table" << std::endl; 
+        std::cout << "  2  Index" << std::endl << std::endl;
+        std::cout << "  r  Return to previous menu" << std::endl;
+        std::cout << "  q  Quit" << std::endl << std::endl;
+        std::cout << BOLD << "Choice: [12rq] " << RESET;
+
         switch (_getch())
         {
         case '1':
-            clearScreen();
             showTableOptions();
             break;
         case '2':
-            clearScreen();
             showIndexOptions();
             break;
         case 'r':
-            clearScreen();
-            displayWelcomeMenu();
+            keepRunning = false;
             break;
         case 'q':
-            clearScreen();
             exit(0);
         default:
             break;
@@ -117,7 +113,6 @@ void MainMenu::createIndex()
         std::cin >> option;
         if (option == "return")
         {
-            clearScreen();
             return;
         }
         if (option == "quit")
@@ -186,11 +181,9 @@ void MainMenu::createIndex()
     table->addIndex(indexName);
     app->writeTableToFile(*table);
     indexCollection->writeIndexCollectionToFile();
-    statusManager->print(StatusManager::Success, "Index '" + indexName + "' created successfully!");
+    statusManager->print(StatusManager::Success, "Index '" + indexName + "' created.");
 
     delete index;
-    delete table;
-    showMenuLoop(index_options);
 }
 
 void MainMenu::dropIndex()
@@ -205,7 +198,6 @@ void MainMenu::dropIndex()
         std::cin >> option;
         if (option == "return")
         {
-            clearScreen();
             return;
         }
         if (option == "quit")
@@ -230,11 +222,9 @@ void MainMenu::dropIndex()
         table->removeIndex(option);
         indexCollection->writeIndexCollectionToFile();
 
-        statusManager->print(StatusManager::Success, "Index '" + option + "' dropped successfully!");
+        statusManager->print(StatusManager::Success, "Index '" + option + "' dropped.");
 
-        delete table;
     }
-    showMenuLoop(index_options);
 }
 
 void MainMenu::displayIndexes()
@@ -288,9 +278,9 @@ void MainMenu::displayIndexes()
 void MainMenu::showMenuLoop(MenuOptions option)
 {
     std::cout << std::endl;
-    std::cout << "What would you like to do now?" << std::endl;
-    std::cout << "(r) Return to the previous menu." << std::endl;
-    std::cout << "(q) Quit the program." << std::endl;
+    std::cout << "Choose option:" << std::endl<<std::endl;
+    std::cout << "  (r) Return to previous menu" << std::endl;
+    std::cout << "  (q) Quit program" << std::endl<<std::endl;
     std::cout << BOLD << "Choice: [rq] " << RESET;
     while (true)
     {
@@ -311,7 +301,6 @@ void MainMenu::showMenuLoop(MenuOptions option)
             }
             break;
         case 'q':
-            clearScreen();
             exit(0);
         default:
             break;
@@ -321,40 +310,34 @@ void MainMenu::showMenuLoop(MenuOptions option)
 
 void MainMenu::showIndexOptions()
 {
+    clearScreen();
     std::cout << std::endl;
-    std::cout << "What would you like to do?" << std::endl << std::endl << std::endl;
-    std::cout << "(1) Create an index." << std::endl << std::endl;
-    std::cout << "(2) Display all indexes of a table." << std::endl << std::endl;
-    std::cout << "(3) Drop an index." << std::endl << std::endl;
-    std::cout << "(r) Return to the previous menu." << std::endl;
-    std::cout << "(q) Quit program." << std::endl << std::endl;
+    std::cout << "Choose action:" << std::endl << std::endl;
+    std::cout << "  (1) Create index" << std::endl << std::endl;
+    std::cout << "  (2) Display indexes of a table" << std::endl << std::endl;
+    std::cout << "  (3) Drop index" << std::endl << std::endl;
+    std::cout << "  (r) Return to previous menu" << std::endl;
+    std::cout << "  (q) Quit program" << std::endl << std::endl;
     std::cout << BOLD << "Choice: [123rq] " << RESET;
 
+    bool keepRunning = true;
     while (true)
     {
         switch (_getch())
         {
         case '1':
-            clearScreen();
             createIndex();
-            showIndexOptions();
             break;
         case '2':
-            clearScreen();
             displayIndexes();
-            showIndexOptions();
             break;
         case '3':
-            clearScreen();
             dropIndex();
-            showIndexOptions();
             break;
         case 'r':
-            clearScreen();
-            runInteractiveMenu();
+            keepRunning = false;
             break;
         case 'q':
-            clearScreen();
             exit(0);
         default:
             break;
@@ -454,8 +437,8 @@ void MainMenu::selectFrom()
 
     std::cout << std::endl;
     std::cout << "Search based on the value of a column?" << std::endl;
-    std::cout << "(y) Yes" << std::endl;
-    std::cout << "(n) No" << std::endl;
+    std::cout << "y  Yes" << std::endl;
+    std::cout << "n  No" << std::endl;
     std::cout << BOLD << "Choice: [yn] " << RESET;
 
     bool searchWith_column_name;
@@ -722,23 +705,24 @@ void MainMenu::updateTable()
     const int whereIndex = table->returnIndexOfColumnByName(setValue);
     std::string** tableRows = table->getRows();
     const int noOfRows = table->getNoOfRows();
+    int updatedRowsCount = 0;
     for (int i = 0; i < table->getNoOfRows(); i++)
     {
         if (tableRows[i][whereIndex] == whereValue)
         {
             tableRows[i][setIndex] = setValue;
+            updatedRowsCount++;
         }
     }
     table->setRows(tableRows, table->getNoOfRows(), table->getNoOfColumns());
     app->writeTableToFile(*table);
-    statusManager->print(StatusManager::Success, "Updated table successfully!");
+    statusManager->print(StatusManager::Success, "Updated " + std::to_string(updatedRowsCount) + " rows.");
 
     for (int i = 0; i < noOfRows; i++)
     {
         delete[] tableRows[i];
     }
     delete[] tableRows;
-    delete table;
     showMenuLoop(table_options);
 }
 
@@ -800,14 +784,12 @@ void MainMenu::deleteFrom()
     }
     if (table->deleteFrom(whereColumn, whereValue) == 0)
     {
-        statusManager->print(StatusManager::Success, "Deleted successfully!");
+        statusManager->print(StatusManager::Success, "Row deleted.");
         app->writeTableToFile(*table);
-        delete table;
         showMenuLoop(table_options);
     }
     else
     {
-        delete table;
         showMenuLoop(table_options);
     }
 }
@@ -855,7 +837,7 @@ void MainMenu::dropTable()
     }
     if (tableCollection->dropTable(option) == 0)
     {
-        statusManager->print(StatusManager::Success, "Table '" + option + "' dropped successfully!");
+        statusManager->print(StatusManager::Success, "Table '" + option + "' dropped.");
         showMenuLoop(table_options);
     }
     else
@@ -923,15 +905,20 @@ void MainMenu::createSynonym()
     app->writeTableToFile(*table);
 
     statusManager->print(StatusManager::Success,
-            "Synonym '" + synonymName + "' created successfully for table '" + option + "'!");
+            "Synonym '" + synonymName + "' created for table '" + option + "'.");
     showMenuLoop(table_options);
 }
 
 void MainMenu::listTables()
 {
+    clearScreen();
     std::cout << std::endl;
-    app->listTables();
-    showMenuLoop(table_options);
+    if(tableCollection->getNoOfTables() == 0){
+        statusManager->print(StatusManager::Info, "No tables available. Create a table first.");
+    }
+    else {
+        app->listTables();
+    }
 }
 
 void MainMenu::insertInto()
@@ -1034,89 +1021,57 @@ void MainMenu::insertInto()
         app->writeTableToFile(*table);
         int noOfRows = table->getNoOfRows();
         statusManager->print(StatusManager::Success,
-                "Inserted successfully! (Total number of rows: " + std::to_string(noOfRows) + ')');
+                "Row inserted. (Total number of rows: " + std::to_string(noOfRows) + ')');
 
         delete[] columns;
         delete[] columnTypes;
         delete[] newValues;
-        delete table;
         showMenuLoop(table_options);
     }
 }
 
 void MainMenu::showTableOptions()
 {
-    std::cout << std::endl;
-    std::cout << "What would you like to do?" << std::endl << std::endl << std::endl;
-    std::cout << "(1) Create a table." << std::endl << std::endl;
-    std::cout << "(2) Create a synonym." << std::endl << std::endl;
-    std::cout << "(3) List all tables." << std::endl << std::endl;
-    std::cout << "(4) Display a table." << std::endl << std::endl;
-    std::cout << "(5) Select from a table." << std::endl << std::endl;
-    std::cout << "(6) Insert into a table." << std::endl << std::endl;
-    std::cout << "(7) Update a table." << std::endl << std::endl;
-    std::cout << "(8) Delete from a table." << std::endl << std::endl;
-    std::cout << "(9) Drop a table." << std::endl << std::endl;
-    std::cout << "(r) Return to the previous menu." << std::endl;
-    std::cout << "(q) Quit program." << std::endl << std::endl;
-    std::cout << BOLD << "Choice: [1-9rq] " << RESET;
-
-    while (true)
+    bool keepRunning = true;
+    while (keepRunning)
     {
+        clearScreen();
+        std::cout << std::endl;
+        printTableMenu();
+
         switch (_getch())
         {
         case '1':
-            clearScreen();
             createTable();
-            showTableOptions();
             break;
         case '2':
-            clearScreen();
             createSynonym();
-            showTableOptions();
             break;
         case '3':
-            clearScreen();
             listTables();
-            showTableOptions();
             break;
         case '4':
-            clearScreen();
             displayTable();
-            showTableOptions();
             break;
         case '5':
-            clearScreen();
             selectFrom();
-            showTableOptions();
             break;
         case '6':
-            clearScreen();
             insertInto();
-            showTableOptions();
             break;
         case '7':
-            clearScreen();
             updateTable();
-            showTableOptions();
             break;
         case '8':
-            clearScreen();
             deleteFrom();
-            showTableOptions();
             break;
         case '9':
-            clearScreen();
             dropTable();
-            showTableOptions();
             break;
         case 'r':
-            clearScreen();
-            runInteractiveMenu();
-            showTableOptions();
+            keepRunning = false;
             break;
         case 'q':
-            clearScreen();
             exit(0);
         default:
             break;
@@ -1126,6 +1081,7 @@ void MainMenu::showTableOptions()
 
 void MainMenu::createTable()
 {
+    clearScreen();
     std::cout << std::endl;
     std::string option;
     std::cout << "Enter table name to create (or 'return' / 'quit'):" << std::endl;
@@ -1135,7 +1091,6 @@ void MainMenu::createTable()
         std::cin >> option;
         if (option == "return")
         {
-            clearScreen();
             return;
         }
         if (option == "quit")
@@ -1255,13 +1210,11 @@ void MainMenu::createTable()
     table->setMaxColumnLengths(maxColumnLengths, noOfColumns);
     tableCollection->addTable(*table);
     app->writeTableToFile(*table);
-    statusManager->print(StatusManager::Success, "Table '" + option + "' created successfully!");
+    statusManager->print(StatusManager::Success, "Table '" + option + "' created.");
 
-    delete table;
     delete[] maxColumnLengths;
     delete[] columnTypes;
     delete[] columnNames;
-    showMenuLoop(table_options);
 }
 
 void MainMenu::displayTable()
@@ -1302,7 +1255,6 @@ void MainMenu::displayTable()
     const std::string& synonymName = option;
     tableCollection->getTable(option)->printTable(std::cout, synonymName);
     app->writeSelectToFile(*tableCollection->getTable(synonymName), synonymName);
-    showMenuLoop(table_options);
 }
 
 void MainMenu::printAvailableTables()
@@ -1310,8 +1262,7 @@ void MainMenu::printAvailableTables()
     const int noOfTables = tableCollection->getNoOfTables();
     if (noOfTables == 0)
     {
-        std::cout << "There are no available tables! Create a table first." << std::endl;
-        showMenuLoop(table_options);
+        statusManager->print(StatusManager::Info, "No tables available. Create a table first.");
         return;
     }
     const std::string msg = "Available tables: ";
@@ -1382,15 +1333,34 @@ void MainMenu::printAvailableColumnsOfTable(const std::string& tableName)
         std::cout << ' ';
     }
     std::cout << "[Available columns: ";
-    for (int i = 0; i < noOfColumns; i++)
-    {
+    for (int i = 0; i < noOfColumns; i++){
         std::cout << " " << columns[i] << " ";
-        if (i < noOfColumns - 1)
-        {
+        if (i < noOfColumns - 1){
             std::cout << "| ";
         }
     }
     std::cout << ']' << std::endl << std::endl;
 
     delete[] columns;
+}
+
+void MainMenu::printTableMenu(){
+    std::cout << "Choose action:" << std::endl << std::endl;
+    if(tableCollection->getNoOfTables() == 0) {
+        std::cout << BOLD << "  (1) Create table " <<RESET << "(recommended)"<< std::endl;
+    }
+    else {
+        std::cout << "  1  Create table" << std::endl;
+    }
+    std::cout << "  2  Create synonym" << std::endl;
+    std::cout << "  3  List tables" << std::endl;
+    std::cout << "  4  Display table" << std::endl << std::endl;
+    std::cout << "  5  Select from table" << std::endl;
+    std::cout << "  6  Insert into table" << std::endl;
+    std::cout << "  7  Update table" << std::endl;
+    std::cout << "  8  Delete from table" << std::endl << std::endl;
+    std::cout << "  9  Drop table" << std::endl << std::endl;
+    std::cout << "  r  Return to previous menu" << std::endl;
+    std::cout << "  q  Quit" << std::endl << std::endl;
+    std::cout << BOLD << "Choice: [1-9rq] " << RESET;
 }

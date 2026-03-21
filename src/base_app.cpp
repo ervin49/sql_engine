@@ -258,7 +258,8 @@ void BaseApp::parseCommand() {
     }
     else
     {
-        statusManager->print(StatusManager::Error, "Command is wrong! Please enter a new command. ");
+        statusManager->print(StatusManager::Error, "Command is wrong! Try again. ");
+        std::cout<<std::endl;
     }
 
 }
@@ -1446,7 +1447,7 @@ void BaseApp::parseCommandsFromFiles(int argc, char** argv)
 void BaseApp::parseCommands()
 {
     std::cout << "(!) Note: You can exit this program anytime by typing 'q' / 'quit' or" << std::endl
-        << "return to the main menu by typing 'menu'." << std::endl;
+        << "return to the main menu by typing 'menu'." << std::endl<<std::endl;
     while (true)
     {
         std::cout << "> ";

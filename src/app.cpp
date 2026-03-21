@@ -2,7 +2,6 @@
 #include "globals.hpp"
 #include "status_manager.hpp"
 #include "table_collection.hpp"
-
 void App::createSynonym() const
 {
     if (noOfWords != 5)

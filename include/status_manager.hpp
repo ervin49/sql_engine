@@ -19,7 +19,7 @@ class StatusManager
         bool operator!() const;
         void operator+=(const std::string& text);
 
-        enum Status { Note, Success, Error };
+        enum Status { Note, Success, Error, Info };
 
         void print(const Status status, const std::string& err);
 

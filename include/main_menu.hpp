@@ -64,4 +64,6 @@ public:
     void printAvailableTables();
 
     static void printAvailableColumnsOfTable(const std::string& tableName);
+
+    void printTableMenu();
 };

@@ -20,28 +20,27 @@ void HelpMenu::pressEnterToContinue()
 
 void HelpMenu::printSyntaxHelp()
 {
-    while (true)
+    bool keepRunning = true;
+    while (keepRunning)
     {
         clearScreen();
         std::cout << "========= SYNTAX CHEATSHEET =========" << std::endl << std::endl;
         std::cout << "Select a command to view details:" << std::endl << std::endl << std::endl;
-        std::cout << "(1) CREATE TABLE" << std::endl << std::endl;
-        std::cout << "(2) CREATE SYNONYM" << std::endl << std::endl;
-        std::cout << "(3) INSERT INTO" << std::endl << std::endl;
-        std::cout << "(4) SELECT" << std::endl << std::endl;
-        std::cout << "(5) UPDATE & DELETE" << std::endl << std::endl;
-        std::cout << "(6) INDEX Operations" << std::endl << std::endl;
-        std::cout << "(7) LIST" << std::endl << std::endl;
-        std::cout << "(r) Return to Help Menu" << std::endl;
-        std::cout << "(q) Quit program" << std::endl << std::endl;
+        std::cout << "  1  CREATE TABLE" << std::endl;
+        std::cout << "  2  CREATE SYNONYM" << std::endl<<std::endl;
+        std::cout << "  3  SELECT" << std::endl;
+        std::cout << "  4  LIST" << std::endl << std::endl;
+        std::cout << "  5  INSERT INTO" << std::endl;
+        std::cout << "  6  UPDATE & DELETE" << std::endl << std::endl;
+        std::cout << "  7  INDEX Operations" << std::endl << std::endl;
+        std::cout << "  r  Return to previous menu" << std::endl;
+        std::cout << "  q  Quit" << std::endl << std::endl;
         std::cout << BOLD << "Choice: [1-6rq] " << RESET;
-        char c = _getch();
-        c = tolower(c);
 
-        clearScreen();
-        switch (c)
+        switch (_getch())
         {
         case '1':
+            clearScreen();
             std::cout << "--- CREATE TABLE ---" << std::endl;
             std::cout << "(!) Note: What is denoted between [] is not mandatory." << std::endl << std::endl;
             std::cout << "Format: CREATE TABLE table_name [IF NOT EXISTS] ((col_name, type, size, default), ...)"
@@ -51,46 +50,52 @@ void HelpMenu::printSyntaxHelp()
             pressEnterToContinue();
             break;
         case '2':
+            clearScreen();
             std::cout << "--- CREATE SYNONYM ---" << std::endl;
             std::cout << "Format: CREATE SYNONYM synonym_name FOR table_name" << std::endl;
             std::cout << "E.g.:   CREATE SYNONYM learners FOR students" << std::endl;
             pressEnterToContinue();
             break;
         case '3':
-            std::cout << "--- INSERT INTO ---" << std::endl;
-            std::cout << "Format: INSERT INTO table_name VALUES (val1, val2, ...)" << std::endl;
-            std::cout << "E.g.:     INSERT INTO students VALUES ('Alex', 21)" << std::endl;
-            pressEnterToContinue();
-            break;
-        case '4':
+            clearScreen();
             std::cout << "--- SELECT ---" << std::endl;
             std::cout << "(!) Note: What is denoted between [] is not mandatory." << std::endl << std::endl;
             std::cout << "Format: SELECT (col1, col2, ...) | ALL FROM table_name [WHERE col = val]" << std::endl;
             std::cout << "E.g.:   SELECT name FROM students WHERE age = 21" << std::endl;
             pressEnterToContinue();
             break;
-        case '5':
-            std::cout << "--- UPDATE & DELETE ---" << std::endl;
-            std::cout << "Update: UPDATE table SET col = new_val WHERE col = target_val" << std::endl;
-            std::cout << "Delete: DELETE FROM table WHERE col = target_val" << std::endl;
-            pressEnterToContinue();
-            break;
-        case '6':
-            std::cout << "--- INDEX COMMANDS ---" << std::endl;
-            std::cout << "Create: CREATE INDEX index_name ON table_name (column_name)" << std::endl;
-            std::cout << "Drop:   DROP INDEX index_name" << std::endl;
-            pressEnterToContinue();
-            break;
-        case '7':
+        case '4':
+            clearScreen();
             std::cout << "--- LIST COMMAND ---" << std::endl;
             std::cout << "FORMAT: LIST" << std::endl;
             std::cout << "Displays all current available tables with their synonyms and indexes" << std::endl;
             pressEnterToContinue();
             break;
-        case 'r':
-            return;
-        case 'q':
+        case '5':
             clearScreen();
+            std::cout << "--- INSERT INTO ---" << std::endl;
+            std::cout << "Format: INSERT INTO table_name VALUES (val1, val2, ...)" << std::endl;
+            std::cout << "E.g.:   INSERT INTO students VALUES ('Alex', 21)" << std::endl;
+            pressEnterToContinue();
+            break;
+        case '6':
+            clearScreen();
+            std::cout << "--- UPDATE & DELETE ---" << std::endl;
+            std::cout << "Update: UPDATE table SET col = new_val WHERE col = target_val" << std::endl;
+            std::cout << "Delete: DELETE FROM table WHERE col = target_val" << std::endl;
+            pressEnterToContinue();
+            break;
+        case '7':
+            clearScreen();
+            std::cout << "--- INDEX COMMANDS ---" << std::endl;
+            std::cout << "Create: CREATE INDEX index_name ON table_name (column_name)" << std::endl;
+            std::cout << "Drop:   DROP INDEX index_name" << std::endl;
+            pressEnterToContinue();
+            break;
+        case 'r':
+            keepRunning = false;
+            break;
+        case 'q':
             exit(0);
         default:
             break;
@@ -127,7 +132,7 @@ void HelpMenu::printGeneralHelp()
 
     std::cout << "[ STORAGE LOCATIONS ]" << std::endl;
     std::cout << "  - Tables  -> ./tables" << std::endl;
-    std::cout << "  - Indexes -> ./index_catalog" << std::endl << std::endl;
+    std::cout << "  - Indexes -> ./indexes" << std::endl << std::endl;
 
     std::cout << "[ TIPS ]" << std::endl;
     std::cout << "  - Use 'q' to Quit, 'r' to Return." << std::endl;
@@ -139,40 +144,34 @@ void HelpMenu::printGeneralHelp()
 
 void HelpMenu::displayHelp()
 {
-    clearScreen();
-    std::cout << std::endl;
-    std::cout << "Help Center" << std::endl << std::endl << std::endl;
-    std::cout << "(1) Syntax guide (commands & examples)" << std::endl << std::endl;
-    std::cout << "(2) Data types reference" << std::endl << std::endl;
-    std::cout << "(3) General information" << std::endl << std::endl;
-    std::cout << "(r) Return to the previous menu." << std::endl;
-    std::cout << "(q) Quit program." << std::endl << std::endl;
-    std::cout << BOLD << "Choice: [123rq] " << RESET;
-    while (true)
+    bool keepRunning = true;
+    while (keepRunning)
     {
-        char c = _getch();
-        c = tolower(c);
-        switch (c)
+        clearScreen();
+        std::cout << std::endl;
+        std::cout << "Help Center" << std::endl << std::endl;
+        std::cout << "  1  Syntax guide (commands & examples)" << std::endl;
+        std::cout << "  2  Data types reference" << std::endl;
+        std::cout << "  3  General information" << std::endl << std::endl;
+        std::cout << "  r  Return to previous menu" << std::endl;
+        std::cout << "  q  Quit" << std::endl << std::endl;
+        std::cout << BOLD << "Choice: [123rq] " << RESET;
+
+        switch (_getch())
         {
         case '1':
-            clearScreen();
             printSyntaxHelp();
-            displayHelp();
             break;
         case '2':
-            clearScreen();
             printDatatypesHelp();
-            displayHelp();
             break;
         case '3':
-            clearScreen();
             printGeneralHelp();
-            displayHelp();
             break;
         case 'r':
-            return;
+            keepRunning = false;
+            break;
         case 'q':
-            clearScreen();
             exit(0);
         default:
             break;

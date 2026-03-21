@@ -119,17 +119,12 @@ void AppInitializer::printRetrievedTableMessage(const int noOfTables, const std:
 {
     if (noOfTables == 1)
     {
-        const std::string s = "Success: Retrieved table '" + tableNames[0] + "' successfully.";
+        const std::string s = "Table loaded: '" + tableNames[0] + "'.";
         std::cout << s << std::endl;
-        for (int i = 0; i < s.length(); i++)
-        {
-            std::cout << '-';
-        }
-        std::cout << std::endl;
         return;
     }
 
-    std::string s = "Success: Retrieved tables ";
+    std::string s = "Tables loaded: ";
     for (int i = 0; i < noOfTables; i++)
     {
         s += "'" + tableNames[i] + "'";
@@ -138,14 +133,9 @@ void AppInitializer::printRetrievedTableMessage(const int noOfTables, const std:
             s += ", ";
         }
     }
-    s += " successfully.";
+    s += ".";
 
     std::cout << s << std::endl;
-    for (int i = 0; i < s.length(); i++)
-    {
-        std::cout << '-';
-    }
-    std::cout << std::endl;
 }
 
 Table* AppInitializer::readTableFromFile(const std::string& fileLocation)
