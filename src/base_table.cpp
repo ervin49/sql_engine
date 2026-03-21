@@ -4,7 +4,7 @@
 #include "globals.hpp"
 #include "base_table.hpp"
 #include "status_manager.hpp"
-#define OFFSET 10
+#define OFFSET 3
 
 BaseTable::BaseTable(const int noOfColumns, const std::string& tableName, const std::string* columnTypes)
 {
@@ -568,20 +568,17 @@ int BaseTable::addRow(std::string* newRow, unsigned int noOfColumns)
 void BaseTable::printTable(std::ostream& out, const std::string& synonymName) const
 {
     out << std::endl;
-
     if (!synonymName.empty())
     {
         out << '[' << synonymName << ']' << std::endl;
     }
-    int* maxLengthOnColumn = new int[noOfColumns];
 
-    // initialize all the max lengths with 0
+    // find the max length of each column
+    int* maxLengthOnColumn = new int[noOfColumns];
     for (int i = 0; i < noOfColumns; i++)
     {
         maxLengthOnColumn[i] = 0;
     }
-
-    // find the max length of each column
     for (int j = 0; j < noOfColumns; j++)
     {
         for (int i = 0; i < noOfRows; i++)
@@ -601,177 +598,64 @@ void BaseTable::printTable(std::ostream& out, const std::string& synonymName) co
         }
     }
 
-    // find the sum of all lengths
-    int sum = 0;
-    for (int i = 0; i < noOfColumns; i++)
-    {
-        sum += maxLengthOnColumn[i];
-        sum += OFFSET;
-    }
-    sum -= OFFSET;
-    sum += 2 * (OFFSET / 2 - 1);
-
-    // display the first line
+    // display the line above the column names
     out << '+';
     for (int i = 0; i < noOfColumns; i++)
     {
-        for (int j = 0; j < maxLengthOnColumn[i] + OFFSET - 1; j++)
+        for (int j = 0; j < maxLengthOnColumn[i] + OFFSET * 2; j++)
         {
             out << '-';
         }
-        if (i < noOfColumns - 1)
-        {
-            out << '+';
-        }
+        out << '+';
     }
-    out << '+' << std::endl << '|';
-
-    for (int i = 0; i < OFFSET / 2 - 1; i++)
-    {
-        out << ' ';
-    }
+    out << std::endl << '|';
 
     // display the column names
     for (int i = 0; i < noOfColumns; i++)
     {
+        for (int i = 0; i < OFFSET; i++)
+        {
+            out << ' ';
+        }
         out << columnNames[i];
-
-        if (columnNames[i].length() == maxLengthOnColumn[i])
+        for (int k = 0; k < maxLengthOnColumn[i] - columnNames[i].length() + OFFSET; k++)
         {
-            for (int k = 0; k < OFFSET / 2 && i < noOfColumns - 1; k++)
-            {
-                out << ' ';
-            }
-            if (i < noOfColumns - 1)
-            {
-                out << '|';
-            }
-            for (int k = OFFSET / 2 + 1; k < OFFSET; k++)
-            {
-                out << ' ';
-            }
-            if (i == noOfColumns - 1)
-            {
-                out << ' ';
-            }
+            out << ' ';
         }
-        else
-        {
-            for (int k = 0; k < maxLengthOnColumn[i] - columnNames[i].length(); k++)
-            {
-                out << ' ';
-            }
-            for (int k = 0; k < OFFSET / 2 && i < noOfColumns - 1; k++)
-            {
-                out << ' ';
-            }
-            if (i < noOfColumns - 1)
-            {
-                out << '|';
-            }
-            if (i == noOfColumns - 1)
-            {
-                for (int k = OFFSET / 2; k < OFFSET; k++)
-                {
-                    out << ' ';
-                }
-            }
-            else
-            {
-                for (int k = OFFSET / 2 + 1; k < OFFSET; k++)
-                {
-                    out << ' ';
-                }
-            }
-        }
+        out<<'|';
     }
-
-    out << '|' << std::endl << '+';
+    out << std::endl << '+';
 
     // display the line below the column names
     for (int i = 0; i < noOfColumns; i++)
     {
-        for (int j = 0; j < maxLengthOnColumn[i] + OFFSET - 1; j++)
+        for (int j = 0; j < maxLengthOnColumn[i] + OFFSET * 2; j++)
         {
             out << '-';
         }
-        if (i < noOfColumns - 1)
-        {
-            out << '+';
-        }
+        out << '+';
     }
-
-    out << '+' << std::endl;
+    out << std::endl;
 
     // display the rows
     for (int i = 0; i < noOfRows; i++)
     {
         out << '|';
-        for (int k = 0; k < OFFSET / 2 - 1; k++)
-        {
-            out << ' ';
-        }
         for (int j = 0; j < noOfColumns; j++)
         {
+            for (int k = 0; k < OFFSET; k++)
+            {
+                out << ' ';
+            }
             out << rows[i][j];
-
-            if (rows[i][j].length() == maxLengthOnColumn[j])
+            for (int k = 0; k < maxLengthOnColumn[j] - rows[i][j].length() + OFFSET; k++)
             {
-                for (int k = 0; k < OFFSET / 2 && j < noOfColumns - 1; k++)
-                {
-                    out << ' ';
-                }
-                if (j < noOfColumns - 1)
-                {
-                    out << '|';
-                }
-                if (j == noOfColumns - 1)
-                {
-                    for (int k = 0; k < OFFSET / 2; k++)
-                    {
-                        out << ' ';
-                    }
-                }
-                else
-                {
-                    for (int k = 0; k < OFFSET / 2 - 1; k++)
-                    {
-                        out << ' ';
-                    }
-                }
+                out << ' ';
             }
-            else
-            {
-                for (int k = 0; k < maxLengthOnColumn[j] - rows[i][j].length(); k++)
-                {
-                    out << ' ';
-                }
-                for (int k = 0; k < OFFSET / 2 && j < noOfColumns - 1; k++)
-                {
-                    out << ' ';
-                }
-                if (j < noOfColumns - 1)
-                {
-                    out << '|';
-                }
-                if (j == noOfColumns - 1)
-                {
-                    for (int k = 0; k < OFFSET / 2; k++)
-                    {
-                        out << ' ';
-                    }
-                }
-                else
-                {
-                    for (int k = 0; k < OFFSET / 2 - 1; k++)
-                    {
-                        out << ' ';
-                    }
-                }
-            }
+            out<<'|';
         }
-        out << '|' << std::endl;
     }
+    out<<std::endl;
 
     // display the last line, only if we have at least a row
     if (noOfRows >= 1)
@@ -779,18 +663,14 @@ void BaseTable::printTable(std::ostream& out, const std::string& synonymName) co
         out << '+';
         for (int i = 0; i < noOfColumns; i++)
         {
-            for (int j = 0; j < maxLengthOnColumn[i] + OFFSET - 1; j++)
+            for (int j = 0; j < maxLengthOnColumn[i] + OFFSET * 2 ; j++)
             {
                 out << '-';
             }
-            if (i < noOfColumns - 1)
-            {
-                out << '+';
-            }
+            out << '+';
         }
-        out << '+' << std::endl << std::endl;
+        out << std::endl << std::endl;
     }
-
     delete[] maxLengthOnColumn;
 }
 

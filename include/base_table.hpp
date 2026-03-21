@@ -1,7 +1,7 @@
 #pragma once
 #include <iostream>
 #include <string>
-#define OFFSET 10
+#define OFFSET 3
 
 class BaseTable
 {

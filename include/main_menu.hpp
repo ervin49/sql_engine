@@ -17,13 +17,6 @@ class MainMenu
 private:
     App* app;
     bool firstEnter = true;
-
-    enum MenuOptions
-    {
-        table_options,
-        index_options
-    };
-
 public:
     MainMenu();
 
@@ -36,8 +29,6 @@ public:
     void dropIndex();
 
     void displayIndexes();
-
-    void showMenuLoop(MenuOptions option);
 
     void showIndexOptions();
 
@@ -64,4 +55,6 @@ public:
     static void printAvailableColumnsOfTable(const std::string& tableName);
 
     void printTableMenu();
+
+    void pressAnyKeyToContinue();
 };

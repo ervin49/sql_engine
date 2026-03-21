@@ -27,8 +27,8 @@ void MainMenu::displayWelcomeMenu()
     {
         clearScreen();
         std::cout << std::endl;
-        std::cout << "sql-engine";
-        std::cout << "──────────" << std::endl;
+        std::cout << "sql-engine"<<std::endl;
+        std::cout << "──────────────────────────────" << std::endl;
 
         if (firstEnter == true)
         {
@@ -102,6 +102,7 @@ void MainMenu::runInteractiveMenu()
 
 void MainMenu::createIndex()
 {
+    clearScreen();
     std::cout << std::endl;
     std::string option, columnName;
     tableCollection->printTables();
@@ -182,12 +183,15 @@ void MainMenu::createIndex()
     app->writeTableToFile(*table);
     indexCollection->writeIndexCollectionToFile();
     statusManager->print(StatusManager::Success, "Index '" + indexName + "' created.");
-
     delete index;
+
+    _getch();
+    pressAnyKeyToContinue();
 }
 
 void MainMenu::dropIndex()
 {
+    clearScreen();
     std::cout << std::endl;
     std::cout << "Enter index name to drop (or 'return' / 'quit'):" << std::endl;
     std::cout << "> ";
@@ -223,12 +227,15 @@ void MainMenu::dropIndex()
         indexCollection->writeIndexCollectionToFile();
 
         statusManager->print(StatusManager::Success, "Index '" + option + "' dropped.");
-
     }
+
+    _getch();
+    pressAnyKeyToContinue();
 }
 
 void MainMenu::displayIndexes()
 {
+    clearScreen();
     std::cout << std::endl;
     const int noOfTables = tableCollection->getNoOfTables();
     if (noOfTables == 0)
@@ -268,44 +275,12 @@ void MainMenu::displayIndexes()
     if (indexCollection->getNoOfIndexesOfTableByName(tableName) == 0)
     {
         std::cout << "Table '" << option << "' does not have any index!" << std::endl;
-        showMenuLoop(index_options);
     }
 
     indexCollection->printIndexesOfTableByName(tableName);
-    showMenuLoop(index_options);
-}
 
-void MainMenu::showMenuLoop(MenuOptions option)
-{
-    std::cout << std::endl;
-    std::cout << "Choose option:" << std::endl<<std::endl;
-    std::cout << "  (r) Return to previous menu" << std::endl;
-    std::cout << "  (q) Quit program" << std::endl<<std::endl;
-    std::cout << BOLD << "Choice: [rq] " << RESET;
-    while (true)
-    {
-        switch (_getch())
-        {
-        case 'r':
-            clearScreen();
-            switch (option)
-            {
-            case index_options:
-                showIndexOptions();
-                break;
-            case table_options:
-                showTableOptions();
-                break;
-            default:
-                break;
-            }
-            break;
-        case 'q':
-            exit(0);
-        default:
-            break;
-        }
-    }
+    _getch();
+    pressAnyKeyToContinue();
 }
 
 void MainMenu::showIndexOptions()
@@ -313,15 +288,15 @@ void MainMenu::showIndexOptions()
     clearScreen();
     std::cout << std::endl;
     std::cout << "Choose action:" << std::endl << std::endl;
-    std::cout << "  (1) Create index" << std::endl << std::endl;
-    std::cout << "  (2) Display indexes of a table" << std::endl << std::endl;
-    std::cout << "  (3) Drop index" << std::endl << std::endl;
-    std::cout << "  (r) Return to previous menu" << std::endl;
-    std::cout << "  (q) Quit program" << std::endl << std::endl;
+    std::cout << "  1  Create index" << std::endl;
+    std::cout << "  2  Display indexes of table"<<std::endl;
+    std::cout << "  3  Drop index" << std::endl << std::endl;
+    std::cout << "  r  Return to previous menu" << std::endl;
+    std::cout << "  q  Quit" << std::endl << std::endl;
     std::cout << BOLD << "Choice: [123rq] " << RESET;
 
     bool keepRunning = true;
-    while (true)
+    while (keepRunning)
     {
         switch (_getch())
         {
@@ -347,6 +322,7 @@ void MainMenu::showIndexOptions()
 
 void MainMenu::selectFrom()
 {
+    clearScreen();
     std::cout << std::endl;
     tableCollection->printTables();
     const int noOfTables = tableCollection->getNoOfTables();
@@ -441,7 +417,7 @@ void MainMenu::selectFrom()
     std::cout << "n  No" << std::endl;
     std::cout << BOLD << "Choice: [yn] " << RESET;
 
-    bool searchWith_column_name;
+    bool searchWithColumnName;
     std::string columnNameSearchedFor, value;
     while (true)
     {
@@ -465,10 +441,10 @@ void MainMenu::selectFrom()
                 std::cout << "Enter column value to search for, separated by spaces:" << std::endl;
                 std::cout << "> ";
             }
-            searchWith_column_name = true;
+            searchWithColumnName = true;
             break;
         case 'n':
-            searchWith_column_name = false;
+            searchWithColumnName = false;
             break;
         default:
             statusManager->print(StatusManager::Error, "You need to enter a valid option!");
@@ -478,15 +454,18 @@ void MainMenu::selectFrom()
         }
         break;
     }
+
+    std::string** rowsOfOriginalTable = originalTable->getRows();
+    auto* tableWithSelectedColumnsOnly = new Table(noOfSelectedColumns, "");
+    const int noOfRows = originalTable->getNoOfRows();
+    const int noOfColumns = originalTable->getNoOfColumns();
+    std::string** rowsOfNewTable = tableWithSelectedColumnsOnly->getRows();
+    auto* tableWithSelectedRows = new Table(noOfColumns, "");
+    std::string* columnTypes = originalTable->getColumnTypes();
+    unsigned int* maxColumnLengths = originalTable->getMaxColumnLengths();
+    const auto* columnsOfOriginalTable = originalTable->getColumns();
     if (checkForAll == false)
     {
-        auto* tableWithSelectedColumnsOnly = new Table(noOfSelectedColumns, "");
-
-        tableWithSelectedColumnsOnly->setNoOfRows(originalTable->getNoOfRows());
-        const auto* columnsOfOriginalTable = originalTable->getColumns();
-        const int noOfRows = originalTable->getNoOfRows();
-        std::string** rowsOfOriginalTable = originalTable->getRows();
-        std::string** rowsOfNewTable = tableWithSelectedColumnsOnly->getRows();
         const int noOfColumnsOfOriginalTable = originalTable->getNoOfColumns();
         // set the column names
         for (int i = 0; i < noOfSelectedColumns; i++)
@@ -495,10 +474,11 @@ void MainMenu::selectFrom()
         }
 
         // set the row values, only on the columns that we need
-        int k = 0;
-        while (k < noOfSelectedColumns)
+        tableWithSelectedColumnsOnly->setNoOfRows(originalTable->getNoOfRows());
+        for(int k = 0; k < noOfSelectedColumns; k++)
         {
-            for (int i = 0; i < noOfColumnsOfOriginalTable && k < noOfSelectedColumns; i++)
+            bool columnFound = false;
+            for (int i = 0; i < noOfColumnsOfOriginalTable; i++)
             {
                 if (columnsOfOriginalTable[i] == selectedColumns[k])
                 {
@@ -506,13 +486,19 @@ void MainMenu::selectFrom()
                     {
                         rowsOfNewTable[j][k] = rowsOfOriginalTable[j][i];
                     }
-                    k++;
+
+                    columnFound = true;
+                    break;
                 }
+            }
+            if(!columnFound){
+                statusManager->print(StatusManager::Error, "Column '" + selectedColumns[k] + "' does not exist!");
+                return;
             }
         }
         tableWithSelectedColumnsOnly->setRows(rowsOfNewTable, noOfRows, noOfSelectedColumns);
 
-        if (searchWith_column_name == true)
+        if (searchWithColumnName == true)
         {
             const auto tableWithSelectedRows = new Table(noOfSelectedColumns, "");
             for (int i = 0; i < noOfSelectedColumns; i++)
@@ -532,55 +518,33 @@ void MainMenu::selectFrom()
                     }
                 }
             }
-            if (!found)
-            {
+            if (!found){
                 statusManager->print(StatusManager::Error,
                         "No matching values for '" + value + "' in column '" + columnNameSearchedFor +
                         "'!");
-                showMenuLoop(table_options);
+            } 
+            else{
+                app->writeSelectToFile(*tableWithSelectedRows, synonymName);
+                tableWithSelectedRows->printTable(std::cout, synonymName);
             }
-            app->writeSelectToFile(*tableWithSelectedRows, synonymName);
-            tableWithSelectedRows->printTable(std::cout, synonymName);
 
-            delete tableWithSelectedColumnsOnly;
-            delete tableWithSelectedRows;
-            for (int i = 0; i < noOfRows; i++)
-            {
-                delete[] rowsOfOriginalTable[i];
-                delete[] rowsOfNewTable[i];
-            }
-            delete[] columnsOfOriginalTable;
-            delete[] rowsOfNewTable;
-            delete[] rowsOfOriginalTable;
+            _getch();
+            pressAnyKeyToContinue();
         }
         else
         {
             app->writeSelectToFile(*tableWithSelectedColumnsOnly, synonymName);
             tableWithSelectedColumnsOnly->printTable(std::cout, synonymName);
 
-            delete tableWithSelectedColumnsOnly;
-            for (int i = 0; i < noOfRows; i++)
-            {
-                delete rowsOfOriginalTable[i];
-                delete rowsOfNewTable[i];
-            }
-            delete[] columnsOfOriginalTable;
-            delete[] rowsOfNewTable;
-            delete[] rowsOfOriginalTable;
+            pressAnyKeyToContinue();
         }
     }
     else
     {
-        if (searchWith_column_name == true)
+        if (searchWithColumnName == true)
         {
             bool found = false;
             const int index = originalTable->returnIndexOfColumnByName(columnNameSearchedFor);
-            const int noOfRows = originalTable->getNoOfRows();
-            const int noOfColumns = originalTable->getNoOfColumns();
-            std::string** rowsOfOriginalTable = originalTable->getRows();
-            auto* tableWithSelectedRows = new Table(noOfColumns, "");
-            std::string* columnTypes = originalTable->getColumnTypes();
-            unsigned int* maxColumnLengths = originalTable->getMaxColumnLengths();
             tableWithSelectedRows->setMaxColumnLengths(maxColumnLengths, noOfColumns);
             tableWithSelectedRows->setColumnTypes(columnTypes, noOfColumns);
 
@@ -613,19 +577,28 @@ void MainMenu::selectFrom()
             {
                 tableWithSelectedRows->printTable(std::cout, synonymName);
                 app->writeSelectToFile(*tableWithSelectedRows, synonymName);
-                delete[] maxColumnLengths;
-                delete[] columnTypes;
-                delete tableWithSelectedRows;
-                delete[] rowsOfOriginalTable;
+                pressAnyKeyToContinue();
             }
         }
         else
         {
             tableCollection->getTable(option)->printTable(std::cout, synonymName);
             app->writeSelectToFile(*tableCollection->getTable(synonymName), synonymName);
+            _getch();
+            pressAnyKeyToContinue();
         }
     }
-    showMenuLoop(table_options);
+    for(int i = 0; i < noOfRows; i++){
+        delete[] rowsOfNewTable[i];
+        delete[] rowsOfOriginalTable[i];
+    }
+                delete[] maxColumnLengths;
+                delete[] columnTypes;
+    delete tableWithSelectedRows;
+    delete[] rowsOfOriginalTable;
+    delete[] rowsOfNewTable;
+    delete tableWithSelectedColumnsOnly;
+    delete[] columnsOfOriginalTable;
 }
 
 void MainMenu::updateTable()
@@ -723,7 +696,9 @@ void MainMenu::updateTable()
         delete[] tableRows[i];
     }
     delete[] tableRows;
-    showMenuLoop(table_options);
+
+    _getch();
+    pressAnyKeyToContinue();
 }
 
 void MainMenu::deleteFrom()
@@ -786,12 +761,10 @@ void MainMenu::deleteFrom()
     {
         statusManager->print(StatusManager::Success, "Row deleted.");
         app->writeTableToFile(*table);
-        showMenuLoop(table_options);
     }
-    else
-    {
-        showMenuLoop(table_options);
-    }
+
+    _getch();
+    pressAnyKeyToContinue();
 }
 
 void MainMenu::dropTable()
@@ -833,17 +806,14 @@ void MainMenu::dropTable()
     if (remove(("./tables/" + actualTableName + ".bin").data()) != 0)
     {
         statusManager->print(StatusManager::Error, "Could not remove file '" + actualTableName + ".bin'!");
-        showMenuLoop(table_options);
     }
     if (tableCollection->dropTable(option) == 0)
     {
         statusManager->print(StatusManager::Success, "Table '" + option + "' dropped.");
-        showMenuLoop(table_options);
     }
-    else
-    {
-        showMenuLoop(table_options);
-    }
+
+    _getch();
+    pressAnyKeyToContinue();
 }
 
 void MainMenu::createSynonym()
@@ -906,7 +876,9 @@ void MainMenu::createSynonym()
 
     statusManager->print(StatusManager::Success,
             "Synonym '" + synonymName + "' created for table '" + option + "'.");
-    showMenuLoop(table_options);
+
+    _getch();
+    pressAnyKeyToContinue();
 }
 
 void MainMenu::listTables()
@@ -919,10 +891,12 @@ void MainMenu::listTables()
     else {
         app->listTables();
     }
+    pressAnyKeyToContinue();
 }
 
 void MainMenu::insertInto()
 {
+    clearScreen();
     std::cout << std::endl;
     tableCollection->printTables();
     const int noOfTables = tableCollection->getNoOfTables();
@@ -1026,8 +1000,10 @@ void MainMenu::insertInto()
         delete[] columns;
         delete[] columnTypes;
         delete[] newValues;
-        showMenuLoop(table_options);
     }
+
+    _getch();
+    pressAnyKeyToContinue();
 }
 
 void MainMenu::showTableOptions()
@@ -1049,6 +1025,7 @@ void MainMenu::showTableOptions()
             break;
         case '3':
             listTables();
+            showTableOptions();
             break;
         case '4':
             displayTable();
@@ -1140,7 +1117,7 @@ void MainMenu::createTable()
         }
     }
 
-    std::cout << "Enter attribute details separated by spaces (Name, Type, Length, Default): " << std::endl;
+    std::cout << "Enter column details separated by spaces (Name, Type, Length, Default): " << std::endl;
     std::cout << "[E.g.: id INTEGER 30 0]" << std::endl;
     const auto columnNames = new std::string[noOfColumns];
     const auto columnTypes = new std::string[noOfColumns];
@@ -1211,14 +1188,17 @@ void MainMenu::createTable()
     tableCollection->addTable(*table);
     app->writeTableToFile(*table);
     statusManager->print(StatusManager::Success, "Table '" + option + "' created.");
-
     delete[] maxColumnLengths;
     delete[] columnTypes;
     delete[] columnNames;
+
+    _getch();
+    pressAnyKeyToContinue();
 }
 
 void MainMenu::displayTable()
 {
+    clearScreen();
     std::cout << std::endl;
     tableCollection->printTables();
     const int noOfTables = tableCollection->getNoOfTables();
@@ -1255,6 +1235,9 @@ void MainMenu::displayTable()
     const std::string& synonymName = option;
     tableCollection->getTable(option)->printTable(std::cout, synonymName);
     app->writeSelectToFile(*tableCollection->getTable(synonymName), synonymName);
+
+    _getch();
+    pressAnyKeyToContinue();
 }
 
 void MainMenu::printAvailableColumnsOfTable(const std::string& tableName)
@@ -1294,7 +1277,7 @@ void MainMenu::printAvailableColumnsOfTable(const std::string& tableName)
 void MainMenu::printTableMenu(){
     std::cout << "Choose action:" << std::endl << std::endl;
     if(tableCollection->getNoOfTables() == 0) {
-        std::cout << BOLD << "  (1) Create table " <<RESET << "(recommended)"<< std::endl;
+        std::cout << BOLD << "  1  Create table " <<RESET << "(recommended)"<< std::endl;
     }
     else {
         std::cout << "  1  Create table" << std::endl;
@@ -1310,4 +1293,9 @@ void MainMenu::printTableMenu(){
     std::cout << "  r  Return to previous menu" << std::endl;
     std::cout << "  q  Quit" << std::endl << std::endl;
     std::cout << BOLD << "Choice: [1-9rq] " << RESET;
+}
+
+void MainMenu::pressAnyKeyToContinue(){
+    std::cout<<std::endl<<"Press any key to continue...";
+    _getch();
 }
