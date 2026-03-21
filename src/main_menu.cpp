@@ -104,7 +104,7 @@ void MainMenu::createIndex()
 {
     std::cout << std::endl;
     std::string option, columnName;
-    printAvailableTables();
+    tableCollection->printTables();
     std::cout << "Enter table name (or 'return' / 'quit'):" << std::endl;
     std::cout << "> ";
 
@@ -154,7 +154,7 @@ void MainMenu::createIndex()
         else if (indexCollection->hasIndex(tableName, columnName) == true)
         {
             statusManager->print(StatusManager::Error,
-                    "Table '" + option + "' already has an index on column '" + columnName + "'!");
+                    "Column '" + columnName + "' is already indexed!");
             std::cout << std::endl;
             std::cout << "Enter column to index:" << std::endl;
             std::cout << "> ";
@@ -237,7 +237,7 @@ void MainMenu::displayIndexes()
         return;
     }
 
-    printAvailableTables();
+    tableCollection->printTables();
     std::cout << "Enter table name to display indexes (or 'return' / 'quit'):" << std::endl;
     std::cout << "> ";
 
@@ -348,7 +348,7 @@ void MainMenu::showIndexOptions()
 void MainMenu::selectFrom()
 {
     std::cout << std::endl;
-    printAvailableTables();
+    tableCollection->printTables();
     const int noOfTables = tableCollection->getNoOfTables();
     if (noOfTables == 0)
     {
@@ -631,7 +631,7 @@ void MainMenu::selectFrom()
 void MainMenu::updateTable()
 {
     std::cout << std::endl;
-    printAvailableTables();
+    tableCollection->printTables();
     const int noOfTables = tableCollection->getNoOfTables();
     if (noOfTables == 0)
     {
@@ -729,7 +729,7 @@ void MainMenu::updateTable()
 void MainMenu::deleteFrom()
 {
     std::cout << std::endl;
-    printAvailableTables();
+    tableCollection->printTables();
     const int noOfTables = tableCollection->getNoOfTables();
     if (noOfTables == 0)
     {
@@ -797,7 +797,7 @@ void MainMenu::deleteFrom()
 void MainMenu::dropTable()
 {
     std::cout << std::endl;
-    printAvailableTables();
+    tableCollection->printTables();
     const int noOfTables = tableCollection->getNoOfTables();
     if (noOfTables == 0)
     {
@@ -849,7 +849,7 @@ void MainMenu::dropTable()
 void MainMenu::createSynonym()
 {
     std::cout << std::endl;
-    printAvailableTables();
+    tableCollection->printTables();
     const int noOfTables = tableCollection->getNoOfTables();
     if (noOfTables == 0)
     {
@@ -924,7 +924,7 @@ void MainMenu::listTables()
 void MainMenu::insertInto()
 {
     std::cout << std::endl;
-    printAvailableTables();
+    tableCollection->printTables();
     const int noOfTables = tableCollection->getNoOfTables();
     if (noOfTables == 0)
     {
@@ -1220,7 +1220,7 @@ void MainMenu::createTable()
 void MainMenu::displayTable()
 {
     std::cout << std::endl;
-    printAvailableTables();
+    tableCollection->printTables();
     const int noOfTables = tableCollection->getNoOfTables();
     if (noOfTables == 0)
     {
@@ -1255,59 +1255,6 @@ void MainMenu::displayTable()
     const std::string& synonymName = option;
     tableCollection->getTable(option)->printTable(std::cout, synonymName);
     app->writeSelectToFile(*tableCollection->getTable(synonymName), synonymName);
-}
-
-void MainMenu::printAvailableTables()
-{
-    const int noOfTables = tableCollection->getNoOfTables();
-    if (noOfTables == 0)
-    {
-        statusManager->print(StatusManager::Info, "No tables available. Create a table first.");
-        return;
-    }
-    const std::string msg = "Available tables: ";
-    std::cout << msg;
-    const Table* tables = tableCollection->getTables();
-    int totalMessageLength = msg.length();
-    for (int i = 0; i < noOfTables; i++)
-    {
-        const std::string tableName = tables[i].getTableName();
-        std::cout << tableName;
-        totalMessageLength += tableName.length();
-        const int noOfSynonyms = tables[i].getNoOfSynonyms();
-        if (noOfSynonyms > 0)
-        {
-            totalMessageLength += 2; // both parentheses
-            std::cout << "[";
-
-            const std::string* synonyms = tables[i].getSynonyms();
-            for (int j = 0; j < noOfSynonyms; j++)
-            {
-                const std::string& synonym = synonyms[j];
-                std::cout << synonym;
-                totalMessageLength += synonym.length();
-                if (j < noOfSynonyms - 1)
-                {
-                    std::cout << ", ";
-                    totalMessageLength += 2;
-                }
-            }
-            std::cout << "]";
-        }
-        if (i < noOfTables - 1)
-        {
-            std::cout << ", ";
-            totalMessageLength += 2;
-        }
-    }
-
-    std::cout << std::endl;
-    for (int i = 0; i < totalMessageLength; i++)
-    {
-        std::cout << '-';
-    }
-    std::cout << std::endl << std::endl;
-    delete[] tables;
 }
 
 void MainMenu::printAvailableColumnsOfTable(const std::string& tableName)

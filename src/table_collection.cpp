@@ -70,16 +70,16 @@ TableCollection& TableCollection::operator=(const TableCollection& that)
 
 TableCollection::operator int() const { return this->noOfTables; }
 
-bool TableCollection::operator==(const TableCollection& table_catalog) const
+bool TableCollection::operator==(const TableCollection& tableCollection) const
 {
-    if (this->noOfTables != table_catalog.noOfTables)
+    if (this->noOfTables != tableCollection.noOfTables)
     {
         return false;
     }
 
     for (int i = 0; i < noOfTables; i++)
     {
-        if (this->tables[i] != table_catalog.tables[i])
+        if (this->tables[i] != tableCollection.tables[i])
         {
             return false;
         }
@@ -93,9 +93,9 @@ void TableCollection::operator+=(const Table& t) { this->addTable(t); }
 
 bool TableCollection::operator!() const { return noOfTables == 0; }
 
-std::ostream& operator<<(std::ostream& out, const TableCollection& table_catalog)
+std::ostream& operator<<(std::ostream& out, const TableCollection& tableCollection)
 {
-    table_catalog.printTables();
+    tableCollection.printTables();
     return out;
 }
 
@@ -125,18 +125,18 @@ int TableCollection::dropTable(const std::string& tableName)
         return -1;
     }
 
-    auto* auxCatalog = new TableCollection;
+    auto* aux = new TableCollection;
     for (int i = 0; i < noOfTables; i++)
     {
         if (i == index)
             continue;
-        auxCatalog->addTable(tables[i]);
+        aux->addTable(tables[i]);
     }
 
     delete[] this->tables;
-    this->tables = auxCatalog->getTables();
+    this->tables = aux->getTables();
     this->setNoOfTables(noOfTables - 1);
-    delete auxCatalog;
+    delete aux;
     return 0;
 }
 
@@ -270,15 +270,54 @@ void TableCollection::setNoOfTables(const int newNoOfTables)
     this->noOfTables = newNoOfTables;
 }
 
-// print all the tables
 void TableCollection::printTables() const
 {
-    std::cout << std::endl;
-    for (const Table* p = &tables[0]; p < &tables[noOfTables]; p++)
+    if (noOfTables == 0)
     {
-        p->printTable(std::cout, p->getTableName());
-        std::cout << std::endl << std::endl;
+        statusManager->print(StatusManager::Info, "No tables available. Create a table first.");
+        return;
     }
+    const std::string msg = "Available tables: ";
+    std::cout << msg;
+    int totalMessageLength = msg.length();
+    for (int i = 0; i < noOfTables; i++)
+    {
+        const std::string tableName = tables[i].getTableName();
+        std::cout << tableName;
+        totalMessageLength += tableName.length();
+        const int noOfSynonyms = tables[i].getNoOfSynonyms();
+        if (noOfSynonyms > 0)
+        {
+            totalMessageLength += 2; // both parentheses
+            std::cout << "[";
+
+            const std::string* synonyms = tables[i].getSynonyms();
+            for (int j = 0; j < noOfSynonyms; j++)
+            {
+                const std::string& synonym = synonyms[j];
+                std::cout << synonym;
+                totalMessageLength += synonym.length();
+                if (j < noOfSynonyms - 1)
+                {
+                    std::cout << ", ";
+                    totalMessageLength += 2;
+                }
+            }
+            std::cout << "]";
+        }
+        if (i < noOfTables - 1)
+        {
+            std::cout << ", ";
+            totalMessageLength += 2;
+        }
+    }
+
+    std::cout << std::endl;
+    for (int i = 0; i < totalMessageLength; i++)
+    {
+        std::cout << '-';
+    }
+    std::cout << std::endl << std::endl;
 }
 
 bool TableCollection::synonymExists(const std::string& synonym) const

@@ -21,9 +21,8 @@ class TableCollection
         bool operator!() const;
         friend std::ostream& operator<<(std::ostream& out, const TableCollection& table_catalog);
 
-        int dropTable(const std::string& tableName);
-
         int addTable(const Table& newTable);
+        int dropTable(const std::string& tableName);
 
         bool tableExists(const std::string& tableName) const;
         bool synonymExists(const std::string& synonym) const;
@@ -35,10 +34,8 @@ class TableCollection
         Table* getTables() const;
         Table* getTable(const std::string& tableName) const;
 
-
         void setTables(const Table* newTables, int newNoOfTables);
         void setNoOfTables(const int newNoOfTables);
 
         void printTables() const;
-
 };
